@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Daily Vaak Sahib</title>
+    <link rel="stylesheet" href="styles.css">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+</head>
+<body>
+    <div class="container">
+        <h1>Daily Vaak Sahib</h1>
+        <div style="display:flex; gap:10px; margin-bottom:20px;">
+            <input type="date" id="publicDate" onchange="loadPublic()">
+            <select id="gurudwaraFilter" onchange="renderPublic(window.publicData)">
+                <option value="all">All Gurudwaras</option>
+            </select>
+        </div>
+        <div id="publicGrid" class="grid">Loading...</div>
+        <footer style="margin-top:30px; text-align:center;">
+            <a href="admin.html">Editor Portal Login</a>
+        </footer>
+    </div>
+    <script src="app.js"></script>
+    <script>
+        document.getElementById('publicDate').valueAsDate = new Date();
+        loadPublic();
+    </script>
+</body>
+</html>
