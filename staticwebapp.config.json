@@ -1,0 +1,25 @@
+{
+  "routes": [
+    {
+      "route": "/admin.html",
+      "allowedRoles": ["editor", "super_admin"]
+    },
+    {
+      "route": "/api/Admin*",
+      "allowedRoles": ["super_admin"]
+    },
+    {
+      "route": "/api/Editor*",
+      "allowedRoles": ["editor", "super_admin"]
+    }
+  ],
+  "responseOverrides": {
+    "401": {
+      "redirect": "/.auth/login/aad",
+      "statusCode": 302
+    }
+  },
+  "navigationFallback": {
+    "rewrite": "/index.html"
+  }
+}
