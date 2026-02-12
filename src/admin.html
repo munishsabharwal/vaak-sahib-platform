@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Admin Portal - Vaak Sahib</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="container">
+        <header style="display:flex; justify-content:space-between; align-items:center;">
+            <h1>Admin Portal</h1>
+            <div id="userDisplay"></div>
+        </header>
+
+        <div class="tabs">
+            <button onclick="openTab('publishTab')">Publish Daily Vaak</button>
+            <button class="super-admin-only hidden" onclick="openTab('editorsTab')">Manage Editors</button>
+            <button class="super-admin-only hidden" onclick="openTab('libraryTab')">Manage Library</button>
+            <button onclick="window.location.href='/.auth/logout'">Logout</button>
+        </div>
+
+        <div id="publishTab" class="tab-content active">
+            <h2>Search Library & Publish</h2>
+            <div style="display:flex; gap:10px;">
+                <input type="date" id="publishDate">
+                <input type="text" id="libSearch" placeholder="Search Keywords (Gurmukhi)..." onkeyup="searchLibrary()">
+            </div>
+            <div id="libResults" class="grid"></div>
+        </div>
+
+        <div id="editorsTab" class="tab-content">
+            <h2>Register/Invite Editor</h2>
+            <p>Enter details here first, then send them the Azure Invite Link.</p>
+            <div class="grid" style="grid-template-columns: 1fr 1fr;">
+                <input id="edEmail" placeholder="Email (must match Azure Invite)">
+                <input id="edFn" placeholder="First Name">
+                <input id="edLn" placeholder="Last Name">
+                <input id="edGn" placeholder="Gurudwara Name">
+                <input id="edLoc" placeholder="Gurudwara Location">
+                <input id="edCom" placeholder="Comments">
+            </div>
+            <button class="btn-success" onclick="saveEditor()">Save Profile</button>
+        </div>
+
+        <div id="libraryTab" class="tab-content">
+            <h2>Bulk Import</h2>
+            <p>Paste JSON array: <code>[{"pageNumber": "10", "keywords": "love, peace", "verse": "..."}]</code></p>
+            <textarea id="bulkJson" rows="10"></textarea>
+            <button class="btn-success" onclick="bulkImport()">Run Import</button>
+        </div>
+    </div>
+    <script src="app.js"></script>
+    <script>
+        document.getElementById('publishDate').valueAsDate = new Date();
+        initAdmin();
+    </script>
+</body>
+</html>
