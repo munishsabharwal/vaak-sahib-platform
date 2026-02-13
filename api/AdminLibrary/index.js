@@ -1,38 +1,33 @@
-const { library } = require('../Shared/cosmos');
+const { CosmosClient } = require("@azure/cosmos");
+const client = new CosmosClient(process.env.COSMOS_DB_CONNECTION_STRING);
 
 module.exports = async function (context, req) {
-    // GET: Search Library
-    if (req.method === "GET") {
-        const keyword = req.query.keyword || "";
-        // Search Partition Key (Page) OR Keywords
-        const querySpec = {
-            query: "SELECT * FROM c WHERE CONTAINS(c.keywords, @kw) OR CONTAINS(c.pageNumber, @kw)",
-            parameters: [{ name: "@kw", value: keyword }]
-        };
-        const { resources: items } = await library.items.query(querySpec).fetchAll();
-        context.res = { body: items };
-    } 
-    // POST: Bulk Import
-    else if (req.method === "POST") {
-        const items = req.body; 
-        if (!Array.isArray(items)) {
-            context.res = { status: 400, body: "Input must be an array" };
-            return;
-        }
+    try {
+        const container = client.database("VaakDb").container("Library");
 
-        let count = 0;
-        for (const item of items) {
-            // Create Unique ID: Page + Hash of text to prevent duplicates
-            const uniqueId = `${item.pageNumber}-${item.verse.substring(0, 10).replace(/\s/g, '')}`;
-            
-            await library.items.upsert({
-                id: uniqueId,
-                pageNumber: item.pageNumber.toString(), // Partition Key
-                keywords: item.keywords,
-                verse: item.verse
-            });
-            count++;
+        if (req.method === "GET") {
+            const keyword = req.query.keyword || "";
+            const querySpec = {
+                query: "SELECT * FROM c WHERE CONTAINS(c.keywords, @kw) OR CONTAINS(c.pageNumber, @kw)",
+                parameters: [{ name: "@kw", value: keyword }]
+            };
+            const { resources: items } = await container.items.query(querySpec).fetchAll();
+            context.res = { body: items };
+        } 
+        else if (req.method === "POST") {
+            const items = req.body;
+            for (const item of items) {
+                const uniqueId = `${item.pageNumber}-${item.verse.substring(0, 10).replace(/\s/g, '')}`;
+                await container.items.upsert({
+                    id: uniqueId,
+                    pageNumber: item.pageNumber.toString(),
+                    keywords: item.keywords,
+                    verse: item.verse
+                });
+            }
+            context.res = { body: `Successfully processed ${items.length} items.` };
         }
-        context.res = { body: `Imported ${count} verses.` };
+    } catch (err) {
+        context.res = { status: 500, body: err.message };
     }
 };
