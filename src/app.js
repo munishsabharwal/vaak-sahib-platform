@@ -172,7 +172,7 @@ async function loadLibraryTable() {
 
     try {
         // Reuse the AdminLibrary API (GET)
-        const res = await fetch(`/api/AdminLibrary?keyword=${encodeURIComponent(searchVal)}`);
+        const url = searchVal ? `/api/AdminLibrary?keyword=${encodeURIComponent(searchVal)}` : `/api/AdminLibrary`;
         const data = await res.json();
 
         if (data.length === 0) {
