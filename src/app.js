@@ -2,14 +2,30 @@
 async function loadPublic() {
     const dateInput = document.getElementById('publicDate');
     const date = dateInput ? dateInput.value : new Date().toISOString().split('T')[0];
+    const container = document.getElementById('publicGrid');
     
+    container.innerHTML = '<p>Loading...</p>';
+
     try {
         const res = await fetch(`/api/GetDailyVaak?date=${date}`);
+        
+        // If API fails (e.g. 500 Error), throw an error
+        if (!res.ok) {
+            throw new Error(`API Error: ${res.status} ${res.statusText}`);
+        }
+
         const data = await res.json();
         window.publicData = data; 
         renderPublic(data);
         populateFilter(data);
-    } catch (e) { console.error("Error loading data", e); }
+
+    } catch (e) {
+        console.error(e);
+        container.innerHTML = `<div style="color:red; padding:20px; border:1px solid red;">
+            <strong>System Error:</strong> ${e.message}<br>
+            <small>Please check the Browser Console (F12) and Azure Configuration.</small>
+        </div>`;
+    }
 }
 
 function renderPublic(data) {
