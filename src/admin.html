@@ -41,13 +41,37 @@
             <button class="btn-success" onclick="saveEditor()">Save Profile</button>
         </div>
 
-        <div id="libraryTab" class="tab-content">
-            <h2>Bulk Import</h2>
-            <p>Paste JSON array: <code>[{"pageNumber": "10", "keywords": "love, peace", "verse": "..."}]</code></p>
-            <textarea id="bulkJson" rows="10"></textarea>
-            <button class="btn-success" onclick="bulkImport()">Run Import</button>
-        </div>
+<div id="libraryTab" class="tab-content">
+    <h2>Library Management</h2>
+    
+    <div style="display:flex; gap:10px; margin-bottom: 20px;">
+        <input type="text" id="libAdminSearch" placeholder="Filter by Page or Keyword..." style="flex-grow: 1;">
+        <button class="btn-primary" onclick="loadLibraryTable()" style="width: auto;">Search / Refresh</button>
+        <button class="btn-success" onclick="document.getElementById('importModal').classList.toggle('hidden')" style="width: auto;">+ Bulk Import</button>
     </div>
+
+    <div id="importModal" class="hidden" style="background: #f9f9f9; padding: 15px; border: 1px dashed #ccc; margin-bottom: 20px;">
+        <h3>Bulk Import Verses</h3>
+        <p><small>Paste JSON array: <code>[{"pageNumber": "10", "keywords": "love", "verse": "..."}]</code></small></p>
+        <textarea id="bulkJson" rows="5"></textarea>
+        <button class="btn-success" onclick="bulkImport()">Run Import</button>
+    </div>
+
+    <div style="overflow-x: auto;">
+        <table style="width: 100%; border-collapse: collapse; background: white;">
+            <thead>
+                <tr style="background: #f4f7f6; text-align: left;">
+                    <th style="padding: 12px; border: 1px solid #ddd;">Page</th>
+                    <th style="padding: 12px; border: 1px solid #ddd;">Gurmukhi Verse</th>
+                    <th style="padding: 12px; border: 1px solid #ddd;">Keywords</th>
+                    <th style="padding: 12px; border: 1px solid #ddd;">Action</th>
+                </tr>
+            </thead>
+            <tbody id="libraryTableBody">
+                </tbody>
+        </table>
+    </div>
+</div>
     <script src="app.js"></script>
     <script>
         document.getElementById('publishDate').valueAsDate = new Date();
