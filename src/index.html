@@ -15,20 +15,23 @@
             </select>
         </div>
         <div id="publicGrid" class="grid">Loading...</div>
+
         <footer style="margin-top:30px; text-align:center;">
-            <a href="admin.html">Editor Portal Login</a>
+            <!-- Login via Azure AD, then land on /admin.html -->
+            <a href="/.auth/login/aad?post_login_redirect_uri=%2Fadmin.html">Editor Portal Login</a>
         </footer>
     </div>
+
     <script src="app.js"></script>
-<script>
-    // Get local date in YYYY-MM-DD format
-    const today = new Date();
-    const localDate = today.getFullYear() + '-' 
-        + String(today.getMonth() + 1).padStart(2, '0') + '-' 
-        + String(today.getDate()).padStart(2, '0');
-    
-    document.getElementById('publicDate').value = localDate;
-    loadPublic();
-</script>
+    <script>
+        // Get local date in YYYY-MM-DD format
+        const today = new Date();
+        const localDate = today.getFullYear() + '-' 
+            + String(today.getMonth() + 1).padStart(2, '0') + '-' 
+            + String(today.getDate()).padStart(2, '0');
+        
+        document.getElementById('publicDate').value = localDate;
+        loadPublic();
+    </script>
 </body>
 </html>
