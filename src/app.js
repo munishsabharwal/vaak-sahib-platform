@@ -171,16 +171,23 @@ async function loadLibraryTable() {
     tableBody.innerHTML = '<tr><td colspan="4" style="text-align:center; padding:20px;">Fetching library records...</td></tr>';
 
     try {
-        // Reuse the AdminLibrary API (GET)
-        const url = searchVal ? `/api/AdminLibrary?keyword=${encodeURIComponent(searchVal)}` : `/api/AdminLibrary`;
-        const data = await res.json();
+        // Construct URL safely
+        const url = searchVal 
+            ? `/api/AdminLibrary?keyword=${encodeURIComponent(searchVal)}` 
+            : `/api/AdminLibrary`;
 
-        if (data.length === 0) {
+        const response = await fetch(url);
+        
+        if (!response.ok) throw new Error(`Server responded with ${response.status}`);
+        
+        const data = await response.json();
+
+        if (!data || data.length === 0) {
             tableBody.innerHTML = '<tr><td colspan="4" style="text-align:center; padding:20px;">No records found.</td></tr>';
             return;
         }
 
-        // Sort by Page Number numerically
+        // Sort by Page Number
         data.sort((a, b) => parseInt(a.pageNumber) - parseInt(b.pageNumber));
 
         tableBody.innerHTML = data.map(item => `
@@ -189,14 +196,35 @@ async function loadLibraryTable() {
                 <td class="gurmukhi" style="padding: 10px; border: 1px solid #ddd; font-size: 1.1rem;">${item.verse}</td>
                 <td style="padding: 10px; border: 1px solid #ddd; font-size: 0.85rem; color: #666;">${item.keywords}</td>
                 <td style="padding: 10px; border: 1px solid #ddd; text-align:center;">
-                    <button class="btn-danger" style="padding: 5px 10px; font-size: 0.7rem;" onclick="deleteLibraryItem('${item.id}', '${item.pageNumber}')">Delete</button>
+                    <button class="btn-danger" style="padding: 5px 10px; font-size: 0.7rem;" 
+                        onclick="deleteLibraryItem('${item.id}', '${item.pageNumber}')">Delete</button>
                 </td>
             </tr>
         `).join('');
 
     } catch (e) {
-        console.error("Failed to load library table:", e);
-        tableBody.innerHTML = '<tr><td colspan="4" style="color:red; text-align:center;">Error loading library.</td></tr>';
+        console.error("Library Table Error:", e);
+        tableBody.innerHTML = `<tr><td colspan="4" style="color:red; text-align:center;">Error: ${e.message}</td></tr>`;
+    }
+}
+
+// Add the Delete Function to app.js
+async function deleteLibraryItem(id, pageNumber) {
+    if (!confirm("Are you sure you want to delete this verse from the library?")) return;
+
+    try {
+        const res = await fetch(`/api/AdminLibrary?id=${id}&page=${pageNumber}`, {
+            method: 'DELETE'
+        });
+
+        if (res.ok) {
+            alert("Deleted successfully");
+            loadLibraryTable(); // Refresh the table
+        } else {
+            alert("Delete failed: " + await res.text());
+        }
+    } catch (e) {
+        alert("Error deleting: " + e.message);
     }
 }
 
@@ -213,3 +241,11 @@ function openTab(name) {
         loadLibraryTable();
     }
 }
+window.loadLibraryTable = loadLibraryTable;
+window.deleteLibraryItem = deleteLibraryItem;
+window.searchLibrary = searchLibrary;
+window.publishVaak = publishVaak;
+window.saveEditor = saveEditor;
+window.bulkImport = bulkImport;
+window.openTab = openTab;
+window.loadPublic = loadPublic;
