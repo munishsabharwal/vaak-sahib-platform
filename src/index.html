@@ -20,9 +20,15 @@
         </footer>
     </div>
     <script src="app.js"></script>
-    <script>
-        document.getElementById('publicDate').valueAsDate = new Date();
-        loadPublic();
-    </script>
+<script>
+    // Get local date in YYYY-MM-DD format
+    const today = new Date();
+    const localDate = today.getFullYear() + '-' 
+        + String(today.getMonth() + 1).padStart(2, '0') + '-' 
+        + String(today.getDate()).padStart(2, '0');
+    
+    document.getElementById('publicDate').value = localDate;
+    loadPublic();
+</script>
 </body>
 </html>
