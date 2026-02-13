@@ -201,6 +201,15 @@ async function loadLibraryTable() {
 }
 
 function openTab(name) {
+    console.log("Switching to tab:", name);
     document.querySelectorAll('.tab-content').forEach(d => d.classList.remove('active'));
-    document.getElementById(name).classList.add('active');
+    document.querySelectorAll('.tabs button').forEach(b => b.classList.remove('active'));
+    
+    const target = document.getElementById(name);
+    if(target) target.classList.add('active');
+
+    // NEW: If switching to library tab, load the data automatically
+    if(name === 'libraryTab') {
+        loadLibraryTable();
+    }
 }
