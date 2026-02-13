@@ -1,6 +1,9 @@
 {
   "name": "vaak-api",
   "version": "1.0.0",
+  "engines": {
+    "node": ">=20.0.0"
+  },
   "dependencies": {
     "@azure/cosmos": "^3.17.3"
   }
