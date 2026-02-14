@@ -167,25 +167,31 @@ async function publishVaak(event, item) {
 }
 // SUPER ADMIN: Add Editor
 async function saveEditor() {
-    const editor = {
-        email: document.getElementById('edEmail').value,
-        firstName: document.getElementById('edFn').value,
-        lastName: document.getElementById('edLn').value,
-        gurudwaraName: document.getElementById('edGn').value,
-        gurudwaraLocation: document.getElementById('edLoc').value,
-        comments: document.getElementById('edCom').value
+const editorData = {
+        firstName: document.getElementById('editFirstName').value,
+        lastName: document.getElementById('editLastName').value,
+        email: document.getElementById('editEmail').value,
+        gurudwaraName: document.getElementById('editGurudwara').value,
+        gurudwaraLocation: document.getElementById('editLocation').value,
+        status: 'Active'
     };
 
-    const res = await fetch('/api/AdminEditors', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(editor)
-    });
+    try {
+        const res = await fetch('/api/AdminEditors', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(editorData)
+        });
 
-    if(res.ok) {
-        alert("Editor profile saved.");
-    } else {
-        alert("Error saving editor.");
+        if (res.ok) {
+            alert("Editor Saved!");
+            // Optional: clear form or refresh list
+        } else {
+            const err = await res.text();
+            alert("Error: " + err);
+        }
+    } catch (e) {
+        alert("Network error saving editor.");
     }
 }
 
