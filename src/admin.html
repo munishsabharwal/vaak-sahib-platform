@@ -45,7 +45,10 @@
     <h2>Library Management</h2>
     
     <div style="display:flex; gap:10px; margin-bottom: 20px;">
-        <input type="text" id="libAdminSearch" placeholder="Filter by Page or Keyword..." style="flex-grow: 1;">
+        <input type="text" id="libAdminSearch" 
+       placeholder="Filter by Page or Keyword..." 
+       onkeyup="if(event.key === 'Enter') loadLibraryTable()" 
+       style="flex-grow: 1;">
         <button class="btn-primary" onclick="loadLibraryTable()" style="width: auto;">Search / Refresh</button>
         <button class="btn-success" onclick="document.getElementById('importModal').classList.toggle('hidden')" style="width: auto;">+ Bulk Import</button>
     </div>
