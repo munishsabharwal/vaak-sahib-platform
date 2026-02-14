@@ -173,8 +173,8 @@ async function loadLibraryTable() {
     try {
         // Construct URL safely
         const url = searchVal 
-            ? `/api/AdminLibrary?keyword=${encodeURIComponent(searchVal)}` 
-            : `/api/AdminLibrary`;
+            ? `/api/LibraryManager?keyword=${encodeURIComponent(searchVal)}` 
+            : `/api/LibraryManager`;
 
         const response = await fetch(url);
         
