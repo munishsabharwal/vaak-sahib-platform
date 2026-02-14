@@ -92,19 +92,41 @@ async function initAdmin() {
 // LIBRARY: Search
 async function searchLibrary() {
     const kw = document.getElementById('libSearch').value;
-    if(kw.length < 2) return;
-
-    const res = await fetch(`/api/AdminLibrary?keyword=${encodeURIComponent(kw)}`);
-    const data = await res.json();
+    const resultsContainer = document.getElementById('libResults');
     
-    document.getElementById('libResults').innerHTML = data.map(item => `
-        <div class="card">
-            <strong>Page: ${item.pageNumber}</strong>
-            <p class="gurmukhi">${item.verse}</p>
-            <p class="meta">Keywords: ${item.keywords}</p>
-            <button class="btn-success" onclick='publishVaak(${JSON.stringify(item)})'>Publish This</button>
-        </div>
-    `).join('');
+    if (kw.length < 1) {
+        resultsContainer.innerHTML = '<p>Please enter a page number or keyword.</p>';
+        return;
+    }
+
+    resultsContainer.innerHTML = '<p>Searching library...</p>';
+
+    try {
+        // Updated to use the working LibraryManager API
+        const res = await fetch(`/api/LibraryManager?keyword=${encodeURIComponent(kw)}`);
+        if (!res.ok) throw new Error("Search failed");
+        
+        const data = await res.json();
+        
+        if (data.length === 0) {
+            resultsContainer.innerHTML = '<p>No matching verses found in the library.</p>';
+            return;
+        }
+
+        resultsContainer.innerHTML = data.map(item => `
+            <div class="card" style="margin-bottom: 15px; border-left: 5px solid #2c3e50;">
+                <strong>Page: ${item.pageNumber}</strong>
+                <p class="gurmukhi" style="font-size: 1.3rem; margin: 10px 0;">${item.verse}</p>
+                <p class="meta">Keywords: ${item.keywords}</p>
+                <button class="btn-success" onclick='publishVaak(${JSON.stringify(item).replace(/'/g, "&#39;")})'>
+                    Publish to Homepage
+                </button>
+            </div>
+        `).join('');
+    } catch (e) {
+        console.error("Search failed:", e);
+        resultsContainer.innerHTML = `<p style="color:red">Error: ${e.message}</p>`;
+    }
 }
 
 // EDITOR: Publish
