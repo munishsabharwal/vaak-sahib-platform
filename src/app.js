@@ -130,23 +130,56 @@ async function publishVaak(event, item) {
 }
 
 async function saveEditor() {
-    const data = {
-        firstName: document.getElementById('editFirstName').value,
-        lastName: document.getElementById('editLastName').value,
-        email: document.getElementById('editEmail').value,
-        gurudwaraName: document.getElementById('editGurudwara').value,
-        gurudwaraLocation: document.getElementById('editLocation').value,
+    // 1. Get references
+    const elEmail = document.getElementById('editEmail');
+    const elFn = document.getElementById('editFirstName');
+    const elLn = document.getElementById('editLastName');
+    const elGn = document.getElementById('editGurudwara');
+    const elLoc = document.getElementById('editLocation');
+
+    // 2. Validate elements exist to stop the "Null" error
+    if (!elEmail || !elFn) {
+        console.error("Form elements missing from HTML");
+        alert("System Error: HTML IDs do not match JavaScript.");
+        return;
+    }
+
+    const editorData = {
+        firstName: elFn.value.trim(),
+        lastName: elLn.value.trim(),
+        email: elEmail.value.trim().toLowerCase(),
+        gurudwaraName: elGn.value.trim(),
+        gurudwaraLocation: elLoc.value.trim(),
         status: 'Active'
     };
 
+    if (!editorData.email) {
+        alert("Email is required.");
+        return;
+    }
+
     try {
-        const res = await fetch('/api/AdminEditors', { // Updated to match renamed API
+        // Use exactly 'AdminEditors' as seen in your Azure Portal
+        const res = await fetch('api/AdminEditors', { 
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify(data)
+            body: JSON.stringify(editorData)
         });
-        alert(res.ok ? "Editor Saved!" : "Error: " + await res.text());
-    } catch (e) { alert("Network error."); }
+
+        if (res.status === 404) {
+            throw new Error("API Route not found on server. Check case sensitivity.");
+        }
+
+        if (res.ok) {
+            alert("✅ Editor profile saved successfully!");
+        } else {
+            const errText = await res.text();
+            alert("❌ Server Error: " + errText);
+        }
+    } catch (e) {
+        console.error("Fetch Error:", e);
+        alert("❌ Network Error: " + e.message);
+    }
 }
 
 async function bulkImport() {
