@@ -118,7 +118,7 @@ async function searchLibrary() {
                 <strong>Page: ${item.pageNumber}</strong>
                 <p class="gurmukhi" style="font-size: 1.3rem; margin: 10px 0;">${item.verse}</p>
                 <p class="meta">Keywords: ${item.keywords}</p>
-                <button class="btn-success" onclick='publishVaak(${JSON.stringify(item).replace(/'/g, "&#39;")})'>
+                <button class="btn-success" onclick='publishVaak(event, ${JSON.stringify(item).replace(/'/g, "&#39;")})'>
                     Publish to Homepage
                 </button>
             </div>
@@ -130,55 +130,41 @@ async function searchLibrary() {
 }
 
 // EDITOR: Publish
-async function publishVaak(item) {
+async function publishVaak(event, item) {
+    const btn = event.target; // Now this will work!
     const date = document.getElementById('publishDate').value;
     
-    // 1. Double check the date
     if (!date) {
         alert("Please select a date first.");
         return;
     }
 
-    if (!confirm(`Are you sure you want to publish this Vaak for ${date}?`)) return;
+    if (!confirm(`Are you sure you want to publish this for ${date}?`)) return;
 
-    // Optional: Visual feedback that it's working
-    const originalBtnText = event.target.innerText;
-    event.target.innerText = "Publishing...";
-    event.target.disabled = true;
+    const originalText = btn.innerText;
+    btn.innerText = "Publishing...";
+    btn.disabled = true;
 
     try {
         const res = await fetch('/api/EditorPublish', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ 
-                verseItem: item, 
-                date: date 
-            })
+            body: JSON.stringify({ verseItem: item, date: date })
         });
 
+        const msg = await res.text();
         if (res.ok) {
-            // SUCCESS
-            alert("✅ Success! The Vaak Sahib has been published to the homepage.");
-            // Optional: Redirect to homepage to see it
-            // window.location.href = "/index.html";
+            alert("✅ " + msg);
         } else {
-            // ERROR (e.g., 403 Forbidden or 500 Internal Error)
-            const errorText = await res.text();
-            alert("❌ Failed to publish: " + errorText);
+            alert("❌ " + msg);
         }
     } catch (e) {
-        // NETWORK ERROR
-        console.error("Publishing error:", e);
-        alert("❌ Network Error: Could not connect to the server.");
+        alert("❌ Error: " + e.message);
     } finally {
-        // Reset button state
-        if (event.target) {
-            event.target.innerText = originalBtnText;
-            event.target.disabled = false;
-        }
+        btn.innerText = originalText;
+        btn.disabled = false;
     }
 }
-
 // SUPER ADMIN: Add Editor
 async function saveEditor() {
     const editor = {
