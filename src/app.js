@@ -140,7 +140,7 @@ async function saveEditor() {
     };
 
     try {
-        const res = await fetch('/api/SaveEditor', { // Updated to match renamed API
+        const res = await fetch('/api/EditorPublish', { // Updated to match renamed API
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify(data)
