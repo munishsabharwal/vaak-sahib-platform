@@ -168,11 +168,12 @@ async function publishVaak(event, item) {
 // SUPER ADMIN: Add Editor
 async function saveEditor() {
 const editorData = {
-        firstName: document.getElementById('editFirstName').value,
-        lastName: document.getElementById('editLastName').value,
-        email: document.getElementById('editEmail').value,
-        gurudwaraName: document.getElementById('editGurudwara').value,
-        gurudwaraLocation: document.getElementById('editLocation').value,
+        firstName: document.getElementById('edFn').value,
+        lastName: document.getElementById('edLn').value,
+        email: document.getElementById('edEmail').value,
+        gurudwaraName: document.getElementById('edGn').value,
+        gurudwaraLocation: document.getElementById('edLoc').value,
+        gurudwaraComment: document.getElementById('edCom').value   
         status: 'Active'
     };
 
