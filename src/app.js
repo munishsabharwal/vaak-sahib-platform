@@ -160,7 +160,7 @@ async function saveEditor() {
 
     try {
         // Use exactly 'AdminEditors' as seen in your Azure Portal
-        const res = await fetch('/api/AdminEditors', { 
+        const res = await fetch('/api/ManageEditors', { 
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify(editorData)
