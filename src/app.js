@@ -132,17 +132,50 @@ async function searchLibrary() {
 // EDITOR: Publish
 async function publishVaak(item) {
     const date = document.getElementById('publishDate').value;
-    const res = await fetch('/api/EditorPublish', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ verseItem: item, date: date })
-    });
     
-    if(res.ok) {
-        alert("Published successfully!");
-        searchLibrary(); // Refresh
-    } else {
-        alert("Error: " + await res.text());
+    // 1. Double check the date
+    if (!date) {
+        alert("Please select a date first.");
+        return;
+    }
+
+    if (!confirm(`Are you sure you want to publish this Vaak for ${date}?`)) return;
+
+    // Optional: Visual feedback that it's working
+    const originalBtnText = event.target.innerText;
+    event.target.innerText = "Publishing...";
+    event.target.disabled = true;
+
+    try {
+        const res = await fetch('/api/EditorPublish', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ 
+                verseItem: item, 
+                date: date 
+            })
+        });
+
+        if (res.ok) {
+            // SUCCESS
+            alert("✅ Success! The Vaak Sahib has been published to the homepage.");
+            // Optional: Redirect to homepage to see it
+            // window.location.href = "/index.html";
+        } else {
+            // ERROR (e.g., 403 Forbidden or 500 Internal Error)
+            const errorText = await res.text();
+            alert("❌ Failed to publish: " + errorText);
+        }
+    } catch (e) {
+        // NETWORK ERROR
+        console.error("Publishing error:", e);
+        alert("❌ Network Error: Could not connect to the server.");
+    } finally {
+        // Reset button state
+        if (event.target) {
+            event.target.innerText = originalBtnText;
+            event.target.disabled = false;
+        }
     }
 }
 
