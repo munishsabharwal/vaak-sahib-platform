@@ -8,23 +8,14 @@ async function loadPublic() {
 
     try {
         const res = await fetch(`/api/GetDailyVaak?date=${date}`);
-        
-        // If API fails (e.g. 500 Error), throw an error
-        if (!res.ok) {
-            throw new Error(`API Error: ${res.status} ${res.statusText}`);
-        }
+        if (!res.ok) throw new Error(`API Error: ${res.status}`);
 
         const data = await res.json();
-        window.publicData = data; 
         renderPublic(data);
         populateFilter(data);
 
     } catch (e) {
-        console.error(e);
-        container.innerHTML = `<div style="color:red; padding:20px; border:1px solid red;">
-            <strong>System Error:</strong> ${e.message}<br>
-            <small>Please check the Browser Console (F12) and Azure Configuration.</small>
-        </div>`;
+        container.innerHTML = `<div style="color:red; padding:20px; border:1px solid red;"><strong>Error:</strong> ${e.message}</div>`;
     }
 }
 
@@ -32,7 +23,6 @@ function renderPublic(data) {
     const filter = document.getElementById('gurudwaraFilter').value.toLowerCase();
     const container = document.getElementById('publicGrid');
     container.innerHTML = '';
-    
     const filtered = (filter === 'all') ? data : data.filter(i => i.gurudwaraName.toLowerCase() === filter);
 
     if(filtered.length === 0) {
@@ -46,20 +36,14 @@ function renderPublic(data) {
                 <span class="tag">${item.gurudwaraName}</span>
                 <span class="meta" style="float:right">${item.gurudwaraLocation}</span>
                 <p class="gurmukhi">${item.verse}</p>
-                <div class="meta">
-                    <strong>Page:</strong> ${item.pageNumber} <br>
-                    <small>Editor: ${item.editorName}</small>
-                </div>
-            </div>
-        `;
+                <div class="meta"><strong>Page:</strong> ${item.pageNumber} <br><small>Editor: ${item.editorName}</small></div>
+            </div>`;
     });
 }
 
 function populateFilter(data) {
     const select = document.getElementById('gurudwaraFilter');
-    // Keep "All" option, clear rest
     select.innerHTML = '<option value="all">All Gurudwaras</option>'; 
-    
     const uniques = [...new Set(data.map(i => i.gurudwaraName))];
     uniques.forEach(g => {
         const opt = document.createElement('option');
@@ -71,77 +55,64 @@ function populateFilter(data) {
 
 /* --- ADMIN LOGIC --- */
 async function initAdmin() {
-    // 1. Check Authentication
     const res = await fetch('/.auth/me');
     const auth = await res.json();
     const user = auth.clientPrincipal;
 
     if (!user) {
-        window.location.href = "/.auth/login/aad"; // Force Login
+        window.location.href = "/.auth/login/aad";
         return;
     }
 
     document.getElementById('userDisplay').innerText = `User: ${user.userDetails}`;
-
-    // 2. Show Super Admin Tabs if authorized
     if (user.userRoles.includes('super_admin')) {
         document.querySelectorAll('.super-admin-only').forEach(el => el.classList.remove('hidden'));
     }
+    loadRecentActivity(); // Initial load of activity
 }
 
-// LIBRARY: Search
+async function loadRecentActivity() {
+    const body = document.getElementById('recentActivityBody');
+    if (!body) return;
+
+    try {
+        const res = await fetch('/api/GetRecentActivity');
+        const data = await res.json();
+        body.innerHTML = data.length === 0 ? '<tr><td colspan="3">No recent activity.</td></tr>' : 
+            data.map(item => `
+                <tr>
+                    <td>${item.date}</td>
+                    <td>${item.gurudwaraName}</td>
+                    <td class="gurmukhi">${item.verse.substring(0, 40)}...</td>
+                </tr>`).join('');
+    } catch (e) {
+        body.innerHTML = '<tr><td colspan="3">Error loading activity.</td></tr>';
+    }
+}
+
 async function searchLibrary() {
     const kw = document.getElementById('libSearch').value;
     const resultsContainer = document.getElementById('libResults');
-    
-    if (kw.length < 1) {
-        resultsContainer.innerHTML = '<p>Please enter a page number or keyword.</p>';
-        return;
-    }
-
-    resultsContainer.innerHTML = '<p>Searching library...</p>';
+    if (kw.length < 1) return;
 
     try {
-        // Updated to use the working LibraryManager API
         const res = await fetch(`/api/LibraryManager?keyword=${encodeURIComponent(kw)}`);
-        if (!res.ok) throw new Error("Search failed");
-        
         const data = await res.json();
-        
-        if (data.length === 0) {
-            resultsContainer.innerHTML = '<p>No matching verses found in the library.</p>';
-            return;
-        }
-
-        resultsContainer.innerHTML = data.map(item => `
-            <div class="card" style="margin-bottom: 15px; border-left: 5px solid #2c3e50;">
-                <strong>Page: ${item.pageNumber}</strong>
-                <p class="gurmukhi" style="font-size: 1.3rem; margin: 10px 0;">${item.verse}</p>
-                <p class="meta">Keywords: ${item.keywords}</p>
-                <button class="btn-success" onclick='publishVaak(event, ${JSON.stringify(item).replace(/'/g, "&#39;")})'>
-                    Publish to Homepage
-                </button>
-            </div>
-        `).join('');
-    } catch (e) {
-        console.error("Search failed:", e);
-        resultsContainer.innerHTML = `<p style="color:red">Error: ${e.message}</p>`;
-    }
+        resultsContainer.innerHTML = data.length === 0 ? '<p>No results.</p>' : 
+            data.map(item => `
+                <div class="card" style="margin-bottom: 15px; border-left: 5px solid #2c3e50;">
+                    <strong>Page: ${item.pageNumber}</strong>
+                    <p class="gurmukhi">${item.verse}</p>
+                    <button class="btn-success" onclick='publishVaak(event, ${JSON.stringify(item).replace(/'/g, "&#39;")})'>Publish</button>
+                </div>`).join('');
+    } catch (e) { resultsContainer.innerHTML = 'Error searching.'; }
 }
 
-// EDITOR: Publish
 async function publishVaak(event, item) {
-    const btn = event.target; // Now this will work!
+    const btn = event.target;
     const date = document.getElementById('publishDate').value;
-    
-    if (!date) {
-        alert("Please select a date first.");
-        return;
-    }
+    if (!date || !confirm(`Publish for ${date}?`)) return;
 
-    if (!confirm(`Are you sure you want to publish this for ${date}?`)) return;
-
-    const originalText = btn.innerText;
     btn.innerText = "Publishing...";
     btn.disabled = true;
 
@@ -151,23 +122,15 @@ async function publishVaak(event, item) {
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ verseItem: item, date: date })
         });
-
         const msg = await res.text();
-        if (res.ok) {
-            alert("✅ " + msg);
-        } else {
-            alert("❌ " + msg);
-        }
-    } catch (e) {
-        alert("❌ Error: " + e.message);
-    } finally {
-        btn.innerText = originalText;
-        btn.disabled = false;
-    }
+        alert(res.ok ? "✅ " + msg : "❌ " + msg);
+        if(res.ok) loadRecentActivity();
+    } catch (e) { alert("Error: " + e.message); }
+    finally { btn.innerText = "Publish"; btn.disabled = false; }
 }
-// SUPER ADMIN: Add Editor
+
 async function saveEditor() {
-const editorData = {
+    const data = {
         firstName: document.getElementById('editFirstName').value,
         lastName: document.getElementById('editLastName').value,
         email: document.getElementById('editEmail').value,
@@ -177,112 +140,62 @@ const editorData = {
     };
 
     try {
-        const res = await fetch('/api/AdminEditors', {
+        const res = await fetch('/api/SaveEditor', { // Updated to match renamed API
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify(editorData)
+            body: JSON.stringify(data)
         });
-
-        if (res.ok) {
-            alert("Editor Saved!");
-            // Optional: clear form or refresh list
-        } else {
-            const err = await res.text();
-            alert("Error: " + err);
-        }
-    } catch (e) {
-        alert("Network error saving editor.");
-    }
+        alert(res.ok ? "Editor Saved!" : "Error: " + await res.text());
+    } catch (e) { alert("Network error."); }
 }
 
-// SUPER ADMIN: Bulk Import
 async function bulkImport() {
-    const jsonText = document.getElementById('bulkJson').value;
     try {
-        const json = JSON.parse(jsonText);
-        const res = await fetch('/api/AdminLibrary', {
+        const json = JSON.parse(document.getElementById('bulkJson').value);
+        const res = await fetch('/api/LibraryManager', { // Points to working Library API
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify(json)
         });
         alert(await res.text());
-    } catch (e) {
-        alert("Invalid JSON format");
-    }
+        loadLibraryTable();
+    } catch (e) { alert("Invalid JSON"); }
 }
 
 async function loadLibraryTable() {
     const tableBody = document.getElementById('libraryTableBody');
-    const searchVal = document.getElementById('libAdminSearch').value.trim(); // Get search text
-    
-    tableBody.innerHTML = '<tr><td colspan="4" style="text-align:center; padding:20px;">Searching...</td></tr>';
+    const searchVal = document.getElementById('libAdminSearch').value.trim();
+    const url = searchVal ? `/api/LibraryManager?keyword=${encodeURIComponent(searchVal)}` : `/api/LibraryManager`;
 
     try {
-        // Build URL: if searchVal exists, append it as a query string
-        const url = searchVal 
-            ? `/api/LibraryManager?keyword=${encodeURIComponent(searchVal)}` 
-            : `/api/LibraryManager`;
-
-        const response = await fetch(url);
-        if (!response.ok) throw new Error(`Error ${response.status}`);
-        
-        const data = await response.json();
-
-        if (data.length === 0) {
-            tableBody.innerHTML = '<tr><td colspan="4" style="text-align:center; padding:20px;">No records found.</td></tr>';
-            return;
-        }
-
-        // Render the table rows
+        const res = await fetch(url);
+        const data = await res.json();
         tableBody.innerHTML = data.map(item => `
             <tr>
-                <td style="padding: 10px; border: 1px solid #ddd;">${item.pageNumber}</td>
-                <td class="gurmukhi" style="padding: 10px; border: 1px solid #ddd;">${item.verse}</td>
-                <td style="padding: 10px; border: 1px solid #ddd; font-size:0.8em; color:gray;">${item.keywords}</td>
-                <td style="padding: 10px; border: 1px solid #ddd; text-align:center;">
-                    <button class="btn-danger" style="padding: 2px 8px;" onclick="deleteLibraryItem('${item.id}', '${item.pageNumber}')">Delete</button>
-                </td>
-            </tr>
-        `).join('');
-
-    } catch (e) {
-        tableBody.innerHTML = `<tr><td colspan="4" style="color:red; text-align:center;">${e.message}</td></tr>`;
-    }
+                <td>${item.pageNumber}</td>
+                <td class="gurmukhi">${item.verse}</td>
+                <td>${item.keywords}</td>
+                <td><button class="btn-danger" onclick="deleteLibraryItem('${item.id}', '${item.pageNumber}')">Delete</button></td>
+            </tr>`).join('');
+    } catch (e) { tableBody.innerHTML = 'Error loading table.'; }
 }
 
-// Add the Delete Function to app.js
 async function deleteLibraryItem(id, pageNumber) {
-    if (!confirm("Are you sure you want to delete this verse from the library?")) return;
-
+    if (!confirm("Delete this verse?")) return;
     try {
-        const res = await fetch(`/api/AdminLibrary?id=${id}&page=${pageNumber}`, {
-            method: 'DELETE'
-        });
-
-        if (res.ok) {
-            alert("Deleted successfully");
-            loadLibraryTable(); // Refresh the table
-        } else {
-            alert("Delete failed: " + await res.text());
-        }
-    } catch (e) {
-        alert("Error deleting: " + e.message);
-    }
+        const res = await fetch(`/api/LibraryManager?id=${id}&page=${pageNumber}`, { method: 'DELETE' });
+        if (res.ok) loadLibraryTable();
+    } catch (e) { alert("Error deleting."); }
 }
 
 function openTab(name) {
-    console.log("Switching to tab:", name);
     document.querySelectorAll('.tab-content').forEach(d => d.classList.remove('active'));
-    document.querySelectorAll('.tabs button').forEach(b => b.classList.remove('active'));
-    
     const target = document.getElementById(name);
     if(target) target.classList.add('active');
-
-    // NEW: If switching to library tab, load the data automatically
-    if(name === 'libraryTab') {
-        loadLibraryTable();
-    }
+    if(name === 'libraryTab') loadLibraryTable();
+    if(name === 'publishTab') loadRecentActivity();
 }
+
 window.loadLibraryTable = loadLibraryTable;
 window.deleteLibraryItem = deleteLibraryItem;
 window.searchLibrary = searchLibrary;
