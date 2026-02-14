@@ -166,45 +166,40 @@ async function bulkImport() {
 
 async function loadLibraryTable() {
     const tableBody = document.getElementById('libraryTableBody');
-    const searchVal = document.getElementById('libAdminSearch').value;
+    const searchVal = document.getElementById('libAdminSearch').value.trim(); // Get search text
     
-    tableBody.innerHTML = '<tr><td colspan="4" style="text-align:center; padding:20px;">Fetching library records...</td></tr>';
+    tableBody.innerHTML = '<tr><td colspan="4" style="text-align:center; padding:20px;">Searching...</td></tr>';
 
     try {
-        // Construct URL safely
+        // Build URL: if searchVal exists, append it as a query string
         const url = searchVal 
             ? `/api/LibraryManager?keyword=${encodeURIComponent(searchVal)}` 
             : `/api/LibraryManager`;
 
         const response = await fetch(url);
-        
-        if (!response.ok) throw new Error(`Server responded with ${response.status}`);
+        if (!response.ok) throw new Error(`Error ${response.status}`);
         
         const data = await response.json();
 
-        if (!data || data.length === 0) {
+        if (data.length === 0) {
             tableBody.innerHTML = '<tr><td colspan="4" style="text-align:center; padding:20px;">No records found.</td></tr>';
             return;
         }
 
-        // Sort by Page Number
-        data.sort((a, b) => parseInt(a.pageNumber) - parseInt(b.pageNumber));
-
+        // Render the table rows
         tableBody.innerHTML = data.map(item => `
             <tr>
-                <td style="padding: 10px; border: 1px solid #ddd; font-weight: bold;">${item.pageNumber}</td>
-                <td class="gurmukhi" style="padding: 10px; border: 1px solid #ddd; font-size: 1.1rem;">${item.verse}</td>
-                <td style="padding: 10px; border: 1px solid #ddd; font-size: 0.85rem; color: #666;">${item.keywords}</td>
+                <td style="padding: 10px; border: 1px solid #ddd;">${item.pageNumber}</td>
+                <td class="gurmukhi" style="padding: 10px; border: 1px solid #ddd;">${item.verse}</td>
+                <td style="padding: 10px; border: 1px solid #ddd; font-size:0.8em; color:gray;">${item.keywords}</td>
                 <td style="padding: 10px; border: 1px solid #ddd; text-align:center;">
-                    <button class="btn-danger" style="padding: 5px 10px; font-size: 0.7rem;" 
-                        onclick="deleteLibraryItem('${item.id}', '${item.pageNumber}')">Delete</button>
+                    <button class="btn-danger" style="padding: 2px 8px;" onclick="deleteLibraryItem('${item.id}', '${item.pageNumber}')">Delete</button>
                 </td>
             </tr>
         `).join('');
 
     } catch (e) {
-        console.error("Library Table Error:", e);
-        tableBody.innerHTML = `<tr><td colspan="4" style="color:red; text-align:center;">Error: ${e.message}</td></tr>`;
+        tableBody.innerHTML = `<tr><td colspan="4" style="color:red; text-align:center;">${e.message}</td></tr>`;
     }
 }
 
