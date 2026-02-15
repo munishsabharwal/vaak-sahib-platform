@@ -5,70 +5,76 @@
     <link rel="stylesheet" href="style.css">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <style>
-        /* Highlight words on hover when in Larivaar mode */
+        /* Highlight words on hover (Laptop) */
         .gurmukhi span {
             transition: background-color 0.2s ease;
             display: inline-block;
-            padding: 0 1px;
+            padding: 0 2px;
             border-radius: 3px;
         }
 
-/* laptop hover */
-.gurmukhi span:hover {
-    background-color: #fff9c4;
-    color: #d32f2f;
-}
+        .gurmukhi span:hover {
+            background-color: #fff9c4;
+            color: #d32f2f;
+            cursor: pointer;
+        }
 
-/* mobile touch/tap */
-.gurmukhi span:active {
-    background-color: #fff9c4;
-    color: #d32f2f;
-    transform: scale(1.1); /* Subtle zoom when tapped */
-}
+        /* Mobile Tap Highlighting */
+        .gurmukhi span:active {
+            background-color: #fff9c4;
+            color: #d32f2f;
+        }
 
-/* Make spans slightly larger for easier tapping on mobile */
-@media (max-width: 600px) {
-    .gurmukhi span {
-        padding: 2px 4px;
-        margin: 1px 0;
-    }
-}
+        /* Responsive spacing for Gurmukhi text */
+        .gurmukhi {
+            line-height: 2.2 !important;
+            font-size: 1.5rem;
+            text-align: center;
+        }
+
+        @media (max-width: 600px) {
+            .gurmukhi {
+                font-size: 1.3rem;
+                line-height: 2.4 !important;
+            }
+        }
     </style>
 </head>
 <body>
     <div class="container">
         <h1>Daily Vaak Sahib</h1>
-        <div style="display:flex; gap:10px; margin-bottom:20px;">
-            <input type="date" id="publicDate" onchange="loadPublic()">
-            <select id="gurudwaraFilter" onchange="renderPublic(lastFetchedData)">
-                <option value="all">All Gurudwaras</option>
-            </select>
-        </div>
+        
+        <div class="controls-wrapper" style="display:flex; flex-direction:column; gap:10px; margin-bottom:20px;">
+            <div style="display:flex; gap:10px;">
+                <input type="date" id="publicDate" onchange="loadPublic()" style="flex:1;">
+                <select id="gurudwaraFilter" onchange="renderPublic(lastFetchedData)" style="flex:1;">
+                    <option value="all">All Gurudwaras</option>
+                </select>
+            </div>
 
-        <div class="controls" style="margin: 20px 0; background: #f9f9f9; padding: 15px; border-radius: 8px; display: flex; align-items: center; gap: 15px; border: 1px solid #ddd;">
-            <label style="font-weight: bold; cursor: pointer; display: flex; align-items: center; gap: 10px; color: #333;">
-                <input type="checkbox" id="mergeWords" onchange="renderPublic(lastFetchedData)" style="width: 18px; height: 18px; cursor: pointer;"> 
-                Display in Larivaar (Merge Words)
-            </label>
+            <div class="larivaar-toggle" style="background: #f9f9f9; padding: 12px; border-radius: 8px; border: 1px solid #ddd;">
+                <label style="font-weight: bold; cursor: pointer; display: flex; align-items: center; gap: 10px; color: #333; margin:0;">
+                    <input type="checkbox" id="mergeWords" onchange="renderPublic(lastFetchedData)" style="width: 20px; height: 20px; cursor: pointer;"> 
+                    Display in Larivaar (Merge Words)
+                </label>
+            </div>
         </div>
 
         <div id="publicGrid" class="grid">Loading...</div>
 
-        <footer style="margin-top:30px; text-align:center;">
-            <a href="/.auth/login/aad?post_login_redirect_uri=%2Fadmin.html">Editor Portal Login</a>
+        <footer style="margin-top:40px; text-align:center; padding-bottom: 20px;">
+            <a href="/.auth/login/aad?post_login_redirect_uri=%2Fadmin.html" class="login-link">Editor Portal Login</a>
         </footer>
     </div>
     
     <script src="app.js"></script>
     <script>
-        // Get local date in YYYY-MM-DD format
         const today = new Date();
         const localDate = today.getFullYear() + '-' 
             + String(today.getMonth() + 1).padStart(2, '0') + '-' 
             + String(today.getDate()).padStart(2, '0');
         
         document.getElementById('publicDate').value = localDate;
-        // The global variable lastFetchedData will be populated by loadPublic in app.js
         loadPublic();
     </script>
 </body>
