@@ -22,6 +22,15 @@
         </footer>
     </div>
 
+<div class="controls" style="margin: 20px 0; background: #f9f9f9; padding: 15px; border-radius: 8px; display: flex; align-items: center; gap: 15px; border: 1px solid #ddd;">
+    <label style="font-weight: bold; cursor: pointer; display: flex; align-items: center; gap: 10px; color: #333;">
+        <input type="checkbox" id="mergeWords" onchange="renderPublic(lastFetchedData)" style="width: 18px; height: 18px; cursor: pointer;"> 
+        Display in Larivaar (Merge Words)
+    </label>
+</div>
+
+<div id="publicGrid" class="grid"></div>
+    
     <script src="app.js"></script>
     <script>
         // Get local date in YYYY-MM-DD format
