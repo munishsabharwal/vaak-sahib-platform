@@ -13,16 +13,26 @@
             border-radius: 3px;
         }
 
-        .gurmukhi span:hover {
-            background-color: #fff9c4; /* Soft yellow highlight */
-            color: #d32f2f; /* Contrast color */
-            cursor: pointer;
-        }
+/* laptop hover */
+.gurmukhi span:hover {
+    background-color: #fff9c4;
+    color: #d32f2f;
+}
 
-        /* Adjust line height for better hover spacing */
-        .gurmukhi {
-            line-height: 2.2 !important;
-        }
+/* mobile touch/tap */
+.gurmukhi span:active {
+    background-color: #fff9c4;
+    color: #d32f2f;
+    transform: scale(1.1); /* Subtle zoom when tapped */
+}
+
+/* Make spans slightly larger for easier tapping on mobile */
+@media (max-width: 600px) {
+    .gurmukhi span {
+        padding: 2px 4px;
+        margin: 1px 0;
+    }
+}
     </style>
 </head>
 <body>
