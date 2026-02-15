@@ -2,74 +2,8 @@
 <html>
 <head>
     <title>Admin Portal - Vaak Sahib</title>
-    <link rel="stylesheet" href="style.css">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <style>
-        /* Mobile-Friendly Tabs */
-        .tabs {
-            display: flex;
-            gap: 10px;
-            overflow-x: auto; /* Allows scrolling tabs on small screens */
-            white-space: nowrap;
-            padding-bottom: 10px;
-            margin-bottom: 20px;
-            border-bottom: 2px solid #eee;
-            -webkit-overflow-scrolling: touch;
-        }
-
-        .tabs button {
-            padding: 10px 20px;
-            flex-shrink: 0; /* Prevents buttons from squishing */
-            cursor: pointer;
-            border: none;
-            background: #e9ecef;
-            border-radius: 5px;
-            font-weight: bold;
-            transition: background 0.3s;
-        }
-
-        .tabs button:hover {
-            background: #dee2e6;
-        }
-
-        .tabs button.active {
-            background: #0078d4;
-            color: white;
-        }
-
-        /* Responsive Table Adjustments */
-        .table-container {
-            overflow-x: auto;
-            background: white;
-            border-radius: 8px;
-            border: 1px solid #ddd;
-        }
-
-        table {
-            min-width: 600px; /* Ensures table content remains readable */
-        }
-
-        /* Mobile Adjustments */
-        @media (max-width: 600px) {
-            h1 { font-size: 1.4rem; }
-            
-            /* Stack the Search and Date inputs */
-            .search-controls {
-                flex-direction: column;
-            }
-
-            /* Force Editor Registration Grid to 1 column */
-            #editorsTab .grid {
-                grid-template-columns: 1fr !important;
-            }
-
-            .tab-content h2 {
-                font-size: 1.2rem;
-            }
-        }
-
-        .hidden { display: none; }
-    </style>
+    <link rel="stylesheet" href="style.css">
 </head>
 <body>
     <div class="container">
@@ -79,17 +13,17 @@
         </header>
 
         <div class="tabs">
-            <button id="btn-publish" onclick="openTab('publishTab')">Publish Daily Vaak</button>
-            <button id="btn-editors" class="super-admin-only hidden" onclick="openTab('editorsTab')">Manage Editors</button>
-            <button id="btn-library" class="super-admin-only hidden" onclick="openTab('libraryTab')">Manage Library</button>
-            <button onclick="window.location.href='/.auth/logout'" style="background: #ffeded; color: #d32f2f;">Logout</button>
+            <button id="btn-publish" class="tab-btn active" onclick="openTab('publishTab')">Publish Daily Vaak</button>
+            <button id="btn-editors" class="tab-btn super-admin-only hidden" onclick="openTab('editorsTab')">Manage Editors</button>
+            <button id="btn-library" class="tab-btn super-admin-only hidden" onclick="openTab('libraryTab')">Manage Library</button>
+            <button class="tab-btn" onclick="window.location.href='/.auth/logout'" style="background: #ffeded; color: #d32f2f;">Logout</button>
         </div>
 
         <div id="publishTab" class="tab-content active">
             <h2>Search Library & Publish</h2>
-            <div class="search-controls" style="display:flex; gap:10px; margin-bottom: 20px;">
-                <input type="date" id="publishDate" style="flex: 1;">
-                <input type="text" id="libSearch" placeholder="Search Keywords (Gurmukhi)..." onkeyup="searchLibrary()" style="flex: 2;">
+            <div class="flex-row" style="margin-bottom: 20px;">
+                <input type="date" id="publishDate" style="flex:1;">
+                <input type="text" id="libSearch" placeholder="Search Keywords (Gurmukhi)..." onkeyup="searchLibrary()" style="flex:2;">
             </div>
             
             <div id="libResults" class="grid"></div>
@@ -97,16 +31,16 @@
             <div class="card" style="margin-top: 30px; border-top: 4px solid #3498db;">
                 <h3>Recently Published Vaaks</h3>
                 <div class="table-container">
-                    <table style="width:100%; border-collapse: collapse;">
+                    <table>
                         <thead>
-                            <tr style="background: #f4f4f4; text-align: left;">
-                                <th style="padding: 12px; border-bottom: 2px solid #ddd;">Date</th>
-                                <th style="padding: 12px; border-bottom: 2px solid #ddd;">Gurudwara</th>
-                                <th style="padding: 12px; border-bottom: 2px solid #ddd;">Verse Snapshot</th>
+                            <tr>
+                                <th>Date</th>
+                                <th>Gurudwara</th>
+                                <th>Verse Snapshot</th>
                             </tr>
                         </thead>
                         <tbody id="recentActivityBody">
-                            <tr><td colspan="3" style="text-align:center; padding:20px;">Loading activity...</td></tr>
+                            <tr><td colspan="3" style="text-align:center;">Loading activity...</td></tr>
                         </tbody>
                     </table>
                 </div>
@@ -115,39 +49,40 @@
 
         <div id="editorsTab" class="tab-content">
             <h2>Register/Invite Editor</h2>
-            <p style="font-size: 0.9rem; color: #666; margin-bottom: 15px;">Enter details here first, then send them the Azure Invite Link.</p>
-            <div class="grid" style="grid-template-columns: 1fr 1fr; gap: 10px;">
+            <p style="color: #666; margin-bottom: 15px;">Enter details here first, then send them the Azure Invite Link.</p>
+            
+            <div class="grid">
                 <input id="editEmail" placeholder="Email (must match Azure Invite)">
                 <input id="editFirstName" placeholder="First Name">
                 <input id="editLastName" placeholder="Last Name">
                 <input id="editGurudwara" placeholder="Gurudwara Name">
                 <input id="editLocation" placeholder="Gurudwara Location">
             </div>
-            <button class="btn-success" style="margin-top:15px; width: 100%; padding: 12px;" onclick="saveEditor()">Save Profile</button>
+            <button class="btn-success" style="margin-top:20px; width:100%;" onclick="saveEditor()">Save Profile</button>
         </div>
 
         <div id="libraryTab" class="tab-content">
             <h2>Library Management</h2>
-            <div style="display:flex; flex-wrap: wrap; gap:10px; margin-bottom: 20px;">
-                <input type="text" id="libAdminSearch" placeholder="Filter by Page or Keyword..." onkeyup="if(event.key === 'Enter') loadLibraryTable()" style="flex-grow: 1; min-width: 200px;">
+            <div class="flex-row" style="margin-bottom: 20px; flex-wrap: wrap;">
+                <input type="text" id="libAdminSearch" placeholder="Filter by Page or Keyword..." onkeyup="if(event.key === 'Enter') loadLibraryTable()" style="flex: 1;">
                 <button class="btn-primary" onclick="loadLibraryTable()">Search</button>
                 <button class="btn-success" onclick="document.getElementById('importModal').classList.toggle('hidden')">+ Bulk Import</button>
             </div>
 
             <div id="importModal" class="hidden" style="background: #f9f9f9; padding: 15px; border: 1px dashed #ccc; margin-bottom: 20px; border-radius: 8px;">
                 <h3>Bulk Import Verses</h3>
-                <textarea id="bulkJson" rows="5" style="width: 100%; margin-bottom: 10px;" placeholder='[{"pageNumber": "1", "verse": "...", "keywords": "..."}]'></textarea>
+                <textarea id="bulkJson" rows="5" style="margin-bottom: 10px;" placeholder='[{"pageNumber": "1", "verse": "...", "keywords": "..."}]'></textarea>
                 <button class="btn-success" onclick="bulkImport()">Run Import</button>
             </div>
 
             <div class="table-container">
-                <table style="width: 100%; border-collapse: collapse; background: white;">
+                <table>
                     <thead>
-                        <tr style="background: #f4f7f6; text-align: left;">
-                            <th style="padding: 12px; border: 1px solid #ddd;">Page</th>
-                            <th style="padding: 12px; border: 1px solid #ddd;">Gurmukhi Verse</th>
-                            <th style="padding: 12px; border: 1px solid #ddd;">Keywords</th>
-                            <th style="padding: 12px; border: 1px solid #ddd;">Action</th>
+                        <tr>
+                            <th style="width: 80px;">Page</th>
+                            <th>Gurmukhi Verse</th>
+                            <th>Keywords</th>
+                            <th style="width: 100px;">Action</th>
                         </tr>
                     </thead>
                     <tbody id="libraryTableBody"></tbody>
@@ -158,118 +93,12 @@
     
     <script src="app.js"></script>
     <script>
-        document.getElementById('publishDate').valueAsDate = new Date();
-        initAdmin();
-        
-        // Tab styling helper
-        function openTab(tabId) {
-            // Hide all contents
-            document.querySelectorAll('.tab-content').forEach(tab => tab.classList.remove('active'));
-            document.querySelectorAll('.tabs button').forEach(btn => btn.classList.remove('active'));
-            
-            // Show selected
-            document.getElementById(tabId).classList.add('active');
-            
-            // Match button ID to Tab for active styling
-            if(tabId === 'publishTab') document.getElementById('btn-publish').classList.add('active');
-            if(tabId === 'editorsTab') document.getElementById('btn-editors').classList.add('active');
-            if(tabId === 'libraryTab') document.getElementById('btn-library').classList.add('active');
+        // Admin Init Logic
+        const pubDate = document.getElementById('publishDate');
+        if(pubDate) {
+            pubDate.valueAsDate = new Date();
+            initAdmin();
         }
-    </script>
-</body>
-</html><!DOCTYPE html>
-<html>
-<head>
-    <title>Admin Portal - Vaak Sahib</title>
-    <link rel="stylesheet" href="style.css">
-</head>
-<body>
-    <div class="container">
-        <header style="display:flex; justify-content:space-between; align-items:center;">
-            <h1>Admin Portal</h1>
-            <div id="userDisplay"></div>
-        </header>
-
-        <div class="tabs">
-            <button onclick="openTab('publishTab')">Publish Daily Vaak</button>
-            <button class="super-admin-only hidden" onclick="openTab('editorsTab')">Manage Editors</button>
-            <button class="super-admin-only hidden" onclick="openTab('libraryTab')">Manage Library</button>
-            <button onclick="window.location.href='/.auth/logout'">Logout</button>
-        </div>
-
-        <div id="publishTab" class="tab-content active">
-            <h2>Search Library & Publish</h2>
-            <div style="display:flex; gap:10px;">
-                <input type="date" id="publishDate">
-                <input type="text" id="libSearch" placeholder="Search Keywords (Gurmukhi)..." onkeyup="searchLibrary()">
-            </div>
-            <div id="libResults" class="grid"></div>
-
-            <div class="card" style="margin-top: 30px; border-top: 4px solid #3498db;">
-                <h3>Recently Published Vaaks</h3>
-                <div style="overflow-x: auto;">
-                    <table style="width:100%; border-collapse: collapse; margin-top:10px;">
-                        <thead>
-                            <tr style="background: #f4f4f4; text-align: left;">
-                                <th style="padding: 10px; border-bottom: 2px solid #ddd;">Date</th>
-                                <th style="padding: 10px; border-bottom: 2px solid #ddd;">Gurudwara</th>
-                                <th style="padding: 10px; border-bottom: 2px solid #ddd;">Verse Snapshot</th>
-                            </tr>
-                        </thead>
-                        <tbody id="recentActivityBody">
-                            <tr><td colspan="3" style="text-align:center; padding:10px;">Loading activity...</td></tr>
-                        </tbody>
-                    </table>
-                </div>
-            </div>
-        </div>
-
-        <div id="editorsTab" class="tab-content">
-            <h2>Register/Invite Editor</h2>
-            <p>Enter details here first, then send them the Azure Invite Link.</p>
-            <div class="grid" style="grid-template-columns: 1fr 1fr; gap: 10px;">
-                <input id="editEmail" placeholder="Email (must match Azure Invite)">
-                <input id="editFirstName" placeholder="First Name">
-                <input id="editLastName" placeholder="Last Name">
-                <input id="editGurudwara" placeholder="Gurudwara Name">
-                <input id="editLocation" placeholder="Gurudwara Location">
-            </div>
-            <button class="btn-success" style="margin-top:15px;" onclick="saveEditor()">Save Profile</button>
-        </div>
-
-        <div id="libraryTab" class="tab-content">
-            <h2>Library Management</h2>
-            <div style="display:flex; gap:10px; margin-bottom: 20px;">
-                <input type="text" id="libAdminSearch" placeholder="Filter by Page or Keyword..." onkeyup="if(event.key === 'Enter') loadLibraryTable()" style="flex-grow: 1;">
-                <button class="btn-primary" onclick="loadLibraryTable()" style="width: auto;">Search / Refresh</button>
-                <button class="btn-success" onclick="document.getElementById('importModal').classList.toggle('hidden')" style="width: auto;">+ Bulk Import</button>
-            </div>
-
-            <div id="importModal" class="hidden" style="background: #f9f9f9; padding: 15px; border: 1px dashed #ccc; margin-bottom: 20px;">
-                <h3>Bulk Import Verses</h3>
-                <textarea id="bulkJson" rows="5" placeholder='[{"pageNumber": "1", "verse": "...", "keywords": "..."}]'></textarea>
-                <button class="btn-success" onclick="bulkImport()">Run Import</button>
-            </div>
-
-            <div style="overflow-x: auto;">
-                <table style="width: 100%; border-collapse: collapse; background: white;">
-                    <thead>
-                        <tr style="background: #f4f7f6; text-align: left;">
-                            <th style="padding: 12px; border: 1px solid #ddd;">Page</th>
-                            <th style="padding: 12px; border: 1px solid #ddd;">Gurmukhi Verse</th>
-                            <th style="padding: 12px; border: 1px solid #ddd;">Keywords</th>
-                            <th style="padding: 12px; border: 1px solid #ddd;">Action</th>
-                        </tr>
-                    </thead>
-                    <tbody id="libraryTableBody"></tbody>
-                </table>
-            </div>
-        </div>
-    </div>
-    <script src="app.js"></script>
-    <script>
-        document.getElementById('publishDate').valueAsDate = new Date();
-        initAdmin();
     </script>
 </body>
 </html>
