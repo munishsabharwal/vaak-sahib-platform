@@ -50,26 +50,22 @@ function renderPublic(data) {
     container.innerHTML = '';
     const filtered = (filter === 'all') ? data : data.filter(i => i.gurudwaraName.toLowerCase() === filter);
 
-    filtered.forEach(item => {
-        // GURMUKHI MERGE LOGIC:
-        // If merge is enabled, we remove all spaces (\s) using Regex
-        let displayVerse = isMergeEnabled ? item.verse.replace(/\s+/g, '') : item.verse;
+filtered.forEach(item => {
+    let displayVerse = "";
+    if (document.getElementById('mergeWords').checked) {
+        // Split by spaces and wrap in spans for the hover effect
+        displayVerse = item.verse.split(/\s+/).map(word => `<span>${word}</span>`).join('');
+    } else {
+        displayVerse = item.verse;
+    }
 
-        container.innerHTML += `
-            <div class="card">
-                <div style="display:flex; justify-content:space-between; margin-bottom:10px;">
-                    <span class="tag">${item.gurudwaraName}</span>
-                    <span class="meta">${item.gurudwaraLocation}</span>
-                </div>
-                <p class="gurmukhi" style="font-size: 1.4rem; line-height: 1.8; text-align: center;">
-                    ${displayVerse}
-                </p>
-                <div class="meta" style="margin-top:15px; border-top:1px solid #eee; pt-10px;">
-                    <strong>Ang:</strong> ${item.pageNumber} <br>
-                    <small>Sevadar: ${item.editorName}</small>
-                </div>
-            </div>`;
-    });
+    container.innerHTML += `
+        <div class="card">
+            <span class="tag">${item.gurudwaraName}</span>
+            <p class="gurmukhi">${displayVerse}</p>
+            <div class="meta">Ang: ${item.pageNumber}</div>
+        </div>`;
+});
 }
 
 function populateFilter(data) {
