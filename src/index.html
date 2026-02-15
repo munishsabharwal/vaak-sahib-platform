@@ -2,59 +2,24 @@
 <html>
 <head>
     <title>Daily Vaak Sahib</title>
-    <link rel="stylesheet" href="style.css">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <style>
-        /* Highlight words on hover (Laptop) */
-        .gurmukhi span {
-            transition: background-color 0.2s ease;
-            display: inline-block;
-            padding: 0 2px;
-            border-radius: 3px;
-        }
-
-        .gurmukhi span:hover {
-            background-color: #fff9c4;
-            color: #d32f2f;
-            cursor: pointer;
-        }
-
-        /* Mobile Tap Highlighting */
-        .gurmukhi span:active {
-            background-color: #fff9c4;
-            color: #d32f2f;
-        }
-
-        /* Responsive spacing for Gurmukhi text */
-        .gurmukhi {
-            line-height: 2.2 !important;
-            font-size: 1.5rem;
-            text-align: center;
-        }
-
-        @media (max-width: 600px) {
-            .gurmukhi {
-                font-size: 1.3rem;
-                line-height: 2.4 !important;
-            }
-        }
-    </style>
+    <link rel="stylesheet" href="style.css">
 </head>
 <body>
     <div class="container">
         <h1>Daily Vaak Sahib</h1>
         
-        <div class="controls-wrapper" style="display:flex; flex-direction:column; gap:10px; margin-bottom:20px;">
-            <div style="display:flex; gap:10px;">
-                <input type="date" id="publicDate" onchange="loadPublic()" style="flex:1;">
-                <select id="gurudwaraFilter" onchange="renderPublic(lastFetchedData)" style="flex:1;">
+        <div class="card" style="margin-bottom: 20px;">
+            <div class="flex-row">
+                <input type="date" id="publicDate" onchange="loadPublic()">
+                <select id="gurudwaraFilter" onchange="renderPublic(lastFetchedData)">
                     <option value="all">All Gurudwaras</option>
                 </select>
             </div>
-
-            <div class="larivaar-toggle" style="background: #f9f9f9; padding: 12px; border-radius: 8px; border: 1px solid #ddd;">
-                <label style="font-weight: bold; cursor: pointer; display: flex; align-items: center; gap: 10px; color: #333; margin:0;">
-                    <input type="checkbox" id="mergeWords" onchange="renderPublic(lastFetchedData)" style="width: 20px; height: 20px; cursor: pointer;"> 
+            
+            <div style="margin-top: 15px; padding-top: 10px; border-top: 1px solid #eee;">
+                <label style="font-weight: bold; cursor: pointer; display: flex; align-items: center; gap: 10px;">
+                    <input type="checkbox" id="mergeWords" onchange="renderPublic(lastFetchedData)" style="width: 20px; height: 20px;"> 
                     Display in Larivaar (Merge Words)
                 </label>
             </div>
@@ -63,19 +28,25 @@
         <div id="publicGrid" class="grid">Loading...</div>
 
         <footer style="margin-top:40px; text-align:center; padding-bottom: 20px;">
-            <a href="/.auth/login/aad?post_login_redirect_uri=%2Fadmin.html" class="login-link">Editor Portal Login</a>
+            <a href="/.auth/login/aad?post_login_redirect_uri=%2Fadmin.html" style="color:#0078d4; text-decoration:none;">
+                Editor Portal Login
+            </a>
         </footer>
     </div>
     
     <script src="app.js"></script>
     <script>
+        // Set Today's Date
         const today = new Date();
         const localDate = today.getFullYear() + '-' 
             + String(today.getMonth() + 1).padStart(2, '0') + '-' 
             + String(today.getDate()).padStart(2, '0');
         
-        document.getElementById('publicDate').value = localDate;
-        loadPublic();
+        const dateInput = document.getElementById('publicDate');
+        if(dateInput) {
+            dateInput.value = localDate;
+            loadPublic();
+        }
     </script>
 </body>
 </html>
