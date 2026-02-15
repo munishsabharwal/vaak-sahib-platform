@@ -1,42 +1,73 @@
 /* --- PUBLIC SITE LOGIC --- */
+// 1. Add this variable at the very top of your app.js file
+let lastFetchedData = []; 
+
+// 2. Updated loadPublic function
 async function loadPublic() {
     const dateInput = document.getElementById('publicDate');
     const date = dateInput ? dateInput.value : new Date().toISOString().split('T')[0];
     const container = document.getElementById('publicGrid');
     
-    container.innerHTML = '<p>Loading...</p>';
+    container.innerHTML = '<div class="loading">Loading daily Vaaks...</div>';
 
     try {
         const res = await fetch(`/api/GetDailyVaak?date=${date}`);
-        if (!res.ok) throw new Error(`API Error: ${res.status}`);
+        if (!res.ok) throw new Error(`Fetch failed: ${res.status}`);
 
         const data = await res.json();
+        
+        // Save the data globally so the checkbox can access it without another API call
+        lastFetchedData = data; 
+        
         renderPublic(data);
-        populateFilter(data);
+        
+        // This helper function should exist in your current app.js
+        if (typeof populateFilter === "function") {
+            populateFilter(data);
+        }
 
     } catch (e) {
-        container.innerHTML = `<div style="color:red; padding:20px; border:1px solid red;"><strong>Error:</strong> ${e.message}</div>`;
+        console.error("Load Error:", e);
+        container.innerHTML = `<p style="color:red; text-align:center;">Error loading data: ${e.message}</p>`;
     }
 }
 
+// 3. Updated renderPublic function with Merging Logic
 function renderPublic(data) {
-    const filter = document.getElementById('gurudwaraFilter').value.toLowerCase();
     const container = document.getElementById('publicGrid');
-    container.innerHTML = '';
-    const filtered = (filter === 'all') ? data : data.filter(i => i.gurudwaraName.toLowerCase() === filter);
+    const filterEl = document.getElementById('gurudwaraFilter');
+    const filter = filterEl ? filterEl.value.toLowerCase() : 'all';
+    
+    // Check the state of our new checkbox
+    const mergeCheckbox = document.getElementById('mergeWords');
+    const isMergeEnabled = mergeCheckbox ? mergeCheckbox.checked : false;
 
-    if(filtered.length === 0) {
-        container.innerHTML = '<p style="grid-column: 1/-1; text-align: center;">No Vaak published for this selection.</p>';
+    if (!data || data.length === 0) {
+        container.innerHTML = '<p style="grid-column: 1/-1; text-align: center;">No Vaak found for this date.</p>';
         return;
     }
 
+    container.innerHTML = '';
+    const filtered = (filter === 'all') ? data : data.filter(i => i.gurudwaraName.toLowerCase() === filter);
+
     filtered.forEach(item => {
+        // GURMUKHI MERGE LOGIC:
+        // If merge is enabled, we remove all spaces (\s) using Regex
+        let displayVerse = isMergeEnabled ? item.verse.replace(/\s+/g, '') : item.verse;
+
         container.innerHTML += `
             <div class="card">
-                <span class="tag">${item.gurudwaraName}</span>
-                <span class="meta" style="float:right">${item.gurudwaraLocation}</span>
-                <p class="gurmukhi">${item.verse}</p>
-                <div class="meta"><strong>Page:</strong> ${item.pageNumber} <br><small>Editor: ${item.editorName}</small></div>
+                <div style="display:flex; justify-content:space-between; margin-bottom:10px;">
+                    <span class="tag">${item.gurudwaraName}</span>
+                    <span class="meta">${item.gurudwaraLocation}</span>
+                </div>
+                <p class="gurmukhi" style="font-size: 1.4rem; line-height: 1.8; text-align: center;">
+                    ${displayVerse}
+                </p>
+                <div class="meta" style="margin-top:15px; border-top:1px solid #eee; pt-10px;">
+                    <strong>Ang:</strong> ${item.pageNumber} <br>
+                    <small>Sevadar: ${item.editorName}</small>
+                </div>
             </div>`;
     });
 }
