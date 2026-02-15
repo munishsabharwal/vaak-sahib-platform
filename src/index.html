@@ -14,13 +14,6 @@
                 <option value="all">All Gurudwaras</option>
             </select>
         </div>
-        <div id="publicGrid" class="grid">Loading...</div>
-
-        <footer style="margin-top:30px; text-align:center;">
-            <!-- Login via Azure AD, then land on /admin.html -->
-            <a href="/.auth/login/aad?post_login_redirect_uri=%2Fadmin.html">Editor Portal Login</a>
-        </footer>
-    </div>
 
 <div class="controls" style="margin: 20px 0; background: #f9f9f9; padding: 15px; border-radius: 8px; display: flex; align-items: center; gap: 15px; border: 1px solid #ddd;">
     <label style="font-weight: bold; cursor: pointer; display: flex; align-items: center; gap: 10px; color: #333;">
@@ -30,6 +23,14 @@
 </div>
 
 <div id="publicGrid" class="grid"></div>
+        
+        <div id="publicGrid" class="grid">Loading...</div>
+
+        <footer style="margin-top:30px; text-align:center;">
+            <!-- Login via Azure AD, then land on /admin.html -->
+            <a href="/.auth/login/aad?post_login_redirect_uri=%2Fadmin.html">Editor Portal Login</a>
+        </footer>
+    </div>
     
     <script src="app.js"></script>
     <script>
