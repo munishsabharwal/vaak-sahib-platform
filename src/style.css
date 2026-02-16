@@ -146,3 +146,17 @@ button {
         font-size: 1rem;
     }
 }
+/* --- Tab Visibility Logic --- */
+.tab-content {
+    display: none; /* Hide all tabs by default */
+}
+
+.tab-content.active {
+    display: block !important; /* Only show the tab with the .active class */
+    animation: fadeIn 0.3s;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
