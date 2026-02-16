@@ -131,16 +131,24 @@ th { background-color: #f8f9fa; font-weight: 600; }
 /* Larivaar Highlighting */
 .gurmukhi span {
     display: inline-block;
-    padding: 0 1px;
+    padding: 0;           /* Removed padding to bring words together */
+    margin: 0;            /* Ensure no margins are pushing words apart */
     border-radius: 3px;
     transition: background 0.2s;
 }
 
-/* Mouse Hover */
-.gurmukhi span:hover {
+/* Create a specific class for the "Merged" state */
+.gurmukhi.merged {
+    letter-spacing: -0.5px; /* Pulls letters/spans closer together */
+    word-spacing: -1px;     /* Forces browser to collapse any remaining gaps */
+}
+
+/* Keep the hover effect clean */
+.gurmukhi.merged span:hover {
     background-color: #fff9c4;
     color: #d32f2f;
-    cursor: pointer;
+    /* Optional: add a tiny bit of scale so the word "pops" out when hovered */
+    transform: scale(1.05); 
 }
 
 /* Mobile Touch Active State */
