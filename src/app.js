@@ -281,18 +281,20 @@ async function addSingleLibraryItem() {
     const verse = document.getElementById('addLibVerse').value.trim();
     const keywords = document.getElementById('addLibKeywords').value.trim();
 
+    // Validation
     if (!page || !verse) {
-        alert("Please enter at least the Page Number and the Verse.");
+        alert("Please provide at least a Page Number and the Verse.");
         return;
     }
 
-    const newItem = {
+    // Creating the array format your POST API expects
+    const payload = [{
         pageNumber: page,
         verse: verse,
         keywords: keywords
-    };
+    }];
 
-    // Use a loading state on the button
+    // UI Feedback
     const btn = event.target;
     const originalText = btn.innerText;
     btn.innerText = "Saving...";
@@ -302,22 +304,22 @@ async function addSingleLibraryItem() {
         const res = await fetch('/api/LibraryManager', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            // We wrap it in an array [] because your API likely expects 
-            // the same format as Bulk Import
-            body: JSON.stringify([newItem]) 
+            body: JSON.stringify(payload) 
         });
 
         if (res.ok) {
-            alert("✅ Verse added to library!");
-            // Clear the inputs
+            alert("✅ Successfully added to library!");
+            
+            // Clear inputs
             document.getElementById('addLibPage').value = '';
             document.getElementById('addLibVerse').value = '';
             document.getElementById('addLibKeywords').value = '';
-            // Refresh the table
+            
+            // Refresh the table below
             loadLibraryTable();
         } else {
-            const error = await res.text();
-            alert("❌ Error: " + error);
+            const msg = await res.text();
+            alert("❌ Error: " + msg);
         }
     } catch (e) {
         alert("Network Error: " + e.message);
