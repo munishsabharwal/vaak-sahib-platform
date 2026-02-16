@@ -131,14 +131,16 @@
         </div>
     </div>
     
-    <script src="app.js"></script>
+<script src="app.js"></script>
     <script>
-        // Admin Init Logic
-        const pubDate = document.getElementById('publishDate');
-        if(pubDate) {
-            pubDate.valueAsDate = new Date();
-            initAdmin();
-        }
+        // Set default date
+        document.getElementById('publishDate').valueAsDate = new Date();
+        
+        // Start admin check
+        initAdmin();
+        
+        // Ensure first tab button is styled as active on load
+        document.getElementById('btn-publish').classList.add('active');
     </script>
 </body>
 </html>
