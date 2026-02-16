@@ -358,15 +358,36 @@ async function addSingleLibraryItem() {
     }
 }
 
-function openTab(name) {
-    document.querySelectorAll('.tab-content').forEach(d => d.classList.remove('active'));
-    const target = document.getElementById(name);
-    if(target) target.classList.add('active');
-    
-    // Updated Logic
-    if(name === 'libraryTab') loadLibraryTable();
-    if(name === 'publishTab') loadRecentActivity();
-    if(name === 'editorsTab') loadEditorsList(); // Load editors when tab is clicked
+function openTab(tabId) {
+    // 1. Hide all tab content
+    document.querySelectorAll('.tab-content').forEach(content => {
+        content.classList.remove('active');
+    });
+
+    // 2. Remove 'active' class from all buttons in the tabs container
+    document.querySelectorAll('.tabs button').forEach(btn => {
+        btn.classList.remove('active');
+    });
+
+    // 3. Show the target tab
+    const targetTab = document.getElementById(tabId);
+    if (targetTab) {
+        targetTab.classList.add('active');
+    }
+
+    // 4. Highlight the button that was clicked
+    // We search for the button that has the onclick function for this tabId
+    const buttons = document.querySelectorAll('.tabs button');
+    buttons.forEach(btn => {
+        if (btn.getAttribute('onclick') && btn.getAttribute('onclick').includes(tabId)) {
+            btn.classList.add('active');
+        }
+    });
+
+    // 5. Trigger data loading based on tab
+    if (tabId === 'libraryTab') loadLibraryTable();
+    if (tabId === 'publishTab') loadRecentActivity();
+    if (tabId === 'editorsTab') loadEditorsList();
 }
 
 window.loadLibraryTable = loadLibraryTable;
