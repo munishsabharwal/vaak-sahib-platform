@@ -63,6 +63,24 @@
 
         <div id="libraryTab" class="tab-content">
             <h2>Library Management</h2>
+                    <div class="card" style="margin-bottom: 20px; border-left: 5px solid #107c10;">
+    <h3>Add Single Verse to Library</h3>
+    <div class="grid" style="grid-template-columns: 100px 1fr 1fr; gap: 10px; align-items: end;">
+        <div>
+            <label style="font-size: 0.8rem;">Page</label>
+            <input type="text" id="addLibPage" placeholder="Ang">
+        </div>
+        <div>
+            <label style="font-size: 0.8rem;">Gurmukhi Verse</label>
+            <input type="text" id="addLibVerse" placeholder="Enter full verse...">
+        </div>
+        <div>
+            <label style="font-size: 0.8rem;">Keywords (Gurmukhi)</label>
+            <input type="text" id="addLibKeywords" placeholder="Keywords for search...">
+        </div>
+    </div>
+    <button class="btn-success" style="margin-top: 15px; width: 100%;" onclick="addSingleLibraryItem()">Save to Library</button>
+</div>
             <div class="flex-row" style="margin-bottom: 20px; flex-wrap: wrap;">
                 <input type="text" id="libAdminSearch" placeholder="Filter by Page or Keyword..." onkeyup="if(event.key === 'Enter') loadLibraryTable()" style="flex: 1;">
                 <button class="btn-primary" onclick="loadLibraryTable()">Search</button>
