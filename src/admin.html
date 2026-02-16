@@ -47,19 +47,41 @@
             </div>
         </div>
 
-        <div id="editorsTab" class="tab-content">
-            <h2>Register/Invite Editor</h2>
-            <p style="color: #666; margin-bottom: 15px;">Enter details here first, then send them the Azure Invite Link.</p>
-            
-            <div class="grid">
-                <input id="editEmail" placeholder="Email (must match Azure Invite)">
-                <input id="editFirstName" placeholder="First Name">
-                <input id="editLastName" placeholder="Last Name">
-                <input id="editGurudwara" placeholder="Gurudwara Name">
-                <input id="editLocation" placeholder="Gurudwara Location">
-            </div>
-            <button class="btn-success" style="margin-top:20px; width:100%;" onclick="saveEditor()">Save Profile</button>
+<div id="editorsTab" class="tab-content">
+    <h2>Manage Editors</h2>
+    
+    <div class="card" style="margin-bottom: 20px; border-top: 4px solid #107c10;">
+        <h3>Register New Editor</h3>
+        <div class="grid" style="grid-template-columns: 1fr 1fr; gap: 10px;">
+            <input id="editEmail" placeholder="Email (must match Azure Invite)">
+            <input id="editFirstName" placeholder="First Name">
+            <input id="editLastName" placeholder="Last Name">
+            <input id="editGurudwara" placeholder="Gurudwara Name">
+            <input id="editLocation" placeholder="Gurudwara Location">
         </div>
+        <button class="btn-success" style="margin-top:15px; width: 100%; padding: 12px;" onclick="saveEditor()">Save Profile</button>
+    </div>
+
+    <div class="card">
+        <h3>Existing Editors</h3>
+        <div class="table-container">
+            <table style="width: 100%; border-collapse: collapse;">
+                <thead>
+                    <tr style="background: #f4f7f6; text-align: left;">
+                        <th style="padding: 12px; border: 1px solid #ddd;">Name</th>
+                        <th style="padding: 12px; border: 1px solid #ddd;">Email</th>
+                        <th style="padding: 12px; border: 1px solid #ddd;">Gurudwara</th>
+                        <th style="padding: 12px; border: 1px solid #ddd;">Location</th>
+                    </tr>
+                </thead>
+                <tbody id="editorsTableBody">
+                    <tr><td colspan="4" style="text-align:center; padding:20px;">Loading editors...</td></tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+        
 
         <div id="libraryTab" class="tab-content">
             <h2>Library Management</h2>
