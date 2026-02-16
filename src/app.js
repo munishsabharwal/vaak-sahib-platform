@@ -113,20 +113,35 @@ async function initAdmin() {
 
 async function loadRecentActivity() {
     const body = document.getElementById('recentActivityBody');
-    if (!body) return;
+    if (!body) return; // Exit if the table element isn't on the current page
+
+    body.innerHTML = '<tr><td colspan="3" style="text-align:center; padding:20px;">Loading activity...</td></tr>';
 
     try {
+        // Fetches from your backend API route
         const res = await fetch('/api/GetRecentActivity');
+        if (!res.ok) throw new Error(`Fetch failed: ${res.status}`);
+
         const data = await res.json();
-        body.innerHTML = data.length === 0 ? '<tr><td colspan="3">No recent activity.</td></tr>' : 
-            data.map(item => `
-                <tr>
-                    <td>${item.date}</td>
-                    <td>${item.gurudwaraName}</td>
-                    <td class="gurmukhi">${item.verse.substring(0, 40)}...</td>
-                </tr>`).join('');
+        
+        if (data.length === 0) {
+            body.innerHTML = '<tr><td colspan="3" style="text-align:center; padding:10px;">No recent activity found.</td></tr>';
+            return;
+        }
+
+        // Maps data to table rows
+        body.innerHTML = data.map(item => `
+            <tr>
+                <td style="padding: 12px; border-bottom: 1px solid #ddd;">${item.date}</td>
+                <td style="padding: 12px; border-bottom: 1px solid #ddd;">${item.gurudwaraName}</td>
+                <td class="gurmukhi" style="padding: 12px; border-bottom: 1px solid #ddd; font-size: 1.1rem; text-align: left;">
+                    ${item.verse.substring(0, 50)}...
+                </td>
+            </tr>`).join('');
+            
     } catch (e) {
-        body.innerHTML = '<tr><td colspan="3">Error loading activity.</td></tr>';
+        console.error("Activity Load Error:", e);
+        body.innerHTML = '<tr><td colspan="3" style="text-align:center; color:red; padding:10px;">Error loading activity.</td></tr>';
     }
 }
 
