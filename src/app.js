@@ -237,6 +237,35 @@ async function saveEditor() {
     }
 }
 
+async function loadEditorsList() {
+    const tableBody = document.getElementById('editorsTableBody');
+    if (!tableBody) return;
+
+    try {
+        // Fetch from your ManageEditors API (GET method)
+        const res = await fetch('/api/ManageEditors');
+        if (!res.ok) throw new Error("Could not fetch editors");
+
+        const data = await res.json();
+        
+        if (data.length === 0) {
+            tableBody.innerHTML = '<tr><td colspan="4" style="text-align:center; padding:10px;">No editors registered yet.</td></tr>';
+            return;
+        }
+
+        tableBody.innerHTML = data.map(editor => `
+            <tr>
+                <td style="padding: 10px; border: 1px solid #eee;">${editor.firstName} ${editor.lastName}</td>
+                <td style="padding: 10px; border: 1px solid #eee;">${editor.email}</td>
+                <td style="padding: 10px; border: 1px solid #eee;">${editor.gurudwaraName}</td>
+                <td style="padding: 10px; border: 1px solid #eee;">${editor.gurudwaraLocation || 'N/A'}</td>
+            </tr>`).join('');
+    } catch (e) {
+        console.error("Editor Load Error:", e);
+        tableBody.innerHTML = '<tr><td colspan="4" style="text-align:center; color:red; padding:10px;">Error loading editors list.</td></tr>';
+    }
+}
+
 async function bulkImport() {
     try {
         const json = JSON.parse(document.getElementById('bulkJson').value);
@@ -333,8 +362,11 @@ function openTab(name) {
     document.querySelectorAll('.tab-content').forEach(d => d.classList.remove('active'));
     const target = document.getElementById(name);
     if(target) target.classList.add('active');
+    
+    // Updated Logic
     if(name === 'libraryTab') loadLibraryTable();
     if(name === 'publishTab') loadRecentActivity();
+    if(name === 'editorsTab') loadEditorsList(); // Load editors when tab is clicked
 }
 
 window.loadLibraryTable = loadLibraryTable;
