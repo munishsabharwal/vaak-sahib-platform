@@ -276,6 +276,57 @@ async function deleteLibraryItem(id, pageNumber) {
     } catch (e) { alert("Error deleting."); }
 }
 
+async function addSingleLibraryItem() {
+    const page = document.getElementById('addLibPage').value.trim();
+    const verse = document.getElementById('addLibVerse').value.trim();
+    const keywords = document.getElementById('addLibKeywords').value.trim();
+
+    if (!page || !verse) {
+        alert("Please enter at least the Page Number and the Verse.");
+        return;
+    }
+
+    const newItem = {
+        pageNumber: page,
+        verse: verse,
+        keywords: keywords
+    };
+
+    // Use a loading state on the button
+    const btn = event.target;
+    const originalText = btn.innerText;
+    btn.innerText = "Saving...";
+    btn.disabled = true;
+
+    try {
+        const res = await fetch('/api/LibraryManager', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            // We wrap it in an array [] because your API likely expects 
+            // the same format as Bulk Import
+            body: JSON.stringify([newItem]) 
+        });
+
+        if (res.ok) {
+            alert("✅ Verse added to library!");
+            // Clear the inputs
+            document.getElementById('addLibPage').value = '';
+            document.getElementById('addLibVerse').value = '';
+            document.getElementById('addLibKeywords').value = '';
+            // Refresh the table
+            loadLibraryTable();
+        } else {
+            const error = await res.text();
+            alert("❌ Error: " + error);
+        }
+    } catch (e) {
+        alert("Network Error: " + e.message);
+    } finally {
+        btn.innerText = originalText;
+        btn.disabled = false;
+    }
+}
+
 function openTab(name) {
     document.querySelectorAll('.tab-content').forEach(d => d.classList.remove('active'));
     const target = document.getElementById(name);
