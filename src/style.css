@@ -28,12 +28,6 @@ h1, h2, h3 { margin-top: 0; color: #2c3e50; }
     gap: 10px;
 }
 
-.flex-col {
-    display: flex;
-    flex-direction: column;
-    gap: 10px;
-}
-
 /* --- 3. UI Components (Cards, Inputs, Buttons) --- */
 .card {
     background: white;
@@ -41,15 +35,16 @@ h1, h2, h3 { margin-top: 0; color: #2c3e50; }
     border-radius: 12px;
     box-shadow: 0 2px 8px rgba(0,0,0,0.08);
     border: 1px solid #eee;
+    margin-bottom: 10px;
 }
 
 input, select, textarea {
     padding: 10px;
     border: 1px solid #ddd;
     border-radius: 6px;
-    font-size: 16px; /* Prevents iOS zoom */
-    width: 100%; /* Full width by default */
-    box-sizing: border-box; /* Keeps padding inside width */
+    font-size: 16px; /* Prevents iOS auto-zoom on focus */
+    width: 100%;
+    box-sizing: border-box;
 }
 
 button {
@@ -58,17 +53,12 @@ button {
     border-radius: 6px;
     cursor: pointer;
     font-weight: 600;
-    font-size: 0.95rem;
     transition: background 0.2s;
 }
 
 .btn-primary { background-color: #0078d4; color: white; }
-.btn-primary:hover { background-color: #005a9e; }
-
 .btn-success { background-color: #107c10; color: white; }
-.btn-success:hover { background-color: #0b5a0b; }
-
-.btn-danger { background-color: #d13438; color: white; padding: 6px 12px; font-size: 0.85rem; }
+.btn-danger { background-color: #d13438; color: white; }
 
 /* --- 4. Admin Tabs --- */
 .tabs {
@@ -79,84 +69,53 @@ button {
     padding-bottom: 10px;
     margin-bottom: 20px;
     border-bottom: 2px solid #eee;
-    -webkit-overflow-scrolling: touch; /* Smooth scroll on iOS */
+    -webkit-overflow-scrolling: touch;
 }
 
-.tab-btn {
-    background: #e9ecef;
-    color: #495057;
-    flex-shrink: 0;
-}
+.tab-btn { background: #e9ecef; color: #495057; }
+.tab-btn.active { background: #0078d4; color: white; }
 
-.tab-btn.active {
-    background: #0078d4;
-    color: white;
-}
-
-.tab-content { display: none; }
-.tab-content.active { display: block; animation: fadeIn 0.3s; }
-
-@keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
-
-/* --- 5. Data Tables --- */
-.table-container {
-    overflow-x: auto; /* Horizontal scroll for mobile tables */
-    background: white;
-    border-radius: 8px;
-    border: 1px solid #ddd;
-}
-
-table {
-    width: 100%;
-    min-width: 600px; /* Forces scroll on small screens */
-    border-collapse: collapse;
-}
-
-th, td {
-    padding: 12px;
-    text-align: left;
-    border-bottom: 1px solid #eee;
-}
-
-th { background-color: #f8f9fa; font-weight: 600; }
-
-/* --- 6. Public Portal Specifics --- */
+/* --- 5. Gurmukhi & Larivaar Styling --- */
 .gurmukhi {
     font-size: 1.5rem;
     line-height: 2.2 !important;
     text-align: center;
     color: #222;
+    margin: 15px 0;
 }
 
-/* Larivaar Highlighting */
 .gurmukhi span {
     display: inline-block;
-    padding: 0;           /* Removed padding to bring words together */
-    margin: 0;            /* Ensure no margins are pushing words apart */
+    padding: 0;    /* No horizontal padding keeps words touching */
+    margin: 0;
     border-radius: 3px;
-    transition: background 0.2s;
+    transition: background 0.1s ease;
+    
+    /* IPHONE FIX: Removes the default gray tap box in Safari */
+    -webkit-tap-highlight-color: transparent; 
+    touch-action: manipulation;
 }
 
-/* Create a specific class for the "Merged" state */
-.gurmukhi.merged {
-    letter-spacing: -0.5px; /* Pulls letters/spans closer together */
-    word-spacing: -1px;     /* Forces browser to collapse any remaining gaps */
-}
-
-/* Keep the hover effect clean */
-.gurmukhi.merged span:hover {
+/* Laptop Highlight */
+.gurmukhi span:hover {
     background-color: #fff9c4;
     color: #d32f2f;
-    /* Optional: add a tiny bit of scale so the word "pops" out when hovered */
-    transform: scale(1.05); 
+    cursor: pointer;
 }
 
-/* Mobile Touch Active State */
+/* IPHONE HIGHLIGHT FIX: Forces yellow background on touch */
 .gurmukhi span:active {
-    background-color: #fff9c4;
-    color: #d32f2f;
+    background-color: #fff9c4 !important;
+    color: #d32f2f !important;
 }
 
+/* Specific tightening for Larivaar mode */
+.gurmukhi.merged {
+    letter-spacing: -0.8px; /* Pulls spans closer */
+    word-spacing: -1px;
+}
+
+/* --- 6. Helper Classes --- */
 .tag {
     background: #e1f5fe;
     color: #0288d1;
@@ -167,29 +126,23 @@ th { background-color: #f8f9fa; font-weight: 600; }
 }
 
 .meta { font-size: 0.85rem; color: #666; margin-top: 10px; }
-
 .hidden { display: none !important; }
 
 /* --- 7. Mobile Responsive Overrides --- */
 @media (max-width: 768px) {
-    .grid {
-        grid-template-columns: 1fr !important; /* Force single column */
-    }
-
-    .flex-row {
-        flex-direction: column; /* Stack side-by-side inputs */
-    }
-
+    .grid { grid-template-columns: 1fr !important; }
+    .flex-row { flex-direction: column; }
     .container { padding: 15px; }
-    
     h1 { font-size: 1.5rem; text-align: center; }
-
-    /* Make buttons full width on phone for easier tapping */
-    .tab-btn, .btn-success, .btn-primary {
-        width: 100%; 
-        text-align: center;
-    }
     
-    /* Adjust text size for small screens */
-    .gurmukhi { font-size: 1.3rem; }
+    .gurmukhi { 
+        font-size: 1.3rem; 
+        line-height: 2.6 !important; /* Extra height for easier tapping */
+    }
+
+    /* Make buttons easier to hit on mobile */
+    .tab-btn, button {
+        padding: 12px;
+        font-size: 1rem;
+    }
 }
