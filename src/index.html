@@ -47,6 +47,8 @@
             dateInput.value = localDate;
             loadPublic();
         }
+        // This tells the iPhone to listen for touch events so CSS highlights work immediately
+        document.addEventListener("touchstart", function() {}, true);
     </script>
 </body>
 </html>
