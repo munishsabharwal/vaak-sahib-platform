@@ -50,20 +50,33 @@ function renderPublic(data) {
     container.innerHTML = '';
     const filtered = (filter === 'all') ? data : data.filter(i => i.gurudwaraName.toLowerCase() === filter);
 
+// Inside your renderPublic function, find the displayVerse logic:
+
 filtered.forEach(item => {
     let displayVerse = "";
-    if (document.getElementById('mergeWords').checked) {
-        // Split by spaces and wrap in spans for the hover effect
+    let mergeClass = ""; // Variable to hold the extra CSS class
+
+    if (isMergeEnabled) {
+        // 1. Wrap words in spans
         displayVerse = item.verse.split(/\s+/).map(word => `<span>${word}</span>`).join('');
+        // 2. Add the 'merged' class to tighten spacing
+        mergeClass = "merged";
     } else {
         displayVerse = item.verse;
+        mergeClass = "";
     }
 
     container.innerHTML += `
         <div class="card">
-            <span class="tag">${item.gurudwaraName}</span>
-            <p class="gurmukhi">${displayVerse}</p>
-            <div class="meta">Ang: ${item.pageNumber}</div>
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;">
+                <span class="tag">${item.gurudwaraName}</span>
+                <span class="meta">${item.gurudwaraLocation || ''}</span>
+            </div>
+            <p class="gurmukhi ${mergeClass}">${displayVerse}</p>
+            <div class="meta" style="border-top:1px solid #eee; padding-top:10px; margin-top:15px;">
+                <strong>Ang:</strong> ${item.pageNumber} <br>
+                <small>Sevadar: ${item.editorName}</small>
+            </div>
         </div>`;
 });
 }
