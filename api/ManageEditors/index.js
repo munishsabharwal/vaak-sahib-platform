@@ -5,33 +5,54 @@ module.exports = async function (context, req) {
     const container = client.database("VaakDb").container("Editors");
 
     try {
-        const editorData = req.body;
-
-        if (!editorData.email) {
-            context.res = { status: 400, body: "Email is required as the ID." };
+        // --- GET: Fetch all editors for the Super Admin list ---
+        if (req.method === "GET") {
+            const { resources: editors } = await container.items
+                .query("SELECT * FROM c ORDER BY c.lastName ASC")
+                .fetchAll();
+            
+            context.res = {
+                status: 200,
+                body: editors,
+                headers: { 'Content-Type': 'application/json' }
+            };
             return;
         }
 
-        // We use the email as the ID so each editor has exactly one profile
-        const profile = {
-            id: editorData.email.toLowerCase().trim(),
-            email: editorData.email.toLowerCase().trim(),
-            firstName: editorData.firstName,
-            lastName: editorData.lastName,
-            gurudwaraName: editorData.gurudwaraName,
-            gurudwaraLocation: editorData.gurudwaraLocation,
-            status: editorData.status || "Active",
-            updatedAt: new Date().toISOString()
-        };
+        // --- POST: Save or Update an Editor Profile ---
+        if (req.method === "POST") {
+            const editorData = req.body;
 
-        await container.items.upsert(profile);
+            if (!editorData || !editorData.email) {
+                context.res = { status: 400, body: "Email is required as the ID." };
+                return;
+            }
 
-        context.res = {
-            status: 200,
-            body: "Editor profile saved successfully!"
-        };
+            const profile = {
+                id: editorData.email.toLowerCase().trim(),
+                email: editorData.email.toLowerCase().trim(),
+                firstName: editorData.firstName,
+                lastName: editorData.lastName,
+                gurudwaraName: editorData.gurudwaraName,
+                gurudwaraLocation: editorData.gurudwaraLocation,
+                status: editorData.status || "Active",
+                updatedAt: new Date().toISOString()
+            };
+
+            await container.items.upsert(profile);
+
+            context.res = {
+                status: 200,
+                body: "Editor profile saved successfully!"
+            };
+            return;
+        }
+
     } catch (err) {
-        context.log.error("SaveEditor Error:", err.message);
-        context.res = { status: 500, body: err.message };
+        context.log.error("ManageEditors Error:", err.message);
+        context.res = { 
+            status: 500, 
+            body: "Internal Server Error: " + err.message 
+        };
     }
 };
