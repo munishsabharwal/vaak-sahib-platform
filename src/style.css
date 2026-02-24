@@ -160,3 +160,38 @@ button {
     from { opacity: 0; }
     to { opacity: 1; }
 }
+/* --- Library Table Improvements --- */
+.library-table {
+    width: 100%;
+    border-collapse: collapse;
+    table-layout: fixed; /* Ensures headers align with cells */
+}
+
+.library-table th, .library-table td {
+    padding: 12px;
+    border-bottom: 1px solid #eee;
+    text-align: left;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+/* Define column widths to ensure alignment */
+.col-ang { width: 80px; }
+.col-verse { width: auto; }
+.col-keywords { width: 150px; }
+.col-actions { width: 180px; }
+
+/* Text truncation and expand logic */
+.verse-preview {
+    display: block;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    cursor: pointer;
+    max-width: 100%;
+}
+
+.verse-preview.expanded {
+    white-space: normal;
+    overflow: visible;
+}
