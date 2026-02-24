@@ -279,22 +279,54 @@ async function bulkImport() {
     } catch (e) { alert("Invalid JSON"); }
 }
 
-async function loadLibraryTable() {
-    const tableBody = document.getElementById('libraryTableBody');
-    const searchVal = document.getElementById('libAdminSearch').value.trim();
-    const url = searchVal ? `/api/LibraryManager?keyword=${encodeURIComponent(searchVal)}` : `/api/LibraryManager`;
+async function loadLibraryTable(searchQuery = '') {
+    const body = document.getElementById('libraryTableBody');
+    if (!body) return;
+
+    body.innerHTML = '<tr><td colspan="4" style="text-align:center;">Loading...</td></tr>';
 
     try {
-        const res = await fetch(url);
+        const res = await fetch(`/api/LibraryManager?search=${searchQuery}`);
         const data = await res.json();
-        tableBody.innerHTML = data.map(item => `
+
+        if (data.length === 0) {
+            body.innerHTML = '<tr><td colspan="4" style="text-align:center;">No records found.</td></tr>';
+            return;
+        }
+
+        // Apply headers with specific classes for alignment
+        const tableContainer = body.closest('table');
+        tableContainer.classList.add('library-table');
+        
+        // Update header row (find the thead in your HTML and ensure it matches this)
+        const thead = tableContainer.querySelector('thead');
+        thead.innerHTML = `
             <tr>
-                <td>${item.pageNumber}</td>
-                <td class="gurmukhi">${item.verse}</td>
-                <td>${item.keywords}</td>
-                <td><button class="btn-danger" onclick="deleteLibraryItem('${item.id}', '${item.pageNumber}')">Delete</button></td>
-            </tr>`).join('');
-    } catch (e) { tableBody.innerHTML = 'Error loading table.'; }
+                <th class="col-ang">Ang</th>
+                <th class="col-verse">Verse</th>
+                <th class="col-keywords">Keywords</th>
+                <th class="col-actions">Actions</th>
+            </tr>`;
+
+        body.innerHTML = data.map(item => `
+            <tr>
+                <td class="col-ang">${item.pageNumber}</td>
+                <td class="col-verse">
+                    <div class="gurmukhi verse-preview" onclick="this.classList.toggle('expanded')" title="Click to expand/collapse">
+                        ${item.verse}
+                    </div>
+                </td>
+                <td class="col-keywords" style="font-size: 0.85rem; color: #666;">${item.keywords || ''}</td>
+                <td class="col-actions">
+                    <button class="btn-success btn-sm" onclick="preparePublish('${item.id}')">Select</button>
+                    <button class="btn-danger btn-sm" onclick="deleteLibraryItem('${item.id}')">Delete</button>
+                </td>
+            </tr>
+        `).join('');
+
+    } catch (e) {
+        body.innerHTML = '<tr><td colspan="4" style="text-align:center; color:red;">Error loading library.</td></tr>';
+    }
 }
 
 async function deleteLibraryItem(id, pageNumber) {
