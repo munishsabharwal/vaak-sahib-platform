@@ -87,11 +87,12 @@ button {
     color: #222;
 }
 
-/* Library Table Core Logic */
+/* --- Library Table Formatting --- */
 .library-table {
     width: 100%;
     border-collapse: collapse;
-    table-layout: fixed; /* Force column widths */
+    table-layout: fixed; /* Ensures headers align with cells */
+    margin-top: 10px;
 }
 
 .library-table th, .library-table td {
@@ -99,41 +100,36 @@ button {
     border-bottom: 1px solid #eee;
     text-align: left;
     vertical-align: top;
-    overflow: hidden; /* Prevent spillover */
 }
 
-/* Width Definitions */
-.col-ang { width: 60px; font-weight: bold; }
-.col-verse { width: auto; min-width: 0; } /* min-width:0 is vital for table-layout:fixed */
-.col-keywords { width: 140px; color: #666; font-size: 0.85rem; }
-.col-actions { width: 160px; text-align: right; }
+/* Updated Column Widths using percentages to prevent disappearing columns */
+.col-ang { width: 10%; font-weight: bold; }
+.col-verse { width: 55%; } /* Give the verse the majority of the space */
+.col-keywords { width: 15%; color: #666; font-size: 0.9rem; }
+.col-actions { width: 20%; text-align: right; }
 
-/* Truncation & Expand */
+/* Ensure the preview container fills the 55% width */
 .verse-preview {
     display: block;
+    width: 100%; 
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
     cursor: pointer;
     padding: 8px;
     border-radius: 4px;
-    transition: background 0.2s;
+    transition: all 0.2s ease;
     border: 1px solid transparent;
+    box-sizing: border-box; /* Ensures padding doesn't push width over 100% */
 }
-
-.verse-preview:hover { background-color: #f0f7f0; }
 
 .verse-preview.expanded {
     white-space: normal;
     overflow: visible;
-    background-color: #fffdf0;
+    background-color: #fffdf0; /* Subtle highlight */
     border: 1px solid #107c10;
     box-shadow: 0 4px 6px rgba(0,0,0,0.1);
     font-size: 1.2rem;
     line-height: 1.6;
     padding: 15px;
 }
-
-.verse-preview.expanded .expand-hint { display: none; }
-
-.hidden { display: none !important; }
