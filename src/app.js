@@ -279,54 +279,80 @@ async function bulkImport() {
     } catch (e) { alert("Invalid JSON"); }
 }
 
+/* --- Pagination State --- */
+let libraryCurrentPage = 1;
+const libraryPageSize = 10;
+let libraryAllData = [];
+
 async function loadLibraryTable(searchQuery = '') {
     const body = document.getElementById('libraryTableBody');
     if (!body) return;
 
-    body.innerHTML = '<tr><td colspan="4" style="text-align:center;">Loading...</td></tr>';
+    body.innerHTML = '<tr><td colspan="4" style="text-align:center; padding:20px;">Loading Library...</td></tr>';
 
     try {
         const res = await fetch(`/api/LibraryManager?search=${searchQuery}`);
-        const data = await res.json();
+        let data = await res.json();
 
-        if (data.length === 0) {
-            body.innerHTML = '<tr><td colspan="4" style="text-align:center;">No records found.</td></tr>';
-            return;
-        }
+        // 1. Numerical Sort by Ang
+        data.sort((a, b) => parseInt(a.pageNumber) - parseInt(b.pageNumber));
 
-        // Apply headers with specific classes for alignment
-        const tableContainer = body.closest('table');
-        tableContainer.classList.add('library-table');
-        
-        // Update header row (find the thead in your HTML and ensure it matches this)
-        const thead = tableContainer.querySelector('thead');
-        thead.innerHTML = `
-            <tr>
-                <th class="col-ang">Ang</th>
-                <th class="col-verse">Verse</th>
-                <th class="col-keywords">Keywords</th>
-                <th class="col-actions">Actions</th>
-            </tr>`;
-
-        body.innerHTML = data.map(item => `
-            <tr>
-                <td class="col-ang">${item.pageNumber}</td>
-                <td class="col-verse">
-                    <div class="gurmukhi verse-preview" onclick="this.classList.toggle('expanded')" title="Click to expand/collapse">
-                        ${item.verse}
-                    </div>
-                </td>
-                <td class="col-keywords" style="font-size: 0.85rem; color: #666;">${item.keywords || ''}</td>
-                <td class="col-actions">
-                    <button class="btn-success btn-sm" onclick="preparePublish('${item.id}')">Select</button>
-                    <button class="btn-danger btn-sm" onclick="deleteLibraryItem('${item.id}')">Delete</button>
-                </td>
-            </tr>
-        `).join('');
+        libraryAllData = data; 
+        renderLibraryPage(1); 
 
     } catch (e) {
-        body.innerHTML = '<tr><td colspan="4" style="text-align:center; color:red;">Error loading library.</td></tr>';
+        body.innerHTML = '<tr><td colspan="4" style="text-align:center; color:red;">Error loading library data.</td></tr>';
     }
+}
+
+function renderLibraryPage(page) {
+    libraryCurrentPage = page;
+    const body = document.getElementById('libraryTableBody');
+    
+    const start = (page - 1) * libraryPageSize;
+    const end = start + libraryPageSize;
+    const pageData = libraryAllData.slice(start, end);
+
+    if (pageData.length === 0) {
+        body.innerHTML = '<tr><td colspan="4" style="text-align:center;">No records found.</td></tr>';
+        return;
+    }
+
+    body.innerHTML = pageData.map(item => `
+        <tr>
+            <td class="col-ang">${item.pageNumber}</td>
+            <td class="col-verse">
+                <div class="gurmukhi verse-preview" onclick="this.classList.toggle('expanded')">
+                    ${item.verse}
+                    <div class="expand-hint" style="font-size:0.7rem; color:#999; font-family:sans-serif; margin-top:5px;">(Click to expand)</div>
+                </div>
+            </td>
+            <td class="col-keywords">${item.keywords || ''}</td>
+            <td class="col-actions">
+                <button class="btn-success btn-sm" onclick="preparePublish('${item.id}')">Select</button>
+                <button class="btn-danger btn-sm" onclick="deleteLibraryItem('${item.id}')">Delete</button>
+            </td>
+        </tr>
+    `).join('');
+
+    renderPaginationControls();
+}
+
+function renderPaginationControls() {
+    const container = document.getElementById('libraryPagination');
+    if (!container) return;
+
+    const totalPages = Math.ceil(libraryAllData.length / libraryPageSize);
+    
+    container.innerHTML = `
+        <div style="display:flex; justify-content:center; align-items:center; gap:20px; margin-top:20px; padding:10px;">
+            <button class="btn-sm" ${libraryCurrentPage === 1 ? 'disabled' : ''} 
+                onclick="renderLibraryPage(${libraryCurrentPage - 1})">← Previous</button>
+            <span style="font-size:0.9rem;">Page <b>${libraryCurrentPage}</b> of ${totalPages || 1}</span>
+            <button class="btn-sm" ${libraryCurrentPage >= totalPages ? 'disabled' : ''} 
+                onclick="renderLibraryPage(${libraryCurrentPage + 1})">Next →</button>
+        </div>
+    `;
 }
 
 async function deleteLibraryItem(id, pageNumber) {
