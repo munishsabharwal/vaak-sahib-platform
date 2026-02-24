@@ -133,3 +133,11 @@ button {
     line-height: 1.6;
     padding: 15px;
 }
+
+.gurmukhi {
+    font-family: 'Noto Sans Gurmukhi', Arial, sans-serif;
+    font-size: 1.8rem; /* Slightly larger for better clarity */
+    line-height: 2.4;  /* Crucial for Gurmukhi vowel symbols (matras) */
+    letter-spacing: 0.5px;
+    font-weight: 500;
+}
