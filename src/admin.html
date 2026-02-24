@@ -47,83 +47,65 @@
             </div>
         </div>
 
-<div id="editorsTab" class="tab-content">
-    <h2>Manage Editors</h2>
-    
-    <div class="card" style="margin-bottom: 20px; border-top: 4px solid #107c10;">
-        <h3>Register New Editor</h3>
-        <div class="grid" style="grid-template-columns: 1fr 1fr; gap: 10px;">
-            <input id="editEmail" placeholder="Email (must match Azure Invite)">
-            <input id="editFirstName" placeholder="First Name">
-            <input id="editLastName" placeholder="Last Name">
-            <input id="editGurudwara" placeholder="Gurudwara Name">
-            <input id="editLocation" placeholder="Gurudwara Location">
-        </div>
-        <button class="btn-success" style="margin-top:15px; width: 100%; padding: 12px;" onclick="saveEditor()">Save Profile</button>
-    </div>
+        <div id="editorsTab" class="tab-content">
+            <h2>Manage Editors</h2>
+            <div class="card" style="margin-bottom: 20px; border-top: 4px solid #107c10;">
+                <h3>Register New Editor</h3>
+                <div class="grid" style="grid-template-columns: 1fr 1fr; gap: 10px;">
+                    <input id="editEmail" placeholder="Email (must match Azure Invite)">
+                    <input id="editFirstName" placeholder="First Name">
+                    <input id="editLastName" placeholder="Last Name">
+                    <input id="editGurudwara" placeholder="Gurudwara Name">
+                    <input id="editLocation" placeholder="Gurudwara Location">
+                </div>
+                <button class="btn-success" style="margin-top:15px; width: 100%; padding: 12px;" onclick="saveEditor()">Save Profile</button>
+            </div>
 
-    <div class="card">
-        <h3>Existing Editors</h3>
-        <div class="table-container">
-            <table style="width: 100%; border-collapse: collapse;">
-                <thead>
-                    <tr style="background: #f4f7f6; text-align: left;">
-                        <th style="padding: 12px; border: 1px solid #ddd;">Name</th>
-                        <th style="padding: 12px; border: 1px solid #ddd;">Email</th>
-                        <th style="padding: 12px; border: 1px solid #ddd;">Gurudwara</th>
-                        <th style="padding: 12px; border: 1px solid #ddd;">Location</th>
-                    </tr>
-                </thead>
-                <tbody id="editorsTableBody">
-                    <tr><td colspan="4" style="text-align:center; padding:20px;">Loading editors...</td></tr>
-                </tbody>
-            </table>
+            <div class="card">
+                <h3>Existing Editors</h3>
+                <div class="table-container">
+                    <table style="width: 100%; border-collapse: collapse;">
+                        <thead>
+                            <tr style="background: #f4f7f6; text-align: left;">
+                                <th style="padding: 12px; border: 1px solid #ddd;">Name</th>
+                                <th style="padding: 12px; border: 1px solid #ddd;">Email</th>
+                                <th style="padding: 12px; border: 1px solid #ddd;">Gurudwara</th>
+                                <th style="padding: 12px; border: 1px solid #ddd;">Location</th>
+                            </tr>
+                        </thead>
+                        <tbody id="editorsTableBody">
+                            <tr><td colspan="4" style="text-align:center; padding:20px;">Loading editors...</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
         </div>
-    </div>
-</div>
-        
 
         <div id="libraryTab" class="tab-content">
             <h2>Library Management</h2>
-                    <div class="card" style="margin-bottom: 20px; border-left: 5px solid #107c10;">
-    <h3>Add Single Verse to Library</h3>
-    <div class="grid" style="grid-template-columns: 100px 1fr 1fr; gap: 10px; align-items: end;">
-        <div>
-            <label style="font-size: 0.8rem;">Page</label>
-            <input type="text" id="addLibPage" placeholder="Ang">
-        </div>
-        <div>
-            <label style="font-size: 0.8rem;">Gurmukhi Verse</label>
-            <input type="text" id="addLibVerse" placeholder="Enter full verse...">
-        </div>
-        <div>
-            <label style="font-size: 0.8rem;">Keywords (Gurmukhi)</label>
-            <input type="text" id="addLibKeywords" placeholder="Keywords for search...">
-        </div>
-        <div class="card">
-        <div class="table-container">
-            <table class="library-table">
-                <thead>
-                    <tr>
-                        <th class="col-ang">Ang</th>
-                        <th class="col-verse">Verse</th>
-                        <th class="col-keywords">Keywords</th>
-                        <th class="col-actions">Actions</th>
-                    </tr>
-                </thead>
-                <tbody id="libraryTableBody">
-                    </tbody>
-            </table>
-        </div>
-        
-        <div id="libraryPagination"></div>
-    </div>
-    </div>
-    <button class="btn-success" style="margin-top: 15px; width: 100%;" onclick="addSingleLibraryItem()">Save to Library</button>
-</div>
+            
+            <div class="card" style="margin-bottom: 20px; border-left: 5px solid #107c10;">
+                <h3>Add Single Verse to Library</h3>
+                <div class="grid" style="grid-template-columns: 100px 1fr 1fr; gap: 10px; align-items: end;">
+                    <div>
+                        <label style="font-size: 0.8rem;">Ang</label>
+                        <input type="text" id="addLibPage" placeholder="Ang">
+                    </div>
+                    <div>
+                        <label style="font-size: 0.8rem;">Gurmukhi Verse</label>
+                        <input type="text" id="addLibVerse" placeholder="Enter full verse...">
+                    </div>
+                    <div>
+                        <label style="font-size: 0.8rem;">Keywords</label>
+                        <input type="text" id="addLibKeywords" placeholder="Keywords...">
+                    </div>
+                </div>
+                <button class="btn-success" style="margin-top: 15px; width: 100%;" onclick="addSingleLibraryItem()">Save to Library</button>
+            </div>
+
             <div class="flex-row" style="margin-bottom: 20px; flex-wrap: wrap;">
-                <input type="text" id="libAdminSearch" placeholder="Filter by Page or Keyword..." onkeyup="if(event.key === 'Enter') loadLibraryTable()" style="flex: 1;">
-                <button class="btn-primary" onclick="loadLibraryTable()">Search</button>
+                <input type="text" id="libAdminSearch" placeholder="Filter by Page or Keyword..." onkeyup="if(event.key === 'Enter') loadLibraryTable(this.value)" style="flex: 1;">
+                <button class="btn-primary" onclick="loadLibraryTable(document.getElementById('libAdminSearch').value)">Search</button>
                 <button class="btn-success" onclick="document.getElementById('importModal').classList.toggle('hidden')">+ Bulk Import</button>
             </div>
 
@@ -133,32 +115,30 @@
                 <button class="btn-success" onclick="bulkImport()">Run Import</button>
             </div>
 
-            <div class="table-container">
-                <table>
-                    <thead>
-                        <tr>
-                            <th style="width: 80px;">Page</th>
-                            <th>Gurmukhi Verse</th>
-                            <th>Keywords</th>
-                            <th style="width: 100px;">Action</th>
-                        </tr>
-                    </thead>
-                    <tbody id="libraryTableBody"></tbody>
-                </table>
+            <div class="card">
+                <div class="table-container">
+                    <table class="library-table">
+                        <thead>
+                            <tr>
+                                <th class="col-ang">Ang</th>
+                                <th class="col-verse">Verse</th>
+                                <th class="col-keywords">Keywords</th>
+                                <th class="col-actions">Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="libraryTableBody">
+                            </tbody>
+                    </table>
+                </div>
+                <div id="libraryPagination"></div>
             </div>
         </div>
     </div>
     
-<script src="app.js"></script>
+    <script src="app.js"></script>
     <script>
-        // Set default date
         document.getElementById('publishDate').valueAsDate = new Date();
-        
-        // Start admin check
         initAdmin();
-        
-        // Ensure first tab button is styled as active on load
-        document.getElementById('btn-publish').classList.add('active');
     </script>
 </body>
 </html>
