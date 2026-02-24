@@ -314,7 +314,7 @@ function renderLibraryPage(page) {
     const pageData = libraryAllData.slice(start, end);
 
     if (pageData.length === 0) {
-        body.innerHTML = '<tr><td colspan="4" style="text-align:center;">No records.</td></tr>';
+        body.innerHTML = '<tr><td colspan="4" style="text-align:center;">No records found.</td></tr>';
         return;
     }
 
