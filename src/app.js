@@ -284,24 +284,24 @@ let libraryCurrentPage = 1;
 const libraryPageSize = 10;
 let libraryAllData = [];
 
+// ... [Existing loadPublic, renderPublic, initAdmin remain same] ...
+
 async function loadLibraryTable(searchQuery = '') {
     const body = document.getElementById('libraryTableBody');
     if (!body) return;
-
     body.innerHTML = '<tr><td colspan="4" style="text-align:center; padding:20px;">Loading Library...</td></tr>';
 
     try {
         const res = await fetch(`/api/LibraryManager?search=${searchQuery}`);
         let data = await res.json();
 
-        // 1. Numerical Sort by Ang
-        data.sort((a, b) => parseInt(a.pageNumber) - parseInt(b.pageNumber));
+        // Numerical Sort
+        data.sort((a, b) => parseInt(a.pageNumber || 0) - parseInt(b.pageNumber || 0));
 
         libraryAllData = data; 
         renderLibraryPage(1); 
-
     } catch (e) {
-        body.innerHTML = '<tr><td colspan="4" style="text-align:center; color:red;">Error loading library data.</td></tr>';
+        body.innerHTML = '<tr><td colspan="4" style="text-align:center; color:red;">Error loading library.</td></tr>';
     }
 }
 
@@ -314,7 +314,7 @@ function renderLibraryPage(page) {
     const pageData = libraryAllData.slice(start, end);
 
     if (pageData.length === 0) {
-        body.innerHTML = '<tr><td colspan="4" style="text-align:center;">No records found.</td></tr>';
+        body.innerHTML = '<tr><td colspan="4" style="text-align:center;">No records.</td></tr>';
         return;
     }
 
@@ -341,19 +341,17 @@ function renderLibraryPage(page) {
 function renderPaginationControls() {
     const container = document.getElementById('libraryPagination');
     if (!container) return;
-
     const totalPages = Math.ceil(libraryAllData.length / libraryPageSize);
     
     container.innerHTML = `
         <div style="display:flex; justify-content:center; align-items:center; gap:20px; margin-top:20px; padding:10px;">
-            <button class="btn-sm" ${libraryCurrentPage === 1 ? 'disabled' : ''} 
-                onclick="renderLibraryPage(${libraryCurrentPage - 1})">← Previous</button>
+            <button class="btn-sm" ${libraryCurrentPage === 1 ? 'disabled' : ''} onclick="renderLibraryPage(${libraryCurrentPage - 1})">← Previous</button>
             <span style="font-size:0.9rem;">Page <b>${libraryCurrentPage}</b> of ${totalPages || 1}</span>
-            <button class="btn-sm" ${libraryCurrentPage >= totalPages ? 'disabled' : ''} 
-                onclick="renderLibraryPage(${libraryCurrentPage + 1})">Next →</button>
-        </div>
-    `;
+            <button class="btn-sm" ${libraryCurrentPage >= totalPages ? 'disabled' : ''} onclick="renderLibraryPage(${libraryCurrentPage + 1})">Next →</button>
+        </div>`;
 }
+
+// ... [Existing deleteLibraryItem, openTab, etc. follow] ...
 
 async function deleteLibraryItem(id, pageNumber) {
     if (!confirm("Delete this verse?")) return;
