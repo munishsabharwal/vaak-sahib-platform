@@ -19,7 +19,7 @@ h1, h2, h3 { margin-top: 0; color: #2c3e50; }
 /* --- 2. Layouts (Grid & Flex) --- */
 .grid {
     display: grid;
-    grid-template-columns: 1fr 1fr; /* Default: 2 columns */
+    grid-template-columns: 1fr 1fr;
     gap: 20px;
 }
 
@@ -28,7 +28,7 @@ h1, h2, h3 { margin-top: 0; color: #2c3e50; }
     gap: 10px;
 }
 
-/* --- 3. UI Components (Cards, Inputs, Buttons) --- */
+/* --- 3. UI Components --- */
 .card {
     background: white;
     padding: 20px;
@@ -42,7 +42,7 @@ input, select, textarea {
     padding: 10px;
     border: 1px solid #ddd;
     border-radius: 6px;
-    font-size: 16px; /* Prevents iOS auto-zoom on focus */
+    font-size: 16px;
     width: 100%;
     box-sizing: border-box;
 }
@@ -69,103 +69,29 @@ button {
     padding-bottom: 10px;
     margin-bottom: 20px;
     border-bottom: 2px solid #eee;
-    -webkit-overflow-scrolling: touch;
 }
 
 .tab-btn { background: #e9ecef; color: #495057; }
 .tab-btn.active { background: #0078d4; color: white; }
 
-/* --- 5. Gurmukhi & Larivaar Styling --- */
+.tab-content { display: none; }
+.tab-content.active { display: block !important; animation: fadeIn 0.3s; }
+
+@keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+
+/* --- 5. Gurmukhi & Verse Styling --- */
 .gurmukhi {
     font-size: 1.5rem;
     line-height: 2.2 !important;
     text-align: center;
     color: #222;
-    margin: 15px 0;
 }
 
-.gurmukhi span {
-    display: inline-block;
-    padding: 0;    /* No horizontal padding keeps words touching */
-    margin: 0;
-    border-radius: 3px;
-    transition: background 0.1s ease;
-    
-    /* IPHONE FIX: Removes the default gray tap box in Safari */
-    -webkit-tap-highlight-color: transparent; 
-    touch-action: manipulation;
-}
-
-/* Laptop Highlight */
-.gurmukhi span:hover {
-    background-color: #fff9c4;
-    color: #d32f2f;
-    cursor: pointer;
-}
-
-/* IPHONE HIGHLIGHT FIX: Forces yellow background on touch */
-.gurmukhi span:active {
-    background-color: #fff9c4 !important;
-    color: #d32f2f !important;
-}
-
-/* Specific tightening for Larivaar mode */
-.gurmukhi.merged {
-    letter-spacing: -0.8px; /* Pulls spans closer */
-    word-spacing: -1px;
-}
-
-/* --- 6. Helper Classes --- */
-.tag {
-    background: #e1f5fe;
-    color: #0288d1;
-    padding: 4px 10px;
-    border-radius: 20px;
-    font-size: 0.8rem;
-    font-weight: bold;
-}
-
-.meta { font-size: 0.85rem; color: #666; margin-top: 10px; }
-.hidden { display: none !important; }
-
-/* --- 7. Mobile Responsive Overrides --- */
-@media (max-width: 768px) {
-    .grid { grid-template-columns: 1fr !important; }
-    .flex-row { flex-direction: column; }
-    .container { padding: 15px; }
-    h1 { font-size: 1.5rem; text-align: center; }
-    
-    .gurmukhi { 
-        font-size: 1.3rem; 
-        line-height: 2.6 !important; /* Extra height for easier tapping */
-    }
-
-    /* Make buttons easier to hit on mobile */
-    .tab-btn, button {
-        padding: 12px;
-        font-size: 1rem;
-    }
-}
-/* --- Tab Visibility Logic --- */
-.tab-content {
-    display: none; /* Hide all tabs by default */
-}
-
-.tab-content.active {
-    display: block !important; /* Only show the tab with the .active class */
-    animation: fadeIn 0.3s;
-}
-
-@keyframes fadeIn {
-    from { opacity: 0; }
-    to { opacity: 1; }
-}
-/* --- Library Table Formatting --- */
+/* Library Table Core Logic */
 .library-table {
     width: 100%;
     border-collapse: collapse;
-    table-layout: fixed; /* Fixes alignment between headers and rows */
-    margin-top: 10px;
+    table-layout: fixed; /* Force column widths */
 }
 
 .library-table th, .library-table td {
@@ -173,15 +99,16 @@ button {
     border-bottom: 1px solid #eee;
     text-align: left;
     vertical-align: top;
+    overflow: hidden; /* Prevent spillover */
 }
 
-/* Specific Column Widths */
-.col-ang { width: 70px; font-weight: bold; }
-.col-verse { width: auto; }
-.col-keywords { width: 150px; color: #666; font-size: 0.9rem; }
+/* Width Definitions */
+.col-ang { width: 60px; font-weight: bold; }
+.col-verse { width: auto; min-width: 0; } /* min-width:0 is vital for table-layout:fixed */
+.col-keywords { width: 140px; color: #666; font-size: 0.85rem; }
 .col-actions { width: 160px; text-align: right; }
 
-/* Expanded Verse Styling */
+/* Truncation & Expand */
 .verse-preview {
     display: block;
     white-space: nowrap;
@@ -190,18 +117,16 @@ button {
     cursor: pointer;
     padding: 8px;
     border-radius: 4px;
-    transition: all 0.2s ease;
+    transition: background 0.2s;
     border: 1px solid transparent;
 }
 
-.verse-preview:hover {
-    background-color: #f0f7f0;
-}
+.verse-preview:hover { background-color: #f0f7f0; }
 
 .verse-preview.expanded {
     white-space: normal;
     overflow: visible;
-    background-color: #fffdf0; /* Subtle highlight */
+    background-color: #fffdf0;
     border: 1px solid #107c10;
     box-shadow: 0 4px 6px rgba(0,0,0,0.1);
     font-size: 1.2rem;
@@ -210,3 +135,5 @@ button {
 }
 
 .verse-preview.expanded .expand-hint { display: none; }
+
+.hidden { display: none !important; }
