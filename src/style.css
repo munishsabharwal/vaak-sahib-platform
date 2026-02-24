@@ -80,11 +80,14 @@ button {
 @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
 
 /* --- 5. Gurmukhi & Verse Styling --- */
+@import url('https://fonts.googleapis.com/css2?family=Noto+Sans+Gurmukhi:wght@400;700&display=swap');
+
 .gurmukhi {
-    font-size: 1.5rem;
-    line-height: 2.2 !important;
-    text-align: center;
-    color: #222;
+    font-family: 'Noto Sans Gurmukhi', Arial, sans-serif;
+    font-size: 1.8rem; /* Slightly larger for better clarity */
+    line-height: 2.4;  /* Crucial for Gurmukhi vowel symbols (matras) */
+    letter-spacing: 0.5px;
+    font-weight: 500;
 }
 
 /* --- Library Table Formatting --- */
@@ -132,12 +135,4 @@ button {
     font-size: 1.2rem;
     line-height: 1.6;
     padding: 15px;
-}
-
-.gurmukhi {
-    font-family: 'Noto Sans Gurmukhi', Arial, sans-serif;
-    font-size: 1.8rem; /* Slightly larger for better clarity */
-    line-height: 2.4;  /* Crucial for Gurmukhi vowel symbols (matras) */
-    letter-spacing: 0.5px;
-    font-weight: 500;
 }
