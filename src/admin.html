@@ -100,6 +100,24 @@
             <label style="font-size: 0.8rem;">Keywords (Gurmukhi)</label>
             <input type="text" id="addLibKeywords" placeholder="Keywords for search...">
         </div>
+        <div class="card">
+        <div class="table-container">
+            <table class="library-table">
+                <thead>
+                    <tr>
+                        <th class="col-ang">Ang</th>
+                        <th class="col-verse">Verse</th>
+                        <th class="col-keywords">Keywords</th>
+                        <th class="col-actions">Actions</th>
+                    </tr>
+                </thead>
+                <tbody id="libraryTableBody">
+                    </tbody>
+            </table>
+        </div>
+        
+        <div id="libraryPagination"></div>
+    </div>
     </div>
     <button class="btn-success" style="margin-top: 15px; width: 100%;" onclick="addSingleLibraryItem()">Save to Library</button>
 </div>
