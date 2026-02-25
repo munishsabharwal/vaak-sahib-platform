@@ -105,6 +105,20 @@ button {
         line-height: 1.6 !important;
     }
 }
+
+/* Ensure this is in your style.css  for merge word highlighting*/
+.gurmukhi.merged span {
+    display: inline;
+    padding: 0;
+    margin: 0;
+}
+
+/* This is the part that actually "highlights" on hover */
+.gurmukhi.merged span:hover {
+    background-color: rgba(255, 215, 0, 0.4); /* Gold highlight */
+    cursor: pointer;
+}
+
 /* --- Library Table Formatting --- */
 .library-table {
     width: 100%;
