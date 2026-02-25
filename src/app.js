@@ -52,6 +52,18 @@ function renderPublic(data) {
 
 // Inside your renderPublic function, find the displayVerse logic:
 
+    // FIX: Apply a special class if only one card is present
+    if (filtered.length === 1) {
+        container.classList.add('single-card-layout');
+    } else {
+        container.classList.remove('single-card-layout');
+    }
+
+    if (filtered.length === 0) {
+        container.innerHTML = '<p style="text-align: center; width: 100%;">No Vaak found for this date.</p>';
+        return;
+    }
+
 filtered.forEach(item => {
     let displayVerse = "";
     let mergeClass = ""; // Variable to hold the extra CSS class
