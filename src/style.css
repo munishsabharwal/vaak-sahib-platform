@@ -114,6 +114,9 @@ button {
     color: #1a1a1a;
     padding: 10px 0;
     font-weight: 500;
+    /* Decorative side borders similar to traditional manuscripts */
+    border-left: 2px double #d4af37; 
+    border-right: 2px double #d4af37;
 }
 
 /* On very small mobile screens, drop the size just a bit more */
