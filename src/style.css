@@ -4,7 +4,10 @@ body {
     line-height: 1.6;
     margin: 0;
     padding: 0;
-    background-color: #f4f7f6;
+    /* BACKGROUND ADDITION: Subtle parchment/paper color */
+    background-color: #fcfaf2; 
+    background-image: radial-gradient(#e5e0d0 0.5px, transparent 0.5px);
+    background-size: 20px 20px; /* Creates a very subtle paper-grain effect */
     color: #333;
 }
 
@@ -14,6 +17,8 @@ h1, h2, h3 { margin-top: 0; color: #2c3e50; }
     max-width: 1000px;
     margin: 0 auto;
     padding: 20px;
+    /* Optional: Makes the main area look like a large paper sheet */
+    min-height: 100vh;
 }
 
 /* --- 2. Layouts (Grid & Flex) --- */
@@ -41,13 +46,14 @@ h1, h2, h3 { margin-top: 0; color: #2c3e50; }
 }
 
 /* --- 3. UI Components --- */
+/* --- Improved Card Look --- */
 .card {
     background: white;
-    padding: 20px;
-    border-radius: 12px;
-    box-shadow: 0 2px 8px rgba(0,0,0,0.08);
-    border: 1px solid #eee;
-    margin-bottom: 10px;
+    padding: 30px; /* Increased padding to match the PDF margins */
+    border-radius: 4px; /* Sharper corners feel more like paper */
+    box-shadow: 0 4px 15px rgba(0,0,0,0.05); /* Softer shadow */
+    border: 1px solid #e0dcc8;
+    margin-bottom: 20px;
 }
 
 input, select, textarea {
