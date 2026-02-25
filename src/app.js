@@ -78,19 +78,35 @@ filtered.forEach(item => {
         mergeClass = "";
     }
 
-    container.innerHTML += `
-        <div class="card">
-            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;">
-                <span class="tag">${item.gurudwaraName}</span>
-                <span class="meta">${item.gurudwaraLocation || ''}</span>
-            </div>
-            <p class="gurmukhi ${mergeClass}">${displayVerse}</p>
-            <div class="meta" style="border-top:1px solid #eee; padding-top:10px; margin-top:15px;">
-                <strong>Ang:</strong> ${item.pageNumber} <br>
-                <small>Sevadar: ${item.editorName}</small>
-            </div>
-        </div>`;
+container.innerHTML += `
+    <div class="card">
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;">
+            <span class="tag">${item.gurudwaraName}</span>
+            <button class="btn-share" onclick="copyVaak('${item.gurudwaraName}', '${item.verse.replace(/'/g, "\\'")}', '${item.pageNumber}')">
+                Share
+            </button>
+        </div>
+        <p class="gurmukhi ${mergeClass}">${displayVerse}</p>
+        <div class="meta" style="border-top:1px solid #eee; padding-top:10px; margin-top:15px;">
+            <strong>Ang:</strong> ${item.pageNumber} <br>
+            <small>Sevadar: ${item.editorName}</small>
+        </div>
+    </div>`;
 });
+}
+
+/* --- Share Function --- */
+async function copyVaak(gurudwara, verse, ang) {
+    // Formats text with WhatsApp bolding (*)
+    const textToCopy = `*Daily Vaak Sahib*\n\n${verse}\n\n*Gurudwara:* ${gurudwara}\n*Ang:* ${ang}\n\nShared via Vaak Sahib Portal`;
+    
+    try {
+        await navigator.clipboard.writeText(textToCopy);
+        alert("✅ Vaak copied! You can now paste it into WhatsApp.");
+    } catch (err) {
+        console.error('Failed to copy: ', err);
+        alert("Could not copy text. Please try manually.");
+    }
 }
 
 function populateFilter(data) {
