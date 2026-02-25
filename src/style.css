@@ -9,6 +9,8 @@ body {
     background-image: radial-gradient(#e5e0d0 0.5px, transparent 0.5px);
     background-size: 20px 20px; /* Creates a very subtle paper-grain effect */
     color: #333;
+    background-image: url('https://www.transparenttextures.com/patterns/paper-fibers.png'); /* Light paper texture */
+    background-repeat: repeat;
 }
 
 h1, h2, h3 { margin-top: 0; color: #2c3e50; }
