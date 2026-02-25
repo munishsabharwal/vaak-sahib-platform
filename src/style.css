@@ -19,8 +19,20 @@ h1, h2, h3 { margin-top: 0; color: #2c3e50; }
 /* --- 2. Layouts (Grid & Flex) --- */
 .grid {
     display: grid;
-    grid-template-columns: 1fr 1fr;
+    grid-template-columns: repeat(auto-fit, minmax(350px, 1fr)); /* Automatically fits columns based on screen width */
     gap: 20px;
+    justify-content: center; /* Centers cards if there is extra space */
+}
+
+/* New: Centering logic when only one card exists */
+.single-card-layout {
+    display: flex !important;
+    justify-content: center;
+}
+
+.single-card-layout .card {
+    width: 100%;
+    max-width: 700px; /* Prevents a single card from becoming too wide on desktop */
 }
 
 .flex-row {
