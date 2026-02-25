@@ -83,13 +83,28 @@ button {
 @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+Gurmukhi:wght@400;700&display=swap');
 
 .gurmukhi {
-    font-family: 'Noto Sans Gurmukhi', Arial, sans-serif;
-    font-size: 1.8rem; /* Slightly larger for better clarity */
-    line-height: 2.4;  /* Crucial for Gurmukhi vowel symbols (matras) */
-    letter-spacing: 0.5px;
+    /* Use a high-quality system font stack for Gurmukhi if Noto is too much */
+    font-family: 'Noto Sans Gurmukhi', "Arial Unicode MS", sans-serif;
+    
+    /* Reduced from 1.8rem to 1.4rem for a cleaner look */
+    font-size: 1.4rem; 
+    
+    /* Tightened line height (was 2.4, now 1.8) to keep matras visible but text compact */
+    line-height: 1.8 !important; 
+    
+    text-align: center;
+    color: #1a1a1a;
+    padding: 10px 0;
     font-weight: 500;
 }
 
+/* On very small mobile screens, drop the size just a bit more */
+@media (max-width: 480px) {
+    .gurmukhi {
+        font-size: 1.25rem;
+        line-height: 1.6 !important;
+    }
+}
 /* --- Library Table Formatting --- */
 .library-table {
     width: 100%;
