@@ -206,3 +206,8 @@ button {
     transform: scale(0.95);
     background-color: #128C7E;
 }
+.card .meta {
+    display: block;
+    color: #888;
+    font-size: 0.8rem;
+}
