@@ -19,7 +19,7 @@ h1, h2, h3 { margin-top: 0; color: #2c3e50; }
     margin: 0 auto;
     padding: 20px;
 /* SEMI-TRANSPARENT OVERLAY: Ensures text is readable over the image */
-    background-color: rgba(255, 255, 255, 0.75); 
+    background-color: rgba(255, 255, 255, 0.4); 
     min-height: 100vh;
 }
 
@@ -50,13 +50,17 @@ h1, h2, h3 { margin-top: 0; color: #2c3e50; }
 /* --- 3. UI Components --- */
 /* --- Improved Card Look --- */
 .card {
-    background: rgba(255, 255, 255, 0.95); /* Nearly solid white for readability */
+    /* Lowered opacity to 0.65 for a transparent look */
+    background: rgba(255, 255, 255, 0.65); 
     padding: 20px;
     border-radius: 12px;
-    box-shadow: 0 4px 15px rgba(0,0,0,0.1); 
-    border: 1px solid #eee;
+    /* Soft shadow to maintain depth against the image background */
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1); 
+    border: 1px solid rgba(255, 255, 255, 0.3);
     margin-bottom: 20px;
-    backdrop-filter: blur(5px); /* Adds a modern frosted-glass effect */
+    /* Crucial: This blurs the background behind the card for a high-end feel */
+    backdrop-filter: blur(8px); 
+    -webkit-backdrop-filter: blur(8px);
 }
 
 input, select, textarea {
@@ -114,7 +118,8 @@ button {
     line-height: 1.8 !important; 
     
     text-align: center;
-    color: #1a1a1a;
+    /* Pure black for maximum contrast against the image */
+    color: #000000;
     padding: 10px 0;
     font-weight: 500;
     /* Decorative side borders similar to traditional manuscripts */
