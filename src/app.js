@@ -65,34 +65,32 @@ function renderPublic(data) {
     }
 
 filtered.forEach(item => {
-    let displayVerse = "";
-    let mergeClass = ""; // Variable to hold the extra CSS class
+    // Create the visual version (with spans for highlighting)
+    let displayVerse = isMergeEnabled 
+        ? item.verse.split(/\s+/).map(word => `<span>${word}</span>`).join('') 
+        : item.verse;
+    
+    // NEW: Create a plain text version for WhatsApp (merged if checkbox is checked)
+    let shareVerse = isMergeEnabled 
+        ? item.verse.replace(/\s+/g, '') // Removes all spaces for Larivaar
+        : item.verse;
 
-    if (isMergeEnabled) {
-        // 1. Wrap words in spans
-        displayVerse = item.verse.split(/\s+/).map(word => `<span>${word}</span>`).join('');
-        // 2. Add the 'merged' class to tighten spacing
-        mergeClass = "merged";
-    } else {
-        displayVerse = item.verse;
-        mergeClass = "";
-    }
+    let mergeClass = isMergeEnabled ? "merged" : "";
 
-container.innerHTML += `
+    container.innerHTML += `
         <div class="card">
             <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;">
                 <div>
                     <span class="tag">${item.gurudwaraName}</span>
-                    <div class="meta" style="margin-top: 5px; font-style: italic;">${item.gurudwaraLocation || ''}</div>
+                    <div class="meta" style="margin-top:5px; font-style:italic;">${item.gurudwaraLocation || ''}</div>
                 </div>
-                <button class="btn-share" onclick="copyVaak('${item.gurudwaraName}', '${item.gurudwaraLocation || ''}', '${item.verse.replace(/'/g, "\\'")}', '${item.pageNumber}')">
+                <button class="btn-share" onclick="copyVaak('${item.gurudwaraName}', '${item.gurudwaraLocation || ''}', '${shareVerse.replace(/'/g, "\\'")}', '${item.pageNumber}')">
                     Share
                 </button>
             </div>
             <p class="gurmukhi ${mergeClass}">${displayVerse}</p>
             <div class="meta" style="border-top:1px solid #eee; padding-top:10px; margin-top:15px;">
-                <strong>Ang:</strong> ${item.pageNumber} <br>
-                <small>Sevadar: ${item.editorName}</small>
+                <strong>Ang:</strong> ${item.pageNumber}
             </div>
         </div>`;
 });
