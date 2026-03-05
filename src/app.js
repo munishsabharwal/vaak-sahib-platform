@@ -99,14 +99,17 @@ filtered.forEach(item => {
 /* --- Share Function --- */
 /* --- Updated Share Function --- */
 async function copyVaak(gurudwara, location, verse, ang) {
-    // Included location in the formatted string
-    const textToCopy = `*Daily Vaak Sahib*\n\n${verse}\n\n*Gurudwara:* ${gurudwara} (${location})\n*Ang:* ${ang}\n\nShared via Vaak Sahib Portal`;
+    // Get the current website URL automatically
+    const portalUrl = window.location.href;
+    
+    // Construct the message with the clickable link
+    const textToCopy = `*Daily Vaak Sahib*\n\n${verse}\n\n*Gurudwara:* ${gurudwara} (${location})\n*Ang:* ${ang}\n\nShared via Vaak Sahib Portal:\n${portalUrl}`;
     
     try {
         await navigator.clipboard.writeText(textToCopy);
-        alert("✅ Vaak copied! You can now paste it into WhatsApp.");
+        alert("✅ Copied to clipboard! The link will be clickable when you paste it in WhatsApp.");
     } catch (err) {
-        console.error('Failed to copy: ', err);
+        console.error('Failed to copy', err);
     }
 }
 
