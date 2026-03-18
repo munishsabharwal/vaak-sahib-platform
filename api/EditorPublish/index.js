@@ -10,49 +10,54 @@ module.exports = async function (context, req) {
         const user = JSON.parse(Buffer.from(header, "base64").toString("ascii"));
         const email = user.userDetails;
 
-        // 1. Get Editor Info
+        // 1. Get Editor Info to check permissions
         const { resource: editorProfile } = await db.container("Editors").item(email, email).read();
 
         if (!editorProfile || editorProfile.status !== "Active") {
-            return context.res = { status: 403, body: "No active editor profile found for " + email };
+            return context.res = { status: 403, body: "No active editor profile found." };
         }
 
         const { verseItem, date } = req.body;
 
-        // 2. Logic: Who is the Gurudwara?
-        // If the user is a super_admin, we trust the frontend dropdown (verseItem)
-        // If not, we force it to the editor's assigned Gurudwara for security
+        // 2. Determine Gurudwara details (Dropdown for Super Admin, Profile for others)
         let finalGName, finalGLocation;
 
         if (editorProfile.role === "super_admin") {
+            // Trust the selection from the dropdown in app.js
             finalGName = verseItem.gurudwaraName;
             finalGLocation = verseItem.gurudwaraLocation;
         } else {
+            // Force the editor's assigned Gurudwara
             finalGName = editorProfile.gurudwaraName;
             finalGLocation = editorProfile.gurudwaraLocation;
         }
 
-        // 3. Create Schedule Item (ID enforces 1 per Gurudwara per day)
+        // 3. CREATE THE UNIQUE ID (Crucial Step)
+        // We remove spaces from the Gurudwara name to make a clean URL-safe ID
+        const safeGName = finalGName.replace(/\s+/g, '');
+        const uniqueId = `${date}-${safeGName}`; 
+
         const newItem = {
-            // ID format: 2023-10-27-BanglaSahib
-            id: `${date}-${finalGName.replace(/\s+/g, '')}`, 
+            id: uniqueId, // This prevents overwriting other Gurudwaras
             date: date,
             verse: verseItem.verse,
             pageNumber: verseItem.pageNumber,
             gurudwaraName: finalGName,
             gurudwaraLocation: finalGLocation,
-            editorName: `${editorProfile.firstName} ${editorProfile.lastName}`
+            editorName: `${editorProfile.firstName} ${editorProfile.lastName}`,
+            publishedAt: new Date().toISOString()
         };
 
-        // Use 'upsert' so we can update if a mistake was made earlier
+        // 4. Save to Cosmos DB
+        // 'upsert' will only overwrite if the ID (Date + Gurudwara) is identical
         await db.container("DailySchedule").items.upsert(newItem);
-        
+
         context.res = { 
             body: `Published successfully for ${finalGName}!` 
         };
 
     } catch (err) {
-        context.log.error("Backend Error:", err.message);
+        context.log.error("Publishing Error:", err.message);
         context.res = { status: 500, body: err.message };
     }
 };
