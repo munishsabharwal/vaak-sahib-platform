@@ -195,26 +195,59 @@ async function searchLibrary() {
     } catch (e) { resultsContainer.innerHTML = 'Error searching.'; }
 }
 
+// Updated code to handle admin's ability to publish daily vaak
+
 async function publishVaak(event, item) {
     const btn = event.target;
     const date = document.getElementById('publishDate').value;
-    if (!date || !confirm(`Publish for ${date}?`)) return;
+    
+    // 1. Get the selected Gurudwara from your new Master List dropdown
+    const select = document.getElementById('gurudwaraSelect');
+    if (!select || select.options.length === 0) {
+        alert("❌ Please add a Gurudwara to the master list first.");
+        return;
+    }
+
+    const selectedOption = select.options[select.selectedIndex];
+    
+    // 2. Update the 'item' object with the selected Gurudwara details
+    // This ensures the API receives the correct name and location
+    item.gurudwaraName = selectedOption.value;
+    item.gurudwaraLocation = selectedOption.getAttribute('data-city'); 
+
+    // 3. Confirmation and UI Lock
+    if (!date || !confirm(`Publish for ${item.gurudwaraName} on ${date}?`)) return;
 
     btn.innerText = "Publishing...";
     btn.disabled = true;
 
     try {
+        // 4. Send to your existing EditorPublish API
         const res = await fetch('/api/EditorPublish', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ verseItem: item, date: date })
+            body: JSON.stringify({ 
+                verseItem: item, 
+                date: date 
+            })
         });
+
         const msg = await res.text();
         alert(res.ok ? "✅ " + msg : "❌ " + msg);
-        if(res.ok) loadRecentActivity();
-    } catch (e) { alert("Error: " + e.message); }
-    finally { btn.innerText = "Publish"; btn.disabled = false; }
+        
+        if(res.ok) {
+            // Optional: Refresh your activity list if you have one
+            if (typeof loadRecentActivity === "function") loadRecentActivity();
+        }
+    } catch (e) { 
+        alert("Error: " + e.message); 
+    } finally { 
+        btn.innerText = "Publish"; 
+        btn.disabled = false; 
+    }
 }
+
+
 
 async function saveEditor() {
     // 1. Get references
@@ -476,6 +509,97 @@ function openTab(tabId) {
     if (tabId === 'libraryTab') loadLibraryTable();
     if (tabId === 'publishTab') loadRecentActivity();
     if (tabId === 'editorsTab') loadEditorsList();
+}
+
+/* --- ADMIN MANAGEMENT LOGIC --- */
+
+// Initialize Admin features only if the elements exist on the page
+document.addEventListener('DOMContentLoaded', () => {
+    const mgmtSection = document.getElementById('gurudwaraManagementSection');
+    if (mgmtSection) {
+        // You can add your actual auth check here; for now, we show it
+        mgmtSection.style.display = 'block'; 
+        loadGurudwaras();
+    }
+});
+
+// 1. READ: Fetch the master list for the Table and the Dropdown
+async function loadGurudwaras() {
+    try {
+        const response = await fetch('/api/ManageGurudwaras');
+        if (!response.ok) throw new Error('Failed to fetch master list');
+        
+        const data = await response.json();
+
+        // Fill the Management Table (Super Admin View)
+        const tbody = document.getElementById('gurudwaraTableBody');
+        if (tbody) {
+            tbody.innerHTML = data.map(g => `
+                <tr style="border-bottom: 1px solid rgba(0,0,0,0.05);">
+                    <td style="padding: 12px;">${g.name}</td>
+                    <td style="padding: 12px;">${g.city}</td>
+                    <td style="padding: 12px; text-align: right;">
+                        <button onclick="deleteGurudwara('${g.id}')" style="background:none; border:none; color:#dc3545; cursor:pointer; font-weight:bold;">Delete</button>
+                    </td>
+                </tr>
+            `).join('');
+        }
+
+        // Fill the "Select Gurudwara" dropdown for posting Vaaks
+        const select = document.getElementById('gurudwaraSelect');
+        if (select) {
+            select.innerHTML = data.map(g => 
+                `<option value="${g.name}" data-city="${g.city}">${g.name} (${g.city})</option>`
+            ).join('');
+        }
+
+    } catch (err) {
+        console.error("Admin Load Error:", err);
+    }
+}
+
+// 2. CREATE: Add a new Gurudwara to the Master List
+async function addGurudwara() {
+    const nameInput = document.getElementById('newGName');
+    const cityInput = document.getElementById('newGCity');
+
+    if (!nameInput.value || !cityInput.value) {
+        alert("Please enter both Gurudwara name and City.");
+        return;
+    }
+
+    try {
+        const response = await fetch('/api/ManageGurudwaras', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ name: nameInput.value, city: cityInput.value })
+        });
+
+        if (response.ok) {
+            nameInput.value = '';
+            cityInput.value = '';
+            loadGurudwaras(); // Refresh the list and dropdown
+        }
+    } catch (err) {
+        alert("System error while adding Gurudwara.");
+    }
+}
+
+// 3. DELETE: Remove a Gurudwara from the Master List
+async function deleteGurudwara(id) {
+    if (!confirm("Remove this Gurudwara from the portal? (Daily Vaaks already posted will remain)")) return;
+
+    try {
+        const response = await fetch(`/api/ManageGurudwaras?id=${id}`, {
+            method: 'DELETE'
+        });
+
+        if (response.ok) {
+            loadGurudwaras(); // Refresh UI
+        }
+    } catch (err) {
+        alert("Error deleting Gurudwara.");
+    }
 }
 
 window.loadLibraryTable = loadLibraryTable;
