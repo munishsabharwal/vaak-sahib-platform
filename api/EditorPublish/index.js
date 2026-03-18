@@ -4,42 +4,41 @@ const client = new CosmosClient(process.env.COSMOS_DB_CONNECTION_STRING);
 module.exports = async function (context, req) {
     try {
         const db = client.database("VaakDb");
+        const container = db.container("DailySchedule");
+        
         const header = req.headers["x-ms-client-principal"];
         if (!header) return context.res = { status: 401, body: "Unauthorized" };
 
         const user = JSON.parse(Buffer.from(header, "base64").toString("ascii"));
         const email = user.userDetails;
 
-        // 1. Get Editor Info to check permissions
+        // 1. Fetch Profile
         const { resource: editorProfile } = await db.container("Editors").item(email, email).read();
-
         if (!editorProfile || editorProfile.status !== "Active") {
-            return context.res = { status: 403, body: "No active editor profile found." };
+            return context.res = { status: 403, body: "Unauthorized profile." };
         }
 
         const { verseItem, date } = req.body;
 
-        // 2. Determine Gurudwara details (Dropdown for Super Admin, Profile for others)
+        // 2. Identify the target Gurudwara
         let finalGName, finalGLocation;
-
         if (editorProfile.role === "super_admin") {
-            // Trust the selection from the dropdown in app.js
             finalGName = verseItem.gurudwaraName;
             finalGLocation = verseItem.gurudwaraLocation;
         } else {
-            // Force the editor's assigned Gurudwara
             finalGName = editorProfile.gurudwaraName;
             finalGLocation = editorProfile.gurudwaraLocation;
         }
 
-        // 3. CREATE THE UNIQUE ID (Crucial Step)
-        // We remove spaces from the Gurudwara name to make a clean URL-safe ID
-        const safeGName = finalGName.replace(/\s+/g, '');
-        const uniqueId = `${date}-${safeGName}`; 
+        // 3. GENERATE A TRULY UNIQUE ID
+        // Format: 2024-03-27_BanglaSahib_NewDelhi
+        const safeName = finalGName.replace(/[^a-zA-Z0-9]/g, '');
+        const safeCity = finalGLocation.replace(/[^a-zA-Z0-9]/g, '');
+        const uniqueId = `${date}_${safeName}_${safeCity}`;
 
         const newItem = {
-            id: uniqueId, // This prevents overwriting other Gurudwaras
-            date: date,
+            id: uniqueId, 
+            date: date, // If 'date' is your Partition Key, this remains the same
             verse: verseItem.verse,
             pageNumber: verseItem.pageNumber,
             gurudwaraName: finalGName,
@@ -48,16 +47,17 @@ module.exports = async function (context, req) {
             publishedAt: new Date().toISOString()
         };
 
-        // 4. Save to Cosmos DB
-        // 'upsert' will only overwrite if the ID (Date + Gurudwara) is identical
-        await db.container("DailySchedule").items.upsert(newItem);
+        // 4. Use 'create' instead of 'upsert' to test
+        // If 'create' throws an error, it tells us the ID already exists
+        // If it successfully creates, it means we fixed the overwrite!
+        await container.items.upsert(newItem);
 
         context.res = { 
-            body: `Published successfully for ${finalGName}!` 
+            body: `Success! Published for ${finalGName}.` 
         };
 
     } catch (err) {
-        context.log.error("Publishing Error:", err.message);
-        context.res = { status: 500, body: err.message };
+        context.log.error("Error:", err.message);
+        context.res = { status: 500, body: "Backend Error: " + err.message };
     }
 };
