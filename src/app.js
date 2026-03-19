@@ -1,8 +1,10 @@
-/* --- PUBLIC SITE LOGIC --- */
-// 1. Add this variable at the very top of your app.js file
-let lastFetchedData = []; 
+/* --- GLOBAL STATE --- */
+let lastFetchedData = [];
+let libraryCurrentPage = 1;
+const libraryPageSize = 10;
+let libraryAllData = [];
 
-// 2. Updated loadPublic function
+/* --- PUBLIC SITE LOGIC --- */
 async function loadPublic() {
     const dateInput = document.getElementById('publicDate');
     const date = dateInput ? dateInput.value : new Date().toISOString().split('T')[0];
@@ -13,119 +15,53 @@ async function loadPublic() {
     try {
         const res = await fetch(`/api/GetDailyVaak?date=${date}`);
         if (!res.ok) throw new Error(`Fetch failed: ${res.status}`);
-
         const data = await res.json();
-        
-        // Save the data globally so the checkbox can access it without another API call
         lastFetchedData = data; 
-        
         renderPublic(data);
-        
-        // This helper function should exist in your current app.js
-        if (typeof populateFilter === "function") {
-            populateFilter(data);
-        }
-
+        if (typeof populateFilter === "function") populateFilter(data);
     } catch (e) {
-        console.error("Load Error:", e);
-        container.innerHTML = `<p style="color:red; text-align:center;">Error loading data: ${e.message}</p>`;
+        container.innerHTML = `<p style="color:red; text-align:center;">Error: ${e.message}</p>`;
     }
 }
 
-// 3. Updated renderPublic function with Merging Logic
 function renderPublic(data) {
     const container = document.getElementById('publicGrid');
     const filterEl = document.getElementById('gurudwaraFilter');
     const filter = filterEl ? filterEl.value.toLowerCase() : 'all';
-    
-    // Check the state of our new checkbox
-    const mergeCheckbox = document.getElementById('mergeWords');
-    const isMergeEnabled = mergeCheckbox ? mergeCheckbox.checked : false;
+    const isMergeEnabled = document.getElementById('mergeWords')?.checked || false;
 
     if (!data || data.length === 0) {
         container.innerHTML = '<p style="grid-column: 1/-1; text-align: center;">No Vaak found for this date.</p>';
         return;
     }
 
-    container.innerHTML = '';
     const filtered = (filter === 'all') ? data : data.filter(i => i.gurudwaraName.toLowerCase() === filter);
-
-// Inside your renderPublic function, find the displayVerse logic:
-
-    // FIX: Apply a special class if only one card is present
-    if (filtered.length === 1) {
-        container.classList.add('single-card-layout');
-    } else {
-        container.classList.remove('single-card-layout');
-    }
+    container.classList.toggle('single-card-layout', filtered.length === 1);
 
     if (filtered.length === 0) {
-        container.innerHTML = '<p style="text-align: center; width: 100%;">No Vaak found for this date.</p>';
+        container.innerHTML = '<p style="text-align: center; width: 100%;">No matches found.</p>';
         return;
     }
 
-filtered.forEach(item => {
-    // Create the visual version (with spans for highlighting)
-    let displayVerse = isMergeEnabled 
-        ? item.verse.split(/\s+/).map(word => `<span>${word}</span>`).join('') 
-        : item.verse;
-    
-    // NEW: Create a plain text version for WhatsApp (merged if checkbox is checked)
-    let shareVerse = isMergeEnabled 
-        ? item.verse.replace(/\s+/g, '') // Removes all spaces for Larivaar
-        : item.verse;
-
-    let mergeClass = isMergeEnabled ? "merged" : "";
-
-    container.innerHTML += `
-        <div class="card">
-            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;">
-                <div>
-                    <span class="tag">${item.gurudwaraName}</span>
-                    <div class="meta" style="margin-top:5px; font-style:italic;">${item.gurudwaraLocation || ''}</div>
+    container.innerHTML = filtered.map(item => {
+        let displayVerse = isMergeEnabled ? item.verse.split(/\s+/).map(w => `<span>${w}</span>`).join('') : item.verse;
+        let shareVerse = isMergeEnabled ? item.verse.replace(/\s+/g, '') : item.verse;
+        return `
+            <div class="card">
+                <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;">
+                    <div>
+                        <span class="tag">${item.gurudwaraName}</span>
+                        <div class="meta" style="margin-top:5px; font-style:italic;">${item.gurudwaraLocation || ''}</div>
+                    </div>
+                    <button class="btn-share" onclick="copyVaak('${item.gurudwaraName}', '${item.gurudwaraLocation || ''}', '${shareVerse.replace(/'/g, "\\'")}', '${item.pageNumber}')">Share</button>
                 </div>
-                <button class="btn-share" onclick="copyVaak('${item.gurudwaraName}', '${item.gurudwaraLocation || ''}', '${shareVerse.replace(/'/g, "\\'")}', '${item.pageNumber}')">
-                    Share
-                </button>
-            </div>
-            <p class="gurmukhi ${mergeClass}">${displayVerse}</p>
-            <div class="meta" style="border-top:1px solid #eee; padding-top:10px; margin-top:15px;">
-                <strong>Ang:</strong> ${item.pageNumber}
-            </div>
-        </div>`;
-});
+                <p class="gurmukhi ${isMergeEnabled ? "merged" : ""}">${displayVerse}</p>
+                <div class="meta" style="border-top:1px solid #eee; padding-top:10px; margin-top:15px;"><strong>Ang:</strong> ${item.pageNumber}</div>
+            </div>`;
+    }).join('');
 }
 
-/* --- Share Function --- */
-/* --- Updated Share Function --- */
-async function copyVaak(gurudwara, location, verse, ang) {
-    // Get the current website URL automatically
-    const portalUrl = window.location.href;
-    
-    // Construct the message with the clickable link
-    const textToCopy = `*Daily Vaak Sahib*\n\n${verse}\n\n*Gurudwara:* ${gurudwara} (${location})\n*Ang:* ${ang}\n\nShared via Vaak Sahib Portal:\n${portalUrl}`;
-    
-    try {
-        await navigator.clipboard.writeText(textToCopy);
-        alert("✅ Copied to clipboard! The link will be clickable when you paste it in WhatsApp.");
-    } catch (err) {
-        console.error('Failed to copy', err);
-    }
-}
-
-function populateFilter(data) {
-    const select = document.getElementById('gurudwaraFilter');
-    select.innerHTML = '<option value="all">All Gurudwaras</option>'; 
-    const uniques = [...new Set(data.map(i => i.gurudwaraName))];
-    uniques.forEach(g => {
-        const opt = document.createElement('option');
-        opt.value = g.toLowerCase();
-        opt.innerText = g;
-        select.appendChild(opt);
-    });
-}
-
-/* --- ADMIN LOGIC --- */
+/* --- ADMIN & AUTH LOGIC --- */
 async function initAdmin() {
     const res = await fetch('/.auth/me');
     const auth = await res.json();
@@ -137,401 +73,46 @@ async function initAdmin() {
     }
 
     document.getElementById('userDisplay').innerText = `User: ${user.userDetails}`;
-    if (user.userRoles.includes('super_admin')) {
-        document.querySelectorAll('.super-admin-only').forEach(el => el.classList.remove('hidden'));
-    }
-    loadRecentActivity(); // Initial load of activity
-}
+    const isSuperAdmin = user.userRoles.includes('super_admin');
 
-async function loadRecentActivity() {
-    const body = document.getElementById('recentActivityBody');
-    if (!body) return; // Exit if the table element isn't on the current page
-
-    body.innerHTML = '<tr><td colspan="3" style="text-align:center; padding:20px;">Loading activity...</td></tr>';
-
-    try {
-        // Fetches from your backend API route
-        const res = await fetch('/api/GetRecentActivity');
-        if (!res.ok) throw new Error(`Fetch failed: ${res.status}`);
-
-        const data = await res.json();
-        
-        if (data.length === 0) {
-            body.innerHTML = '<tr><td colspan="3" style="text-align:center; padding:10px;">No recent activity found.</td></tr>';
-            return;
-        }
-
-        // Maps data to table rows
-        body.innerHTML = data.map(item => `
-            <tr>
-                <td style="padding: 12px; border-bottom: 1px solid #ddd;">${item.date}</td>
-                <td style="padding: 12px; border-bottom: 1px solid #ddd;">${item.gurudwaraName}</td>
-                <td class="gurmukhi" style="padding: 12px; border-bottom: 1px solid #ddd; font-size: 1.1rem; text-align: left;">
-                    ${item.verse.substring(0, 50)}...
-                </td>
-            </tr>`).join('');
-            
-    } catch (e) {
-        console.error("Activity Load Error:", e);
-        body.innerHTML = '<tr><td colspan="3" style="text-align:center; color:red; padding:10px;">Error loading activity.</td></tr>';
-    }
-}
-
-async function searchLibrary() {
-    const kw = document.getElementById('libSearch').value;
-    const resultsContainer = document.getElementById('libResults');
-    if (kw.length < 1) return;
-
-    try {
-        const res = await fetch(`/api/LibraryManager?keyword=${encodeURIComponent(kw)}`);
-        const data = await res.json();
-        resultsContainer.innerHTML = data.length === 0 ? '<p>No results.</p>' : 
-            data.map(item => `
-                <div class="card" style="margin-bottom: 15px; border-left: 5px solid #2c3e50;">
-                    <strong>Page: ${item.pageNumber}</strong>
-                    <p class="gurmukhi">${item.verse}</p>
-                    <button class="btn-success" onclick='publishVaak(event, ${JSON.stringify(item).replace(/'/g, "&#39;")})'>Publish</button>
-                </div>`).join('');
-    } catch (e) { resultsContainer.innerHTML = 'Error searching.'; }
-}
-
-// Updated code to handle admin's ability to publish daily vaak
-
-async function publishVaak(event, item) {
-    const btn = event.target;
-    const date = document.getElementById('publishDate').value;
-    
-    // 1. Get the selected Gurudwara from your new Master List dropdown
-    const select = document.getElementById('gurudwaraSelect');
-    if (!select || select.options.length === 0) {
-        alert("❌ Please add a Gurudwara to the master list first.");
-        return;
-    }
-
-    const selectedOption = select.options[select.selectedIndex];
-    
-    // 2. Update the 'item' object with the selected Gurudwara details
-    // This ensures the API receives the correct name and location
-    item.gurudwaraName = selectedOption.value;
-    item.gurudwaraLocation = selectedOption.getAttribute('data-city'); 
-
-    // 3. Confirmation and UI Lock
-    if (!date || !confirm(`Publish for ${item.gurudwaraName} on ${date}?`)) return;
-
-    btn.innerText = "Publishing...";
-    btn.disabled = true;
-
-    try {
-        // 4. Send to your existing EditorPublish API
-        const res = await fetch('/api/EditorPublish', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ 
-                verseItem: item, 
-                date: date 
-            })
-        });
-
-        const msg = await res.text();
-        alert(res.ok ? "✅ " + msg : "❌ " + msg);
-        
-        if(res.ok) {
-            // Optional: Refresh your activity list if you have one
-            if (typeof loadRecentActivity === "function") loadRecentActivity();
-        }
-    } catch (e) { 
-        alert("Error: " + e.message); 
-    } finally { 
-        btn.innerText = "Publish"; 
-        btn.disabled = false; 
-    }
-}
-
-
-
-async function saveEditor() {
-    // 1. Get references
-    const elEmail = document.getElementById('editEmail');
-    const elFn = document.getElementById('editFirstName');
-    const elLn = document.getElementById('editLastName');
-    const elGn = document.getElementById('editGurudwara');
-    const elLoc = document.getElementById('editLocation');
-
-    // 2. Validate elements exist to stop the "Null" error
-    if (!elEmail || !elFn) {
-        console.error("Form elements missing from HTML");
-        alert("System Error: HTML IDs do not match JavaScript.");
-        return;
-    }
-
-    const editorData = {
-        firstName: elFn.value.trim(),
-        lastName: elLn.value.trim(),
-        email: elEmail.value.trim().toLowerCase(),
-        gurudwaraName: elGn.value.trim(),
-        gurudwaraLocation: elLoc.value.trim(),
-        status: 'Active'
-    };
-
-    if (!editorData.email) {
-        alert("Email is required.");
-        return;
-    }
-
-    try {
-        // Use exactly 'AdminEditors' as seen in your Azure Portal
-        const res = await fetch('/api/ManageEditors', { 
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify(editorData)
-        });
-
-        if (res.status === 404) {
-            throw new Error("API Route not found on server. Check case sensitivity.");
-        }
-
-        if (res.ok) {
-            alert("✅ Editor profile saved successfully!");
+    // Toggle visibility of admin elements
+    document.querySelectorAll('.super-admin-only').forEach(el => {
+        if (isSuperAdmin) {
+            el.classList.remove('hidden');
+            el.style.display = ''; 
         } else {
-            const errText = await res.text();
-            alert("❌ Server Error: " + errText);
+            el.classList.add('hidden');
+            el.style.display = 'none';
         }
-    } catch (e) {
-        console.error("Fetch Error:", e);
-        alert("❌ Network Error: " + e.message);
-    }
-}
+    });
 
-async function loadEditorsList() {
-    const tableBody = document.getElementById('editorsTableBody');
-    if (!tableBody) return;
-
-    try {
-        // Fetch from your ManageEditors API (GET method)
-        const res = await fetch('/api/ManageEditors');
-        if (!res.ok) throw new Error("Could not fetch editors");
-
-        const data = await res.json();
-        
-        if (data.length === 0) {
-            tableBody.innerHTML = '<tr><td colspan="4" style="text-align:center; padding:10px;">No editors registered yet.</td></tr>';
-            return;
-        }
-
-        tableBody.innerHTML = data.map(editor => `
-            <tr>
-                <td style="padding: 10px; border: 1px solid #eee;">${editor.firstName} ${editor.lastName}</td>
-                <td style="padding: 10px; border: 1px solid #eee;">${editor.email}</td>
-                <td style="padding: 10px; border: 1px solid #eee;">${editor.gurudwaraName}</td>
-                <td style="padding: 10px; border: 1px solid #eee;">${editor.gurudwaraLocation || 'N/A'}</td>
-            </tr>`).join('');
-    } catch (e) {
-        console.error("Editor Load Error:", e);
-        tableBody.innerHTML = '<tr><td colspan="4" style="text-align:center; color:red; padding:10px;">Error loading editors list.</td></tr>';
-    }
-}
-
-async function bulkImport() {
-    try {
-        const json = JSON.parse(document.getElementById('bulkJson').value);
-        const res = await fetch('/api/LibraryManager', { // Points to working Library API
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify(json)
-        });
-        alert(await res.text());
-        loadLibraryTable();
-    } catch (e) { alert("Invalid JSON"); }
-}
-
-/* --- Pagination State --- */
-let libraryCurrentPage = 1;
-const libraryPageSize = 10;
-let libraryAllData = [];
-
-// ... [Existing loadPublic, renderPublic, initAdmin remain same] ...
-
-async function loadLibraryTable(searchQuery = '') {
-    const body = document.getElementById('libraryTableBody');
-    if (!body) return;
-    body.innerHTML = '<tr><td colspan="4" style="text-align:center; padding:20px;">Loading Library...</td></tr>';
-
-    try {
-        const res = await fetch(`/api/LibraryManager?search=${searchQuery}`);
-        let data = await res.json();
-
-        // Numerical Sort
-        data.sort((a, b) => parseInt(a.pageNumber || 0) - parseInt(b.pageNumber || 0));
-
-        libraryAllData = data; 
-        renderLibraryPage(1); 
-    } catch (e) {
-        body.innerHTML = '<tr><td colspan="4" style="text-align:center; color:red;">Error loading library.</td></tr>';
-    }
-}
-
-function renderLibraryPage(page) {
-    libraryCurrentPage = page;
-    const body = document.getElementById('libraryTableBody');
-    
-    const start = (page - 1) * libraryPageSize;
-    const end = start + libraryPageSize;
-    const pageData = libraryAllData.slice(start, end);
-
-    if (pageData.length === 0) {
-        body.innerHTML = '<tr><td colspan="4" style="text-align:center;">No records found.</td></tr>';
-        return;
-    }
-
-    body.innerHTML = pageData.map(item => `
-        <tr>
-            <td class="col-ang">${item.pageNumber}</td>
-            <td class="col-verse">
-                <div class="gurmukhi verse-preview" onclick="this.classList.toggle('expanded')">
-                    ${item.verse}
-                    <div class="expand-hint" style="font-size:0.7rem; color:#999; font-family:sans-serif; margin-top:5px;">(Click to expand)</div>
-                </div>
-            </td>
-            <td class="col-keywords">${item.keywords || ''}</td>
-            <td class="col-actions">
-                <button class="btn-success btn-sm" onclick="preparePublish('${item.id}')">Select</button>
-                <button class="btn-danger btn-sm" onclick="deleteLibraryItem('${item.id}')">Delete</button>
-            </td>
-        </tr>
-    `).join('');
-
-    renderPaginationControls();
-}
-
-function renderPaginationControls() {
-    const container = document.getElementById('libraryPagination');
-    if (!container) return;
-    const totalPages = Math.ceil(libraryAllData.length / libraryPageSize);
-    
-    container.innerHTML = `
-        <div style="display:flex; justify-content:center; align-items:center; gap:20px; margin-top:20px; padding:10px;">
-            <button class="btn-sm" ${libraryCurrentPage === 1 ? 'disabled' : ''} onclick="renderLibraryPage(${libraryCurrentPage - 1})">← Previous</button>
-            <span style="font-size:0.9rem;">Page <b>${libraryCurrentPage}</b> of ${totalPages || 1}</span>
-            <button class="btn-sm" ${libraryCurrentPage >= totalPages ? 'disabled' : ''} onclick="renderLibraryPage(${libraryCurrentPage + 1})">Next →</button>
-        </div>`;
-}
-
-// ... [Existing deleteLibraryItem, openTab, etc. follow] ...
-
-async function deleteLibraryItem(id, pageNumber) {
-    if (!confirm("Delete this verse?")) return;
-    try {
-        const res = await fetch(`/api/LibraryManager?id=${id}&page=${pageNumber}`, { method: 'DELETE' });
-        if (res.ok) loadLibraryTable();
-    } catch (e) { alert("Error deleting."); }
-}
-
-async function addSingleLibraryItem() {
-    const page = document.getElementById('addLibPage').value.trim();
-    const verse = document.getElementById('addLibVerse').value.trim();
-    const keywords = document.getElementById('addLibKeywords').value.trim();
-
-    // Validation
-    if (!page || !verse) {
-        alert("Please provide at least a Page Number and the Verse.");
-        return;
-    }
-
-    // Creating the array format your POST API expects
-    const payload = [{
-        pageNumber: page,
-        verse: verse,
-        keywords: keywords
-    }];
-
-    // UI Feedback
-    const btn = event.target;
-    const originalText = btn.innerText;
-    btn.innerText = "Saving...";
-    btn.disabled = true;
-
-    try {
-        const res = await fetch('/api/LibraryManager', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify(payload) 
-        });
-
-        if (res.ok) {
-            alert("✅ Successfully added to library!");
-            
-            // Clear inputs
-            document.getElementById('addLibPage').value = '';
-            document.getElementById('addLibVerse').value = '';
-            document.getElementById('addLibKeywords').value = '';
-            
-            // Refresh the table below
-            loadLibraryTable();
-        } else {
-            const msg = await res.text();
-            alert("❌ Error: " + msg);
-        }
-    } catch (e) {
-        alert("Network Error: " + e.message);
-    } finally {
-        btn.innerText = originalText;
-        btn.disabled = false;
-    }
+    loadGurudwaras(); // Essential for both dropdown and management
+    loadRecentActivity();
 }
 
 function openTab(tabId) {
-    // 1. Hide all tab content
-    document.querySelectorAll('.tab-content').forEach(content => {
-        content.classList.remove('active');
-    });
+    document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+    document.querySelectorAll('.tabs button').forEach(b => b.classList.remove('active'));
 
-    // 2. Remove 'active' class from all buttons in the tabs container
-    document.querySelectorAll('.tabs button').forEach(btn => {
-        btn.classList.remove('active');
-    });
-
-    // 3. Show the target tab
     const targetTab = document.getElementById(tabId);
-    if (targetTab) {
-        targetTab.classList.add('active');
-    }
+    if (targetTab) targetTab.classList.add('active');
 
-    // 4. Highlight the button that was clicked
-    // We search for the button that has the onclick function for this tabId
-    const buttons = document.querySelectorAll('.tabs button');
-    buttons.forEach(btn => {
-        if (btn.getAttribute('onclick') && btn.getAttribute('onclick').includes(tabId)) {
-            btn.classList.add('active');
-        }
-    });
+    const activeBtn = Array.from(document.querySelectorAll('.tabs button')).find(b => b.getAttribute('onclick')?.includes(tabId));
+    if (activeBtn) activeBtn.classList.add('active');
 
-    // 5. Trigger data loading based on tab
     if (tabId === 'libraryTab') loadLibraryTable();
     if (tabId === 'publishTab') loadRecentActivity();
     if (tabId === 'editorsTab') loadEditorsList();
+    if (tabId === 'gurudwaraTab') loadGurudwaras();
 }
 
-/* --- ADMIN MANAGEMENT LOGIC --- */
-
-// Initialize Admin features only if the elements exist on the page
-document.addEventListener('DOMContentLoaded', () => {
-    const mgmtSection = document.getElementById('gurudwaraManagementSection');
-    if (mgmtSection) {
-        // You can add your actual auth check here; for now, we show it
-        mgmtSection.style.display = 'block'; 
-        loadGurudwaras();
-    }
-});
-
-// 1. READ: Fetch the master list for the Table and the Dropdown
+/* --- GURUDWARA MASTER LIST LOGIC --- */
 async function loadGurudwaras() {
     try {
         const response = await fetch('/api/ManageGurudwaras');
-        if (!response.ok) throw new Error('Failed to fetch master list');
-        
         const data = await response.json();
 
-        // Fill the Management Table (Super Admin View)
+        // 1. Populate Management Table
         const tbody = document.getElementById('gurudwaraTableBody');
         if (tbody) {
             tbody.innerHTML = data.map(g => `
@@ -541,72 +122,85 @@ async function loadGurudwaras() {
                     <td style="padding: 12px; text-align: right;">
                         <button onclick="deleteGurudwara('${g.id}')" style="background:none; border:none; color:#dc3545; cursor:pointer; font-weight:bold;">Delete</button>
                     </td>
-                </tr>
-            `).join('');
+                </tr>`).join('');
         }
 
-        // Fill the "Select Gurudwara" dropdown for posting Vaaks
+        // 2. Populate Publish Dropdown
         const select = document.getElementById('gurudwaraSelect');
         if (select) {
-            select.innerHTML = data.map(g => 
-                `<option value="${g.name}" data-city="${g.city}">${g.name} (${g.city})</option>`
-            ).join('');
+            select.innerHTML = '<option value="">-- Select Gurudwara --</option>' + 
+                data.map(g => `<option value="${g.name}" data-city="${g.city}">${g.name} (${g.city})</option>`).join('');
         }
-
-    } catch (err) {
-        console.error("Admin Load Error:", err);
-    }
+    } catch (err) { console.error("Load Error:", err); }
 }
 
-// 2. CREATE: Add a new Gurudwara to the Master List
 async function addGurudwara() {
-    const nameInput = document.getElementById('newGName');
-    const cityInput = document.getElementById('newGCity');
-
-    if (!nameInput.value || !cityInput.value) {
-        alert("Please enter both Gurudwara name and City.");
-        return;
-    }
+    const name = document.getElementById('newGName').value;
+    const city = document.getElementById('newGCity').value;
+    if (!name || !city) return alert("Enter both Name and City");
 
     try {
-        const response = await fetch('/api/ManageGurudwaras', {
+        const res = await fetch('/api/ManageGurudwaras', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ name: nameInput.value, city: cityInput.value })
+            body: JSON.stringify({ name, city })
         });
-
-        if (response.ok) {
-            nameInput.value = '';
-            cityInput.value = '';
-            loadGurudwaras(); // Refresh the list and dropdown
+        if (res.ok) {
+            document.getElementById('newGName').value = '';
+            document.getElementById('newGCity').value = '';
+            loadGurudwaras();
         }
-    } catch (err) {
-        alert("System error while adding Gurudwara.");
-    }
+    } catch (err) { alert("Add failed."); }
 }
 
-// 3. DELETE: Remove a Gurudwara from the Master List
 async function deleteGurudwara(id) {
-    if (!confirm("Remove this Gurudwara from the portal? (Daily Vaaks already posted will remain)")) return;
+    if (!confirm("Delete this Gurudwara?")) return;
+    const res = await fetch(`/api/ManageGurudwaras?id=${id}`, { method: 'DELETE' });
+    if (res.ok) loadGurudwaras();
+}
+
+/* --- PUBLISHING LOGIC --- */
+async function publishVaak(event, item) {
+    const btn = event.target;
+    const date = document.getElementById('publishDate').value;
+    const select = document.getElementById('gurudwaraSelect');
+    
+    if (!select || select.value === "") return alert("❌ Please select a Gurudwara.");
+    const selectedOption = select.options[select.selectedIndex];
+    
+    item.gurudwaraName = selectedOption.value;
+    item.gurudwaraLocation = selectedOption.getAttribute('data-city'); 
+
+    if (!date || !confirm(`Publish for ${item.gurudwaraName} on ${date}?`)) return;
+
+    btn.innerText = "Publishing...";
+    btn.disabled = true;
 
     try {
-        const response = await fetch(`/api/ManageGurudwaras?id=${id}`, {
-            method: 'DELETE'
+        const res = await fetch('/api/EditorPublish', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ verseItem: item, date: date })
         });
-
-        if (response.ok) {
-            loadGurudwaras(); // Refresh UI
-        }
-    } catch (err) {
-        alert("Error deleting Gurudwara.");
-    }
+        const msg = await res.text();
+        alert(res.ok ? "✅ " + msg : "❌ " + msg);
+        if(res.ok) loadRecentActivity();
+    } catch (e) { alert("Error: " + e.message); }
+    finally { btn.innerText = "Publish"; btn.disabled = false; }
 }
 
-window.loadLibraryTable = loadLibraryTable;
-window.deleteLibraryItem = deleteLibraryItem;
-window.searchLibrary = searchLibrary;
-window.publishVaak = publishVaak;
-window.saveEditor = saveEditor;
-window.bulkImport = bulkImport;
+/* --- UTILITIES --- */
+async function copyVaak(gurudwara, location, verse, ang) {
+    const text = `*Daily Vaak Sahib*\n\n${verse}\n\n*Gurudwara:* ${gurudwara} (${location})\n*Ang:* ${ang}\n\nShared via: ${window.location.href}`;
+    try {
+        await navigator.clipboard.writeText(text);
+        alert("✅ Copied to clipboard!");
+    } catch (err) { console.error(err); }
+}
+
+// Global scope mapping for onclick attributes
+window.initAdmin = initAdmin;
 window.openTab = openTab;
 window.loadPublic = loadPublic;
+window.addGurudwara = addGurudwara;
+window.deleteGurudwara = deleteGurudwara;
