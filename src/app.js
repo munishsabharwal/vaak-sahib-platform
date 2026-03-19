@@ -9,9 +9,9 @@ async function loadPublic() {
     const dateInput = document.getElementById('publicDate');
     const date = dateInput ? dateInput.value : new Date().toISOString().split('T')[0];
     const container = document.getElementById('publicGrid');
+    if (!container) return;
     
     container.innerHTML = '<div class="loading">Loading daily Vaaks...</div>';
-
     try {
         const res = await fetch(`/api/GetDailyVaak?date=${date}`);
         if (!res.ok) throw new Error(`Fetch failed: ${res.status}`);
@@ -30,19 +30,13 @@ function renderPublic(data) {
     const filter = filterEl ? filterEl.value.toLowerCase() : 'all';
     const isMergeEnabled = document.getElementById('mergeWords')?.checked || false;
 
-    if (!data || data.length === 0) {
-        container.innerHTML = '<p style="grid-column: 1/-1; text-align: center;">No Vaak found for this date.</p>';
-        return;
-    }
-
     const filtered = (filter === 'all') ? data : data.filter(i => i.gurudwaraName.toLowerCase() === filter);
-    container.classList.toggle('single-card-layout', filtered.length === 1);
-
-    if (filtered.length === 0) {
-        container.innerHTML = '<p style="text-align: center; width: 100%;">No matches found.</p>';
+    if (!filtered || filtered.length === 0) {
+        container.innerHTML = '<p style="text-align: center; width: 100%;">No matches found for this date.</p>';
         return;
     }
 
+    container.classList.toggle('single-card-layout', filtered.length === 1);
     container.innerHTML = filtered.map(item => {
         let displayVerse = isMergeEnabled ? item.verse.split(/\s+/).map(w => `<span>${w}</span>`).join('') : item.verse;
         let shareVerse = isMergeEnabled ? item.verse.replace(/\s+/g, '') : item.verse;
@@ -61,33 +55,42 @@ function renderPublic(data) {
     }).join('');
 }
 
+function populateFilter(data) {
+    const select = document.getElementById('gurudwaraFilter');
+    if (!select) return;
+    select.innerHTML = '<option value="all">All Gurudwaras</option>'; 
+    const uniques = [...new Set(data.map(i => i.gurudwaraName))];
+    uniques.forEach(g => {
+        const opt = document.createElement('option');
+        opt.value = g.toLowerCase();
+        opt.innerText = g;
+        select.appendChild(opt);
+    });
+}
+
 /* --- ADMIN & AUTH LOGIC --- */
 async function initAdmin() {
-    const res = await fetch('/.auth/me');
-    const auth = await res.json();
-    const user = auth.clientPrincipal;
+    try {
+        const res = await fetch('/.auth/me');
+        const auth = await res.json();
+        const user = auth.clientPrincipal;
 
-    if (!user) {
-        window.location.href = "/.auth/login/aad";
-        return;
-    }
-
-    document.getElementById('userDisplay').innerText = `User: ${user.userDetails}`;
-    const isSuperAdmin = user.userRoles.includes('super_admin');
-
-    // Toggle visibility of admin elements
-    document.querySelectorAll('.super-admin-only').forEach(el => {
-        if (isSuperAdmin) {
-            el.classList.remove('hidden');
-            el.style.display = ''; 
-        } else {
-            el.classList.add('hidden');
-            el.style.display = 'none';
+        if (!user) {
+            window.location.href = "/.auth/login/aad";
+            return;
         }
-    });
 
-    loadGurudwaras(); // Essential for both dropdown and management
-    loadRecentActivity();
+        document.getElementById('userDisplay').innerText = `User: ${user.userDetails}`;
+        const isSuperAdmin = user.userRoles.includes('super_admin');
+
+        document.querySelectorAll('.super-admin-only').forEach(el => {
+            el.style.display = isSuperAdmin ? '' : 'none';
+            isSuperAdmin ? el.classList.remove('hidden') : el.classList.add('hidden');
+        });
+
+        loadGurudwaras();
+        loadRecentActivity();
+    } catch (e) { console.error("Auth Init Error:", e); }
 }
 
 function openTab(tabId) {
@@ -100,57 +103,119 @@ function openTab(tabId) {
     const activeBtn = Array.from(document.querySelectorAll('.tabs button')).find(b => b.getAttribute('onclick')?.includes(tabId));
     if (activeBtn) activeBtn.classList.add('active');
 
-    if (tabId === 'libraryTab') loadLibraryTable();
     if (tabId === 'publishTab') loadRecentActivity();
-    if (tabId === 'editorsTab') loadEditorsList();
     if (tabId === 'gurudwaraTab') loadGurudwaras();
+    if (tabId === 'editorsTab') loadEditorsList();
+    if (tabId === 'libraryTab') loadLibraryTable();
 }
 
-/* --- GURUDWARA MASTER LIST LOGIC --- */
+/* --- DATA FETCHING (ADMIN) --- */
+async function loadRecentActivity() {
+    const body = document.getElementById('recentActivityBody');
+    if (!body) return;
+    body.innerHTML = '<tr><td colspan="3" style="text-align:center;">Loading...</td></tr>';
+    try {
+        const res = await fetch('/api/GetRecentActivity');
+        const data = await res.json();
+        body.innerHTML = data.length === 0 ? '<tr><td colspan="3">No activity found.</td></tr>' : 
+            data.map(item => `
+                <tr>
+                    <td>${item.date}</td>
+                    <td>${item.gurudwaraName}</td>
+                    <td class="gurmukhi">${item.verse.substring(0, 50)}...</td>
+                </tr>`).join('');
+    } catch (e) { body.innerHTML = '<tr><td colspan="3">Error loading activity.</td></tr>'; }
+}
+
+async function loadEditorsList() {
+    const tableBody = document.getElementById('editorsTableBody');
+    if (!tableBody) return;
+    tableBody.innerHTML = '<tr><td colspan="4" style="text-align:center;">Loading...</td></tr>';
+    try {
+        const res = await fetch('/api/ManageEditors');
+        const data = await res.json();
+        tableBody.innerHTML = data.length === 0 ? '<tr><td colspan="4">No editors found.</td></tr>' : 
+            data.map(e => `
+                <tr>
+                    <td>${e.firstName} ${e.lastName}</td>
+                    <td>${e.email}</td>
+                    <td>${e.gurudwaraName}</td>
+                    <td>${e.gurudwaraLocation || 'N/A'}</td>
+                </tr>`).join('');
+    } catch (e) { tableBody.innerHTML = '<tr><td colspan="4">Error loading editors.</td></tr>'; }
+}
+
+async function loadLibraryTable(searchQuery = '') {
+    const body = document.getElementById('libraryTableBody');
+    if (!body) return;
+    body.innerHTML = '<tr><td colspan="4" style="text-align:center;">Loading Library...</td></tr>';
+    try {
+        const res = await fetch(`/api/LibraryManager?search=${searchQuery}`);
+        libraryAllData = await res.json();
+        libraryAllData.sort((a, b) => parseInt(a.pageNumber || 0) - parseInt(b.pageNumber || 0));
+        renderLibraryPage(1);
+    } catch (e) { body.innerHTML = '<tr><td colspan="4">Error loading library.</td></tr>'; }
+}
+
+function renderLibraryPage(page) {
+    libraryCurrentPage = page;
+    const body = document.getElementById('libraryTableBody');
+    const start = (page - 1) * libraryPageSize;
+    const pageData = libraryAllData.slice(start, start + libraryPageSize);
+    
+    body.innerHTML = pageData.map(item => `
+        <tr>
+            <td class="col-ang">${item.pageNumber}</td>
+            <td class="col-verse"><div class="gurmukhi">${item.verse}</div></td>
+            <td class="col-keywords">${item.keywords || ''}</td>
+            <td class="col-actions">
+                <button class="btn-danger btn-sm" onclick="deleteLibraryItem('${item.id}', '${item.pageNumber}')">Delete</button>
+            </td>
+        </tr>`).join('');
+    
+    const nav = document.getElementById('libraryPagination');
+    const total = Math.ceil(libraryAllData.length / libraryPageSize);
+    if (nav) nav.innerHTML = `<button onclick="renderLibraryPage(${page-1})" ${page===1?'disabled':''}>Prev</button> <span>Page ${page} of ${total}</span> <button onclick="renderLibraryPage(${page+1})" ${page>=total?'disabled':''}>Next</button>`;
+}
+
+/* --- GURUDWARA LOGIC --- */
 async function loadGurudwaras() {
     try {
         const response = await fetch('/api/ManageGurudwaras');
         const data = await response.json();
-
-        // 1. Populate Management Table
         const tbody = document.getElementById('gurudwaraTableBody');
         if (tbody) {
             tbody.innerHTML = data.map(g => `
-                <tr style="border-bottom: 1px solid rgba(0,0,0,0.05);">
+                <tr>
                     <td style="padding: 12px;">${g.name}</td>
                     <td style="padding: 12px;">${g.city}</td>
                     <td style="padding: 12px; text-align: right;">
-                        <button onclick="deleteGurudwara('${g.id}')" style="background:none; border:none; color:#dc3545; cursor:pointer; font-weight:bold;">Delete</button>
+                        <button onclick="deleteGurudwara('${g.id}')" style="color:#dc3545; border:none; background:none; cursor:pointer;">Delete</button>
                     </td>
                 </tr>`).join('');
         }
-
-        // 2. Populate Publish Dropdown
         const select = document.getElementById('gurudwaraSelect');
         if (select) {
             select.innerHTML = '<option value="">-- Select Gurudwara --</option>' + 
                 data.map(g => `<option value="${g.name}" data-city="${g.city}">${g.name} (${g.city})</option>`).join('');
         }
-    } catch (err) { console.error("Load Error:", err); }
+    } catch (err) { console.error("Gurudwara Load Error:", err); }
 }
 
 async function addGurudwara() {
     const name = document.getElementById('newGName').value;
     const city = document.getElementById('newGCity').value;
     if (!name || !city) return alert("Enter both Name and City");
-
-    try {
-        const res = await fetch('/api/ManageGurudwaras', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ name, city })
-        });
-        if (res.ok) {
-            document.getElementById('newGName').value = '';
-            document.getElementById('newGCity').value = '';
-            loadGurudwaras();
-        }
-    } catch (err) { alert("Add failed."); }
+    const res = await fetch('/api/ManageGurudwaras', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ name, city })
+    });
+    if (res.ok) {
+        document.getElementById('newGName').value = '';
+        document.getElementById('newGCity').value = '';
+        loadGurudwaras();
+    }
 }
 
 async function deleteGurudwara(id) {
@@ -159,48 +224,54 @@ async function deleteGurudwara(id) {
     if (res.ok) loadGurudwaras();
 }
 
-/* --- PUBLISHING LOGIC --- */
+/* --- ACTIONS & UTILS --- */
 async function publishVaak(event, item) {
     const btn = event.target;
     const date = document.getElementById('publishDate').value;
     const select = document.getElementById('gurudwaraSelect');
+    if (!select || select.value === "") return alert("Please select a Gurudwara.");
+    const selected = select.options[select.selectedIndex];
     
-    if (!select || select.value === "") return alert("❌ Please select a Gurudwara.");
-    const selectedOption = select.options[select.selectedIndex];
-    
-    item.gurudwaraName = selectedOption.value;
-    item.gurudwaraLocation = selectedOption.getAttribute('data-city'); 
+    item.gurudwaraName = selected.value;
+    item.gurudwaraLocation = selected.getAttribute('data-city'); 
 
     if (!date || !confirm(`Publish for ${item.gurudwaraName} on ${date}?`)) return;
-
-    btn.innerText = "Publishing...";
     btn.disabled = true;
-
     try {
         const res = await fetch('/api/EditorPublish', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ verseItem: item, date: date })
         });
-        const msg = await res.text();
-        alert(res.ok ? "✅ " + msg : "❌ " + msg);
-        if(res.ok) loadRecentActivity();
-    } catch (e) { alert("Error: " + e.message); }
-    finally { btn.innerText = "Publish"; btn.disabled = false; }
+        alert(res.ok ? "✅ Published!" : "❌ Error publishing.");
+        if (res.ok) loadRecentActivity();
+    } finally { btn.disabled = false; }
 }
 
-/* --- UTILITIES --- */
 async function copyVaak(gurudwara, location, verse, ang) {
     const text = `*Daily Vaak Sahib*\n\n${verse}\n\n*Gurudwara:* ${gurudwara} (${location})\n*Ang:* ${ang}\n\nShared via: ${window.location.href}`;
-    try {
-        await navigator.clipboard.writeText(text);
-        alert("✅ Copied to clipboard!");
-    } catch (err) { console.error(err); }
+    await navigator.clipboard.writeText(text);
+    alert("✅ Copied to clipboard!");
 }
 
-// Global scope mapping for onclick attributes
+async function deleteLibraryItem(id) {
+    if (!confirm("Delete this verse?")) return;
+    const res = await fetch(`/api/LibraryManager?id=${id}`, { method: 'DELETE' });
+    if (res.ok) loadLibraryTable();
+}
+
+/* --- BOOTSTRAP --- */
 window.initAdmin = initAdmin;
 window.openTab = openTab;
 window.loadPublic = loadPublic;
 window.addGurudwara = addGurudwara;
 window.deleteGurudwara = deleteGurudwara;
+window.publishVaak = publishVaak;
+window.loadLibraryTable = loadLibraryTable;
+window.renderLibraryPage = renderLibraryPage;
+window.deleteLibraryItem = deleteLibraryItem;
+
+document.addEventListener('DOMContentLoaded', () => {
+    if (document.getElementById('userDisplay')) initAdmin();
+    if (document.getElementById('publicGrid')) loadPublic();
+});
