@@ -9,10 +9,14 @@ module.exports = async function (context, req) {
         const header = req.headers["x-ms-client-principal"];
         if (!header) return context.res = { status: 401, body: "Unauthorized" };
 
-        const user = JSON.parse(Buffer.from(header, "base64").toString("ascii"));
-        const email = user.userDetails;
+        const clientPrincipal = JSON.parse(Buffer.from(header, "base64").toString("ascii"));
+        const email = clientPrincipal.userDetails;
+        
+        // Dynamic Role Check: Get roles directly from Azure Login claims
+        const roles = clientPrincipal.userRoles || [];
+        const isSuperAdmin = roles.includes("super_admin");
 
-        // 1. Fetch Profile
+        // Fetch Profile for Editor Name and secondary verification
         const { resource: editorProfile } = await db.container("Editors").item(email, email).read();
         if (!editorProfile || editorProfile.status !== "Active") {
             return context.res = { status: 403, body: "Unauthorized profile." };
@@ -20,9 +24,9 @@ module.exports = async function (context, req) {
 
         const { verseItem, date } = req.body;
 
-        // 2. Identify the target Gurudwara
+        // Identify Target Gurudwara using dynamic role
         let finalGName, finalGLocation;
-        if (editorProfile.role === "super_admin") {
+        if (isSuperAdmin) {
             finalGName = verseItem.gurudwaraName;
             finalGLocation = verseItem.gurudwaraLocation;
         } else {
@@ -30,15 +34,14 @@ module.exports = async function (context, req) {
             finalGLocation = editorProfile.gurudwaraLocation;
         }
 
-        // 3. GENERATE A TRULY UNIQUE ID
-        // Format: 2024-03-27_BanglaSahib_NewDelhi
+        // GENERATE UNIQUE ID (Using your preferred format)
         const safeName = finalGName.replace(/[^a-zA-Z0-9]/g, '');
         const safeCity = finalGLocation.replace(/[^a-zA-Z0-9]/g, '');
         const uniqueId = `${date}_${safeName}_${safeCity}`;
 
         const newItem = {
             id: uniqueId, 
-            date: date, // If 'date' is your Partition Key, this remains the same
+            date: date,
             verse: verseItem.verse,
             pageNumber: verseItem.pageNumber,
             gurudwaraName: finalGName,
@@ -47,9 +50,6 @@ module.exports = async function (context, req) {
             publishedAt: new Date().toISOString()
         };
 
-        // 4. Use 'create' instead of 'upsert' to test
-        // If 'create' throws an error, it tells us the ID already exists
-        // If it successfully creates, it means we fixed the overwrite!
         await container.items.upsert(newItem);
 
         context.res = { 
