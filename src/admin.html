@@ -14,16 +14,32 @@
 
         <div class="tabs">
             <button id="btn-publish" class="tab-btn active" onclick="openTab('publishTab')">Publish Daily Vaak</button>
+            <button id="btn-gurudwaras" class="tab-btn super-admin-only hidden" onclick="openTab('gurudwaraTab')">Manage Gurudwaras</button>
             <button id="btn-editors" class="tab-btn super-admin-only hidden" onclick="openTab('editorsTab')">Manage Editors</button>
             <button id="btn-library" class="tab-btn super-admin-only hidden" onclick="openTab('libraryTab')">Manage Library</button>
             <button class="tab-btn" onclick="window.location.href='/.auth/logout'" style="background: #ffeded; color: #d32f2f;">Logout</button>
         </div>
 
         <div id="publishTab" class="tab-content active">
-            <h2>Search Library & Publish</h2>
+            <div class="card" style="margin-bottom: 20px; border-bottom: 4px solid #3498db;">
+                <h3>Step 1: Select Target & Date</h3>
+                <div class="flex-row" style="gap: 15px;">
+                    <div style="flex: 1;">
+                        <label style="font-size: 0.8rem; display: block; margin-bottom: 5px;">Gurudwara Location</label>
+                        <select id="gurudwaraSelect" style="width: 100%; padding: 8px;" required>
+                            <option value="">Loading Gurudwaras...</option>
+                        </select>
+                    </div>
+                    <div style="flex: 1;">
+                        <label style="font-size: 0.8rem; display: block; margin-bottom: 5px;">Publish Date</label>
+                        <input type="date" id="publishDate" style="width: 100%;">
+                    </div>
+                </div>
+            </div>
+
+            <h2>Step 2: Search Library & Publish</h2>
             <div class="flex-row" style="margin-bottom: 20px;">
-                <input type="date" id="publishDate" style="flex:1;">
-                <input type="text" id="libSearch" placeholder="Search Keywords (Gurmukhi)..." onkeyup="searchLibrary()" style="flex:2;">
+                <input type="text" id="libSearch" placeholder="Search Keywords (Gurmukhi)..." onkeyup="searchLibrary()" style="flex:1;">
             </div>
             
             <div id="libResults" class="grid"></div>
@@ -41,6 +57,36 @@
                         </thead>
                         <tbody id="recentActivityBody">
                             <tr><td colspan="3" style="text-align:center;">Loading activity...</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <div id="gurudwaraTab" class="tab-content">
+            <h2>Master Gurudwara Directory</h2>
+            <div class="card" style="margin-bottom: 20px; border-top: 4px solid #28a745;">
+                <h3>Add New Gurudwara</h3>
+                <div style="display: flex; gap: 10px; margin-top: 10px;">
+                    <input type="text" id="newGName" placeholder="Gurudwara Name (e.g. Bangla Sahib)" style="flex: 2;">
+                    <input type="text" id="newGCity" placeholder="City (e.g. New Delhi)" style="flex: 1;">
+                    <button onclick="addGurudwara()" class="btn-success">Add to Master List</button>
+                </div>
+            </div>
+
+            <div class="card">
+                <h3>Existing Gurudwaras</h3>
+                <div class="table-container">
+                    <table style="width: 100%; border-collapse: collapse;">
+                        <thead>
+                            <tr style="background: #f4f7f6; text-align: left;">
+                                <th style="padding: 12px; border: 1px solid #ddd;">Gurudwara Name</th>
+                                <th style="padding: 12px; border: 1px solid #ddd;">City</th>
+                                <th style="padding: 12px; border: 1px solid #ddd; text-align: center;">Action</th>
+                            </tr>
+                        </thead>
+                        <tbody id="gurudwaraTableBody">
+                            <tr><td colspan="3" style="text-align:center; padding:20px;">Loading directory...</td></tr>
                         </tbody>
                     </table>
                 </div>
@@ -83,35 +129,25 @@
 
         <div id="libraryTab" class="tab-content">
             <h2>Library Management</h2>
-            
             <div class="card" style="margin-bottom: 20px; border-left: 5px solid #107c10;">
-                <h3>Add Single Verse to Library</h3>
+                <h3>Add Single Verse</h3>
                 <div class="grid" style="grid-template-columns: 100px 1fr 1fr; gap: 10px; align-items: end;">
-                    <div>
-                        <label style="font-size: 0.8rem;">Ang</label>
-                        <input type="text" id="addLibPage" placeholder="Ang">
-                    </div>
-                    <div>
-                        <label style="font-size: 0.8rem;">Gurmukhi Verse</label>
-                        <input type="text" id="addLibVerse" placeholder="Enter full verse...">
-                    </div>
-                    <div>
-                        <label style="font-size: 0.8rem;">Keywords</label>
-                        <input type="text" id="addLibKeywords" placeholder="Keywords...">
-                    </div>
+                    <div><label>Ang</label><input type="text" id="addLibPage"></div>
+                    <div><label>Gurmukhi Verse</label><input type="text" id="addLibVerse"></div>
+                    <div><label>Keywords</label><input type="text" id="addLibKeywords"></div>
                 </div>
                 <button class="btn-success" style="margin-top: 15px; width: 100%;" onclick="addSingleLibraryItem()">Save to Library</button>
             </div>
 
-            <div class="flex-row" style="margin-bottom: 20px; flex-wrap: wrap;">
-                <input type="text" id="libAdminSearch" placeholder="Filter by Page or Keyword..." onkeyup="if(event.key === 'Enter') loadLibraryTable(this.value)" style="flex: 1;">
+            <div class="flex-row" style="margin-bottom: 20px;">
+                <input type="text" id="libAdminSearch" placeholder="Filter Library..." style="flex: 1;">
                 <button class="btn-primary" onclick="loadLibraryTable(document.getElementById('libAdminSearch').value)">Search</button>
                 <button class="btn-success" onclick="document.getElementById('importModal').classList.toggle('hidden')">+ Bulk Import</button>
             </div>
 
             <div id="importModal" class="hidden" style="background: #f9f9f9; padding: 15px; border: 1px dashed #ccc; margin-bottom: 20px; border-radius: 8px;">
-                <h3>Bulk Import Verses</h3>
-                <textarea id="bulkJson" rows="5" style="margin-bottom: 10px;" placeholder='[{"pageNumber": "1", "verse": "...", "keywords": "..."}]'></textarea>
+                <h3>Bulk Import JSON</h3>
+                <textarea id="bulkJson" rows="5" style="margin-bottom: 10px;"></textarea>
                 <button class="btn-success" onclick="bulkImport()">Run Import</button>
             </div>
 
@@ -126,8 +162,7 @@
                                 <th class="col-actions">Actions</th>
                             </tr>
                         </thead>
-                        <tbody id="libraryTableBody">
-                            </tbody>
+                        <tbody id="libraryTableBody"></tbody>
                     </table>
                 </div>
                 <div id="libraryPagination"></div>
@@ -135,41 +170,14 @@
         </div>
     </div>
 
-    <div id="gurudwaraManagementSection" class="card" style="margin-bottom: 30px; display: none;">
-    <h3>Master Gurudwara List</h3>
-    <p style="font-size: 0.9rem; color: #666;">Add or remove Gurudwaras from the master database.</p>
-    
-    <div style="display: flex; gap: 10px; margin-bottom: 20px;">
-        <input type="text" id="newGName" placeholder="Gurudwara Name (e.g. Bangla Sahib)" style="flex: 2;">
-        <input type="text" id="newGCity" placeholder="City (e.g. New Delhi)" style="flex: 1;">
-        <button onclick="addGurudwara()" class="btn-primary" style="background-color: #28a745;">Add</button>
-    </div>
-
-    <table style="width: 100%; border-collapse: collapse; font-size: 0.9rem;">
-        <thead>
-            <tr style="border-bottom: 2px solid #eee; text-align: left;">
-                <th style="padding: 10px;">Gurudwara</th>
-                <th style="padding: 10px;">City</th>
-                <th style="padding: 10px;">Action</th>
-            </tr>
-        </thead>
-        <tbody id="gurudwaraTableBody">
-            </tbody>
-    </table>
-</div>
-
-<div class="card">
-    <h3>Post Daily Vaak</h3>
-    <label>Select Gurudwara:</label>
-    <select id="gurudwaraSelect" required>
-        <option value="">Loading Gurudwaras...</option>
-    </select>
-    </div>
-    
     <script src="app.js"></script>
     <script>
         document.getElementById('publishDate').valueAsDate = new Date();
-        initAdmin();
+        // Combined initialization
+        document.addEventListener('DOMContentLoaded', () => {
+            initAdmin(); // Existing init
+            loadGurudwaras(); // Load master list for dropdown/table
+        });
     </script>
 </body>
 </html>
