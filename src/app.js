@@ -127,6 +127,35 @@ async function loadRecentActivity() {
     } catch (e) { body.innerHTML = '<tr><td colspan="3">Error loading activity.</td></tr>'; }
 }
 
+async function searchLibrary() {
+    const kw = document.getElementById('libSearch')?.value || '';
+    // If the keyword is short, it still allows a "reset" to full list
+    loadLibraryTable(kw);
+}
+
+async function loadLibraryTable(searchQuery = '') {
+    const body = document.getElementById('libraryTableBody');
+    if (!body) return;
+    
+    body.innerHTML = '<tr><td colspan="4" style="text-align:center;">Searching Library...</td></tr>';
+    
+    try {
+        // Updated to use the keyword in the API string
+        const res = await fetch(`/api/LibraryManager?keyword=${encodeURIComponent(searchQuery)}`);
+        if (!res.ok) throw new Error("Search failed");
+        
+        libraryAllData = await res.json();
+        
+        // Sort by Page Number
+        libraryAllData.sort((a, b) => parseInt(a.pageNumber || 0) - parseInt(b.pageNumber || 0));
+        
+        renderLibraryPage(1); 
+    } catch (e) { 
+        console.error("Library Search Error:", e);
+        body.innerHTML = '<tr><td colspan="4" style="text-align:center; color:red;">Error loading results.</td></tr>'; 
+    }
+}
+
 async function loadEditorsList() {
     const tableBody = document.getElementById('editorsTableBody');
     if (!tableBody) return;
@@ -263,6 +292,7 @@ async function deleteLibraryItem(id) {
 /* --- BOOTSTRAP --- */
 window.initAdmin = initAdmin;
 window.openTab = openTab;
+window.searchLibrary = searchLibrary;
 window.loadPublic = loadPublic;
 window.addGurudwara = addGurudwara;
 window.deleteGurudwara = deleteGurudwara;
