@@ -127,32 +127,79 @@ async function loadRecentActivity() {
     } catch (e) { body.innerHTML = '<tr><td colspan="3">Error loading activity.</td></tr>'; }
 }
 
+let searchDebounceTimer;
+
 function searchLibrary() {
     const searchInput = document.getElementById('libSearch');
     const kw = searchInput ? searchInput.value.trim() : '';
-    loadLibraryTable(kw);
+
+    // Clear the timer so we don't search on every single letter if typing fast
+    clearTimeout(searchDebounceTimer);
+
+    // Wait 300ms after the last keypress to actually trigger the search
+    searchDebounceTimer = setTimeout(() => {
+        loadLibraryTable(kw);
+    }, 300);
 }
 
 async function loadLibraryTable(searchQuery = '') {
-    const body = document.getElementById('libraryTableBody');
-    if (!body) return;
+    const container = document.getElementById('libResults'); // Matches your admin.html ID
+    if (!container) return;
     
-    body.innerHTML = `<tr><td colspan="4" style="text-align:center;">${searchQuery ? 'Searching...' : 'Loading Library...'}</td></tr>`;
+    // Show a loading state inside the grid
+    container.innerHTML = '<div style="grid-column: 1/-1; text-align:center; padding: 20px;">Loading Library...</div>';
     
     try {
-        // FIXED: Reverted to ?search= to match your Azure backend
+        // Correct API parameter: ?search=
         const res = await fetch(`/api/LibraryManager?search=${encodeURIComponent(searchQuery)}`);
         if (!res.ok) throw new Error("Fetch failed");
         
         libraryAllData = await res.json();
         
-        // Sort by Ang (Page Number)
+        // Sort numerically by Ang
         libraryAllData.sort((a, b) => parseInt(a.pageNumber || 0) - parseInt(b.pageNumber || 0));
         
-        renderLibraryPage(1); 
+        renderLibraryGrid(libraryAllData); 
     } catch (e) { 
         console.error("Library Load Error:", e);
-        body.innerHTML = `<tr><td colspan="4" style="text-align:center; color:red;">${searchQuery ? 'No results found.' : 'Error loading library.'}</td></tr>`; 
+        container.innerHTML = '<div style="grid-column: 1/-1; text-align:center; color:red; padding: 20px;">No results found.</div>'; 
+    }
+}
+
+// 3. Render the results as CARDS (Grid) instead of Table Rows
+function renderLibraryGrid(data) {
+    const container = document.getElementById('libResults');
+    if (!container) return;
+
+    if (data.length === 0) {
+        container.innerHTML = '<div style="grid-column: 1/-1; text-align:center;">No verses found.</div>';
+        return;
+    }
+
+    container.innerHTML = data.map(item => `
+        <div class="card">
+            <div style="display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:10px;">
+                <span class="tag">Ang: ${item.pageNumber}</span>
+                <button class="btn-primary btn-sm" onclick="triggerPublish(event, '${item.id}')">Publish</button>
+            </div>
+            <p class="gurmukhi" style="font-size: 1.1rem; line-height: 1.6;">${item.verse}</p>
+            <div class="meta" style="margin-top:10px; font-size: 0.85rem; color: #666;">
+                <strong>Keywords:</strong> ${item.keywords || 'N/A'}
+            </div>
+        </div>
+    `).join('');
+    
+    // Store data globally so triggerPublish can find the item details
+    libraryAllData = data; 
+}
+
+// 4. Helper to connect the "Publish" button to the actual API call
+function triggerPublish(event, itemId) {
+    const itemToPublish = libraryAllData.find(i => i.id === itemId);
+    if (itemToPublish) {
+        publishVaak(event, itemToPublish);
+    } else {
+        alert("Error: Verse data not found.");
     }
 }
 
@@ -285,33 +332,23 @@ window.loadLibraryTable = loadLibraryTable;
 window.loadPublic = loadPublic;
 window.addGurudwara = addGurudwara;
 window.deleteGurudwara = deleteGurudwara;
+window.triggerPublish = triggerPublish;
 window.publishVaak = publishVaak;
 window.loadLibraryTable = loadLibraryTable;
 window.renderLibraryPage = renderLibraryPage;
 window.deleteLibraryItem = deleteLibraryItem;
 
+/* --- 3. THE REPAIRED BOOTSTRAP (Bottom of file) --- */
 document.addEventListener('DOMContentLoaded', () => {
-    // Public Page Logic
+    // Public Page
     if (document.getElementById('publicGrid')) {
         loadPublic();
     }
 
-    // Admin Page Logic
-    const adminDisplay = document.getElementById('userDisplay');
-    if (adminDisplay) {
+    // Admin Page
+    if (document.getElementById('userDisplay')) {
         initAdmin();
-
-        // FIXED: Use 'input' so it searches instantly as you type
-        const searchInput = document.getElementById('libSearch');
-        if (searchInput) {
-            let debounceTimer;
-            searchInput.addEventListener('input', () => {
-                // Adds a tiny 300ms delay so it doesn't spam your API on every single fast keystroke
-                clearTimeout(debounceTimer);
-                debounceTimer = setTimeout(() => {
-                    searchLibrary();
-                }, 300);
-            });
-        }
+        // We don't need a manual listener here because 
+        // the HTML has onkeyup="searchLibrary()"
     }
 });
