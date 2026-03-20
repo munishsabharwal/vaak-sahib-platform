@@ -140,8 +140,8 @@ async function loadLibraryTable(searchQuery = '') {
     body.innerHTML = `<tr><td colspan="4" style="text-align:center;">${searchQuery ? 'Searching...' : 'Loading Library...'}</td></tr>`;
     
     try {
-        // Use 'keyword' to match the API expectation
-        const res = await fetch(`/api/LibraryManager?keyword=${encodeURIComponent(searchQuery)}`);
+        // FIXED: Reverted to ?search= to match your Azure backend
+        const res = await fetch(`/api/LibraryManager?search=${encodeURIComponent(searchQuery)}`);
         if (!res.ok) throw new Error("Fetch failed");
         
         libraryAllData = await res.json();
@@ -301,14 +301,16 @@ document.addEventListener('DOMContentLoaded', () => {
     if (adminDisplay) {
         initAdmin();
 
-        // Attach Enter Key listener to the search input
+        // FIXED: Use 'input' so it searches instantly as you type
         const searchInput = document.getElementById('libSearch');
         if (searchInput) {
-            searchInput.addEventListener('keypress', (e) => {
-                if (e.key === 'Enter') {
-                    e.preventDefault(); 
+            let debounceTimer;
+            searchInput.addEventListener('input', () => {
+                // Adds a tiny 300ms delay so it doesn't spam your API on every single fast keystroke
+                clearTimeout(debounceTimer);
+                debounceTimer = setTimeout(() => {
                     searchLibrary();
-                }
+                }, 300);
             });
         }
     }
