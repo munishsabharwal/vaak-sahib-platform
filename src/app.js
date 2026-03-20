@@ -127,9 +127,9 @@ async function loadRecentActivity() {
     } catch (e) { body.innerHTML = '<tr><td colspan="3">Error loading activity.</td></tr>'; }
 }
 
-async function searchLibrary() {
-    const kw = document.getElementById('libSearch')?.value || '';
-    // If the keyword is short, it still allows a "reset" to full list
+function searchLibrary() {
+    const searchInput = document.getElementById('libSearch');
+    const kw = searchInput ? searchInput.value.trim() : '';
     loadLibraryTable(kw);
 }
 
@@ -137,22 +137,22 @@ async function loadLibraryTable(searchQuery = '') {
     const body = document.getElementById('libraryTableBody');
     if (!body) return;
     
-    body.innerHTML = '<tr><td colspan="4" style="text-align:center;">Searching Library...</td></tr>';
+    body.innerHTML = `<tr><td colspan="4" style="text-align:center;">${searchQuery ? 'Searching...' : 'Loading Library...'}</td></tr>`;
     
     try {
-        // Updated to use the keyword in the API string
+        // Use 'keyword' to match the API expectation
         const res = await fetch(`/api/LibraryManager?keyword=${encodeURIComponent(searchQuery)}`);
-        if (!res.ok) throw new Error("Search failed");
+        if (!res.ok) throw new Error("Fetch failed");
         
         libraryAllData = await res.json();
         
-        // Sort by Page Number
+        // Sort by Ang (Page Number)
         libraryAllData.sort((a, b) => parseInt(a.pageNumber || 0) - parseInt(b.pageNumber || 0));
         
         renderLibraryPage(1); 
     } catch (e) { 
-        console.error("Library Search Error:", e);
-        body.innerHTML = '<tr><td colspan="4" style="text-align:center; color:red;">Error loading results.</td></tr>'; 
+        console.error("Library Load Error:", e);
+        body.innerHTML = `<tr><td colspan="4" style="text-align:center; color:red;">${searchQuery ? 'No results found.' : 'Error loading library.'}</td></tr>`; 
     }
 }
 
@@ -172,18 +172,6 @@ async function loadEditorsList() {
                     <td>${e.gurudwaraLocation || 'N/A'}</td>
                 </tr>`).join('');
     } catch (e) { tableBody.innerHTML = '<tr><td colspan="4">Error loading editors.</td></tr>'; }
-}
-
-async function loadLibraryTable(searchQuery = '') {
-    const body = document.getElementById('libraryTableBody');
-    if (!body) return;
-    body.innerHTML = '<tr><td colspan="4" style="text-align:center;">Loading Library...</td></tr>';
-    try {
-        const res = await fetch(`/api/LibraryManager?search=${searchQuery}`);
-        libraryAllData = await res.json();
-        libraryAllData.sort((a, b) => parseInt(a.pageNumber || 0) - parseInt(b.pageNumber || 0));
-        renderLibraryPage(1);
-    } catch (e) { body.innerHTML = '<tr><td colspan="4">Error loading library.</td></tr>'; }
 }
 
 function renderLibraryPage(page) {
@@ -293,6 +281,7 @@ async function deleteLibraryItem(id) {
 window.initAdmin = initAdmin;
 window.openTab = openTab;
 window.searchLibrary = searchLibrary;
+window.loadLibraryTable = loadLibraryTable;
 window.loadPublic = loadPublic;
 window.addGurudwara = addGurudwara;
 window.deleteGurudwara = deleteGurudwara;
@@ -302,6 +291,25 @@ window.renderLibraryPage = renderLibraryPage;
 window.deleteLibraryItem = deleteLibraryItem;
 
 document.addEventListener('DOMContentLoaded', () => {
-    if (document.getElementById('userDisplay')) initAdmin();
-    if (document.getElementById('publicGrid')) loadPublic();
+    // Public Page Logic
+    if (document.getElementById('publicGrid')) {
+        loadPublic();
+    }
+
+    // Admin Page Logic
+    const adminDisplay = document.getElementById('userDisplay');
+    if (adminDisplay) {
+        initAdmin();
+
+        // Attach Enter Key listener to the search input
+        const searchInput = document.getElementById('libSearch');
+        if (searchInput) {
+            searchInput.addEventListener('keypress', (e) => {
+                if (e.key === 'Enter') {
+                    e.preventDefault(); 
+                    searchLibrary();
+                }
+            });
+        }
+    }
 });
