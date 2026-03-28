@@ -81,19 +81,31 @@ async function initAdmin() {
         }
 
         document.getElementById('userDisplay').innerText = `User: ${user.userDetails}`;
+        
+        // Define Super Admin status
         const isSuperAdmin = user.userRoles.includes('super_admin');
+        window.currentUserIsAdmin = isSuperAdmin; // Set global variable
 
+        // Strictly Show/Hide Admin tabs
         document.querySelectorAll('.super-admin-only').forEach(el => {
-            el.style.display = isSuperAdmin ? '' : 'none';
-            isSuperAdmin ? el.classList.remove('hidden') : el.classList.add('hidden');
+            if (isSuperAdmin) {
+                el.classList.remove('hidden');
+                el.style.display = ''; // Reset display
+            } else {
+                el.classList.add('hidden');
+                el.style.display = 'none'; // Force hide
+            }
         });
 
-        // Load specific data based on role
+        // Load data based on role
         if (isSuperAdmin) {
             loadGurudwaras();
+            // Don't auto-load library here, only when tab is clicked
         }
+        
         loadRecentActivity();
-    } catch (e) { console.error("Auth Init Error:", e); }
+        loadGurudwaraDropdown(); // New helper to just load the dropdown for Editors
+    } catch (e) { console.error("Auth Error:", e); }
 }
 
 function openTab(tabId) {
