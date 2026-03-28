@@ -144,41 +144,35 @@ async function loadRecentActivity() {
 
 let searchDebounceTimer;
 
-function searchLibrary() {
-    const searchInput = document.getElementById('libSearch');
-    const kw = searchInput ? searchInput.value.trim() : '';
-
-    // Clear the timer so we don't search on every single letter if typing fast
-    clearTimeout(searchDebounceTimer);
-
-    // Wait 300ms after the last keypress to actually trigger the search
-    searchDebounceTimer = setTimeout(() => {
-        loadLibraryTable(kw);
-    }, 300);
-}
-
+// This function handles the actual data display
 async function loadLibraryTable(searchQuery = '') {
-    const container = document.getElementById('libResults'); // Matches your admin.html ID
-    if (!container) return;
-    
-    // Show a loading state inside the grid
-    container.innerHTML = '<div style="grid-column: 1/-1; text-align:center; padding: 20px;">Loading Library...</div>';
+    // Check which view we are in: Publish Tab (grid) or Library Tab (table)
+    const gridContainer = document.getElementById('libResults');
+    const tableBody = document.getElementById('libraryTableBody');
     
     try {
-        // Correct API parameter: ?search=
+        // Fetch from API with the search parameter
         const res = await fetch(`/api/LibraryManager?search=${encodeURIComponent(searchQuery)}`);
-        if (!res.ok) throw new Error("Fetch failed");
+        const data = await res.json();
         
-        libraryAllData = await res.json();
-        
-        // Sort numerically by Ang
-        libraryAllData.sort((a, b) => parseInt(a.pageNumber || 0) - parseInt(b.pageNumber || 0));
-        
-        renderLibraryGrid(libraryAllData); 
-    } catch (e) { 
-        console.error("Library Load Error:", e);
-        container.innerHTML = '<div style="grid-column: 1/-1; text-align:center; color:red; padding: 20px;">No results found.</div>'; 
+        // 1. If we are on the 'Publish' tab (Grid view)
+        if (gridContainer && document.getElementById('publishTab').classList.contains('active')) {
+            renderLibraryGrid(data); 
+        } 
+        // 2. If we are on the 'Library Management' tab (Table view)
+        else if (tableBody) {
+            libraryAllData = data;
+            renderLibraryPage(1); // Standard table pagination
+        }
+    } catch (e) {
+        console.error("Search failed", e);
     }
+}
+
+// Triggered by onkeyup="searchLibrary()" in Step 2
+function searchLibrary() {
+    const kw = document.getElementById('libSearch').value;
+    loadLibraryTable(kw);
 }
 
 // 3. Render the results as CARDS (Grid) instead of Table Rows
