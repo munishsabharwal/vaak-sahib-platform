@@ -85,6 +85,10 @@ button {
 .btn-success { background-color: #107c10; color: white; }
 .btn-danger { background-color: #d13438; color: white; }
 
+.hidden {
+    display: none !important;
+}
+
 /* --- 4. Admin Tabs --- */
 .tabs {
     display: flex;
