@@ -88,7 +88,10 @@ async function initAdmin() {
             isSuperAdmin ? el.classList.remove('hidden') : el.classList.add('hidden');
         });
 
-        loadGurudwaras();
+        // Load specific data based on role
+        if (isSuperAdmin) {
+            loadGurudwaras();
+        }
         loadRecentActivity();
     } catch (e) { console.error("Auth Init Error:", e); }
 }
