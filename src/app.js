@@ -82,32 +82,34 @@ async function initAdmin() {
 
         document.getElementById('userDisplay').innerText = `User: ${user.userDetails}`;
         
-        // Define Super Admin status
         const isSuperAdmin = user.userRoles.includes('super_admin');
-        window.currentUserIsAdmin = isSuperAdmin; // Set global variable
+        window.currentUserIsAdmin = isSuperAdmin;
 
-        // Strictly Show/Hide Admin tabs
+        // Strictly manage visibility
         document.querySelectorAll('.super-admin-only').forEach(el => {
             if (isSuperAdmin) {
                 el.classList.remove('hidden');
-                el.style.display = ''; // Reset display
+                el.style.display = ''; 
             } else {
                 el.classList.add('hidden');
-                el.style.display = 'none'; // Force hide
+                el.style.display = 'none';
             }
         });
 
-        // Load data based on role
         if (isSuperAdmin) {
-            loadGurudwaras();
-            // Don't auto-load library here, only when tab is clicked
+            loadGurudwaras(); // Full access
+        } else {
+            // EDITOR: Fetch profile from ManageEditors using email
+            const profileRes = await fetch(`/api/ManageEditors?email=${encodeURIComponent(user.userDetails)}`);
+            if (profileRes.ok) {
+                window.editorProfile = await profileRes.json();
+            }
         }
         
         loadRecentActivity();
-        loadGurudwaraDropdown(); // New helper to just load the dropdown for Editors
-    } catch (e) { console.error("Auth Error:", e); }
+        loadLibraryTable(); 
+    } catch (e) { console.error("Init Error:", e); }
 }
-
 function openTab(tabId) {
     document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
     document.querySelectorAll('.tabs button').forEach(b => b.classList.remove('active'));
@@ -300,27 +302,55 @@ async function deleteGurudwara(id) {
 }
 
 /* --- ACTIONS & UTILS --- */
-async function publishVaak(event, item) {
+async function publishVaak(event, libraryItem) {
     const btn = event.target;
-    const date = document.getElementById('publishDate').value;
-    const select = document.getElementById('gurudwaraSelect');
-    if (!select || select.value === "") return alert("Please select a Gurudwara.");
-    const selected = select.options[select.selectedIndex];
+    const dateInput = document.getElementById('publishDate');
+    // For editors, the date input is hidden, so default to today if not found
+    const date = (dateInput && dateInput.value) ? dateInput.value : new Date().toISOString().split('T')[0];
     
-    item.gurudwaraName = selected.value;
-    item.gurudwaraLocation = selected.getAttribute('data-city'); 
+    let payload = {
+        date: date,
+        verse: libraryItem.verse,
+        pageNumber: libraryItem.pageNumber
+    };
 
-    if (!date || !confirm(`Publish for ${item.gurudwaraName} on ${date}?`)) return;
+    if (window.currentUserIsAdmin) {
+        const sel = document.getElementById('gurudwaraSelect');
+        const opt = sel.options[sel.selectedIndex];
+        if (!opt || !opt.value) return alert("Please select a Gurudwara first!");
+        
+        payload.gurudwaraName = opt.text;
+        payload.location = opt.getAttribute('data-location');
+    } else {
+        if (!window.editorProfile) return alert("Editor profile not loaded. Please refresh.");
+        
+        payload.gurudwaraName = window.editorProfile.gurudwaraName;
+        payload.location = window.editorProfile.location;
+    }
+
+    if (!confirm(`Publish to ${payload.gurudwaraName} for ${date}?`)) return;
+
     btn.disabled = true;
     try {
+        // Corrected API endpoint
         const res = await fetch('/api/EditorPublish', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ verseItem: item, date: date })
+            body: JSON.stringify(payload)
         });
-        alert(res.ok ? "✅ Published!" : "❌ Error publishing.");
-        if (res.ok) loadRecentActivity();
-    } finally { btn.disabled = false; }
+        
+        if (res.ok) {
+            alert("✅ Published Successfully!");
+            loadRecentActivity();
+        } else {
+            const err = await res.text();
+            alert("Error: " + err);
+        }
+    } catch (e) {
+        console.error(e);
+    } finally {
+        btn.disabled = false;
+    }
 }
 
 async function copyVaak(gurudwara, location, verse, ang) {
