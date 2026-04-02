@@ -107,7 +107,6 @@ async function initAdmin() {
         }
         
         loadRecentActivity();
-        loadLibraryTable(); 
     } catch (e) { console.error("Init Error:", e); }
 }
 function openTab(tabId) {
