@@ -144,62 +144,63 @@ async function loadRecentActivity() {
 
 let searchDebounceTimer;
 
-// This function handles the actual data display
+// 1. The main fetcher that actually filters
 async function loadLibraryTable(searchQuery = '') {
-    // Check which view we are in: Publish Tab (grid) or Library Tab (table)
-    const gridContainer = document.getElementById('libResults');
-    const tableBody = document.getElementById('libraryTableBody');
-    
+    const gridContainer = document.getElementById('libResults'); // For Step 2
+    const tableBody = document.getElementById('libraryTableBody'); // For Library Tab
+
     try {
-        // Fetch from API with the search parameter
+        // Fetch from your Azure API using the 'search' parameter
         const res = await fetch(`/api/LibraryManager?search=${encodeURIComponent(searchQuery)}`);
+        if (!res.ok) throw new Error("Search failed");
+        
         const data = await res.json();
         
-        // 1. If we are on the 'Publish' tab (Grid view)
-        if (gridContainer && document.getElementById('publishTab').classList.contains('active')) {
+        // Sort numerically by Ang (Page Number)
+        data.sort((a, b) => parseInt(a.pageNumber || 0) - parseInt(b.pageNumber || 0));
+
+        // update the Global variable for pagination
+        libraryAllData = data;
+
+        // FIX: Update BOTH views if they exist
+        if (gridContainer) {
             renderLibraryGrid(data); 
-        } 
-        // 2. If we are on the 'Library Management' tab (Table view)
-        else if (tableBody) {
-            libraryAllData = data;
-            renderLibraryPage(1); // Standard table pagination
         }
+        if (tableBody) {
+            renderLibraryPage(1); 
+        }
+
     } catch (e) {
-        console.error("Search failed", e);
+        console.error("Library Search Error:", e);
     }
 }
 
-// Triggered by onkeyup="searchLibrary()" in Step 2
+// 2. The "As You Type" trigger for Step 2 (Publishing)
 function searchLibrary() {
     const kw = document.getElementById('libSearch').value;
     loadLibraryTable(kw);
 }
 
-// 3. Render the results as CARDS (Grid) instead of Table Rows
+// 3. The Grid Renderer for Step 2 (Matches your HTML IDs)
 function renderLibraryGrid(data) {
     const container = document.getElementById('libResults');
     if (!container) return;
 
-    if (data.length === 0) {
-        container.innerHTML = '<div style="grid-column: 1/-1; text-align:center;">No verses found.</div>';
+    if (!data || data.length === 0) {
+        container.innerHTML = '<div style="grid-column: 1/-1; text-align:center;">No results.</div>';
         return;
     }
 
     container.innerHTML = data.map(item => `
         <div class="card">
-            <div style="display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:10px;">
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;">
                 <span class="tag">Ang: ${item.pageNumber}</span>
-                <button class="btn-primary btn-sm" onclick="triggerPublish(event, '${item.id}')">Publish</button>
+                <button class="btn-primary btn-sm" onclick="publishVaak(event, ${JSON.stringify(item).replace(/"/g, '&quot;')})">Publish</button>
             </div>
-            <p class="gurmukhi" style="font-size: 1.1rem; line-height: 1.6;">${item.verse}</p>
-            <div class="meta" style="margin-top:10px; font-size: 0.85rem; color: #666;">
-                <strong>Keywords:</strong> ${item.keywords || 'N/A'}
-            </div>
+            <p class="gurmukhi">${item.verse}</p>
+            <div style="font-size:0.8rem; color:#666; margin-top:5px;">${item.keywords || ''}</div>
         </div>
     `).join('');
-    
-    // Store data globally so triggerPublish can find the item details
-    libraryAllData = data; 
 }
 
 // 4. Helper to connect the "Publish" button to the actual API call
