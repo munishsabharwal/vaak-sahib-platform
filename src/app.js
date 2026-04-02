@@ -144,28 +144,30 @@ async function loadRecentActivity() {
 
 let searchDebounceTimer;
 
-// 1. The main fetcher that actually filters
 async function loadLibraryTable(searchQuery = '') {
-    const gridContainer = document.getElementById('libResults'); // For Step 2
-    const tableBody = document.getElementById('libraryTableBody'); // For Library Tab
-
+    const gridContainer = document.getElementById('libResults'); // For "Publish" tab
+    const tableBody = document.getElementById('libraryTableBody'); // For "Manage Library" tab
+    
     try {
-        // Fetch from your Azure API using the 'search' parameter
-        const res = await fetch(`/api/LibraryManager?search=${encodeURIComponent(searchQuery)}`);
-        if (!res.ok) throw new Error("Search failed");
+        // MATCHING THE BACKEND: Changed 'search=' to 'keyword='
+        const url = searchQuery.trim() 
+            ? `/api/LibraryManager?keyword=${encodeURIComponent(searchQuery.trim())}` 
+            : '/api/LibraryManager';
+            
+        const res = await fetch(url);
+        if (!res.ok) throw new Error("Fetch failed");
         
         const data = await res.json();
         
-        // Sort numerically by Ang (Page Number)
-        data.sort((a, b) => parseInt(a.pageNumber || 0) - parseInt(b.pageNumber || 0));
-
-        // update the Global variable for pagination
+        // Update global variable for pagination
         libraryAllData = data;
 
-        // FIX: Update BOTH views if they exist
+        // Render to the Grid (Publish Tab)
         if (gridContainer) {
             renderLibraryGrid(data); 
         }
+        
+        // Render to the Table (Manage Tab)
         if (tableBody) {
             renderLibraryPage(1); 
         }
@@ -174,7 +176,6 @@ async function loadLibraryTable(searchQuery = '') {
         console.error("Library Search Error:", e);
     }
 }
-
 // 2. The "As You Type" trigger for Step 2 (Publishing)
 function searchLibrary() {
     const kw = document.getElementById('libSearch').value;
