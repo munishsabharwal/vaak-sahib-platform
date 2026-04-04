@@ -400,37 +400,26 @@ function showSection(sectionId) {
 }
 
 async function saveEditor() {
-    // 1. Grab values from the HTML inputs
-    const firstName = document.getElementById('editorFirstName')?.value;
-    const lastName = document.getElementById('editorLastName')?.value;
-    const email = document.getElementById('editorEmail')?.value;
-    
-    // For the gurudwara selection
-    const sel = document.getElementById('editorGurudwaraSelect');
-    let gurudwaraName = '';
-    let gurudwaraLocation = '';
-    
-    if (sel && sel.selectedIndex >= 0) {
-        const opt = sel.options[sel.selectedIndex];
-        gurudwaraName = opt.value; // or opt.text depending on how you structured it
-        gurudwaraLocation = opt.getAttribute('data-location') || '';
-    }
+    // These IDs now match your admin.html exactly
+    const email = document.getElementById('editEmail')?.value;
+    const firstName = document.getElementById('editFirstName')?.value;
+    const lastName = document.getElementById('editLastName')?.value;
+    const gurudwaraName = document.getElementById('editGurudwara')?.value;
+    const gurudwaraLocation = document.getElementById('editLocation')?.value;
 
-    // 2. Validate required fields
-    if (!firstName || !lastName || !email) {
-        return alert("Please fill out the First Name, Last Name, and Email!");
+    // This check was triggering the alert because the old IDs were returning 'null'
+    if (!email || !firstName || !lastName) {
+        return alert("Please fill out Email, First Name, and Last Name!");
     }
 
     const payload = {
+        email,
         firstName,
         lastName,
-        email,
         gurudwaraName,
         gurudwaraLocation,
-        status: "Active" // Usually active by default
+        status: "Active"
     };
-
-    console.log("Saving Editor Profile:", payload);
 
     try {
         const res = await fetch('/api/ManageEditors', {
@@ -439,25 +428,25 @@ async function saveEditor() {
             body: JSON.stringify(payload)
         });
 
-        const responseText = await res.text();
-
         if (res.ok) {
             alert("✅ Editor profile saved successfully!");
-            // Clear the form fields
-            document.getElementById('editorFirstName').value = '';
-            document.getElementById('editorLastName').value = '';
-            document.getElementById('editorEmail').value = '';
+            // Clear the form fields using the correct IDs
+            document.getElementById('editEmail').value = '';
+            document.getElementById('editFirstName').value = '';
+            document.getElementById('editLastName').value = '';
+            document.getElementById('editGurudwara').value = '';
+            document.getElementById('editLocation').value = '';
             
-            // Refresh the table to show the new editor
+            // Refresh the table if you have a load function
             if (typeof loadEditorsList === "function") loadEditorsList();
         } else {
-            alert("Server Error: " + responseText);
+            const err = await res.text();
+            alert("Server Error: " + err);
         }
     } catch (e) {
         alert("Network Error: " + e.message);
     }
 }
-
 // Add this line to the existing Bootstrap/Window section at the bottom of your app.js
 window.showSection = showSection;
 
