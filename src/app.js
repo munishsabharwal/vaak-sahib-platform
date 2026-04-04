@@ -400,14 +400,25 @@ function showSection(sectionId) {
 }
 
 async function saveEditor() {
-    // These IDs now match your admin.html exactly
-    const email = document.getElementById('editEmail')?.value;
-    const firstName = document.getElementById('editFirstName')?.value;
-    const lastName = document.getElementById('editLastName')?.value;
-    const gurudwaraName = document.getElementById('editGurudwara')?.value;
-    const gurudwaraLocation = document.getElementById('editLocation')?.value;
+    console.log("Save button clicked. Checking fields...");
 
-    // This check was triggering the alert because the old IDs were returning 'null'
+    // Using exact IDs from your admin.html
+    const emailField = document.getElementById('editEmail');
+    const firstNameField = document.getElementById('editFirstName');
+    const lastNameField = document.getElementById('editLastName');
+    const gNameField = document.getElementById('editGurudwara');
+    const gLocField = document.getElementById('editLocation');
+
+    // Get values and trim whitespace
+    const email = emailField?.value?.trim();
+    const firstName = firstNameField?.value?.trim();
+    const lastName = lastNameField?.value?.trim();
+    const gurudwaraName = gNameField?.value?.trim() || "";
+    const gurudwaraLocation = gLocField?.value?.trim() || "";
+
+    console.log("Values found:", { email, firstName, lastName });
+
+    // Strict validation
     if (!email || !firstName || !lastName) {
         return alert("Please fill out Email, First Name, and Last Name!");
     }
@@ -430,24 +441,26 @@ async function saveEditor() {
 
         if (res.ok) {
             alert("✅ Editor profile saved successfully!");
-            // Clear the form fields using the correct IDs
-            document.getElementById('editEmail').value = '';
-            document.getElementById('editFirstName').value = '';
-            document.getElementById('editLastName').value = '';
-            document.getElementById('editGurudwara').value = '';
-            document.getElementById('editLocation').value = '';
+            // Reset fields
+            if(emailField) emailField.value = '';
+            if(firstNameField) firstNameField.value = '';
+            if(lastNameField) lastNameField.value = '';
+            if(gNameField) gNameField.value = '';
+            if(gLocField) gLocField.value = '';
             
-            // Refresh the table if you have a load function
             if (typeof loadEditorsList === "function") loadEditorsList();
         } else {
             const err = await res.text();
             alert("Server Error: " + err);
         }
     } catch (e) {
+        console.error("Save error:", e);
         alert("Network Error: " + e.message);
     }
 }
-// Add this line to the existing Bootstrap/Window section at the bottom of your app.js
+
+// Crucial: Ensure it's globally available
+
 window.showSection = showSection;
 
 /* --- BOOTSTRAP --- */
