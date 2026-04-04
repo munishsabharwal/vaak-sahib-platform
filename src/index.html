@@ -1,34 +1,59 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>Daily Vaak Sahib</title>
+    <title>Daily Vaak Sahib | Larivaar.net</title>
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
     <div class="container">
-        <h1>Daily Vaak Sahib</h1>
+        <header style="text-align: center; margin-bottom: 30px;">
+            <h1 style="color: #d4af37; text-shadow: 1px 1px 2px rgba(0,0,0,0.2); margin-bottom: 10px;">Larivaar.net</h1>
+            <nav class="public-nav">
+                <a href="#" onclick="showSection('home')">Daily Vaak</a> | 
+                <a href="#" onclick="showSection('about')">About Larivaar</a> | 
+                <a href="#" onclick="showSection('contact')">Contact Us</a>
+            </nav>
+        </header>
         
-        <div class="card" style="margin-bottom: 20px;">
-            <div class="flex-row">
-                <input type="date" id="publicDate" onchange="loadPublic()">
-                <select id="gurudwaraFilter" onchange="renderPublic(lastFetchedData)">
-                    <option value="all">All Gurudwaras</option>
-                </select>
+        <div id="home-section">
+            <div class="card" style="margin-bottom: 20px;">
+                <div class="flex-row">
+                    <input type="date" id="publicDate" onchange="loadPublic()">
+                    <select id="gurudwaraFilter" onchange="renderPublic(lastFetchedData)">
+                        <option value="all">All Gurudwaras</option>
+                    </select>
+                </div>
+                
+                <div style="margin-top: 15px; padding-top: 10px; border-top: 1px solid #eee;">
+                    <label style="font-weight: bold; cursor: pointer; display: flex; align-items: center; gap: 10px;">
+                        <input type="checkbox" id="mergeWords" onchange="renderPublic(lastFetchedData)" style="width: 20px; height: 20px;"> 
+                        Display in Larivaar (Merge Words)
+                    </label>
+                </div>
             </div>
-            
-            <div style="margin-top: 15px; padding-top: 10px; border-top: 1px solid #eee;">
-                <label style="font-weight: bold; cursor: pointer; display: flex; align-items: center; gap: 10px;">
-                    <input type="checkbox" id="mergeWords" onchange="renderPublic(lastFetchedData)" style="width: 20px; height: 20px;"> 
-                    Display in Larivaar (Merge Words)
-                </label>
+            <div id="publicGrid" class="grid">Loading...</div>
+        </div>
+
+        <div id="about-section" class="card hidden">
+            <h2>About Larivaar.net</h2>
+            <p>Larivaar.net is a digital platform dedicated to the preservation and promotion of <strong>Larivaar Gurbani</strong> (continuous form).</p>
+            <p>Our goal is to provide the global Sangat with easy access to the daily Hukamnama Sahib from various Gurudwara Sahibs in both traditional Larivaar and modern Pad-Chhed formats.</p>
+            <p>By using modern web technology, we aim to make the reading of Gurbani a seamless experience across all devices.</p>
+        </div>
+
+        <div id="contact-section" class="card hidden">
+            <h2>Contact Us</h2>
+            <p>If you are a Gurudwara administrator and would like to list your daily Vaak on this portal, or if you have any feedback, please reach out to us.</p>
+            <div style="margin-top: 20px;">
+                <p><strong>Email:</strong> support@larivaar.net</p>
+                <p><strong>Seva:</strong> We are always looking for volunteers to help manage the digital library.</p>
             </div>
         </div>
 
-        <div id="publicGrid" class="grid">Loading...</div>
-
-        <footer style="margin-top:40px; text-align:center; padding-bottom: 20px;">
-            <a href="/.auth/login/aad?post_login_redirect_uri=%2Fadmin.html" style="color:#0078d4; text-decoration:none;">
+        <footer style="margin-top:40px; text-align:center; padding: 20px 0; border-top: 1px solid rgba(0,0,0,0.1);">
+            <p style="font-size: 0.85rem; color: #666; margin-bottom: 10px;">&copy; 2026 Larivaar.net - Digital Seva for the Sangat</p>
+            <a href="/.auth/login/aad?post_login_redirect_uri=%2Fadmin.html" style="color:#0078d4; text-decoration:none; font-size: 0.9rem;">
                 Editor Portal Login
             </a>
         </footer>
@@ -47,7 +72,6 @@
             dateInput.value = localDate;
             loadPublic();
         }
-        // This tells the iPhone to listen for touch events so CSS highlights work immediately
         document.addEventListener("touchstart", function() {}, true);
     </script>
 </body>
