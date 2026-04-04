@@ -96,16 +96,22 @@ async function initAdmin() {
             }
         });
 
-        if (isSuperAdmin) {
-            loadGurudwaras(); // Full access
-        } else {
-            // EDITOR: Fetch profile from ManageEditors using email
-            const profileRes = await fetch(`/api/ManageEditors?email=${encodeURIComponent(user.userDetails)}`);
-            if (profileRes.ok) {
-                window.editorProfile = await profileRes.json();
-            }
-        }
+// Inside initAdmin() in app.js
+if (isSuperAdmin) {
+    loadGurudwaras(); 
+} else {
+    // Fetch editor profile
+    const profileRes = await fetch(`/api/ManageEditors?email=${encodeURIComponent(user.userDetails)}`);
+    if (profileRes.ok) {
+        const data = await profileRes.json();
+        // Check if data is an array and take the first item, otherwise take data
+        window.editorProfile = Array.isArray(data) ? data[0] : data;
         
+        console.log("Loaded Editor Profile:", window.editorProfile); // Debugging
+    } else {
+        console.error("Failed to fetch Editor profile");
+    }
+}
         loadRecentActivity();
     } catch (e) { console.error("Init Error:", e); }
 }
@@ -304,7 +310,6 @@ async function deleteGurudwara(id) {
 async function publishVaak(event, libraryItem) {
     const btn = event.target;
     const dateInput = document.getElementById('publishDate');
-    // For editors, the date input is hidden, so default to today if not found
     const date = (dateInput && dateInput.value) ? dateInput.value : new Date().toISOString().split('T')[0];
     
     let payload = {
@@ -321,17 +326,25 @@ async function publishVaak(event, libraryItem) {
         payload.gurudwaraName = opt.text;
         payload.location = opt.getAttribute('data-location');
     } else {
-        if (!window.editorProfile) return alert("Editor profile not loaded. Please refresh.");
+        // EDITOR CHECK
+        if (!window.editorProfile) {
+            return alert("Error: Your Editor profile was not found. Please refresh the page.");
+        }
         
-        payload.gurudwaraName = window.editorProfile.gurudwaraName;
-        payload.location = window.editorProfile.location;
+        // Use optional chaining or defaults to prevent "undefined" errors
+        payload.gurudwaraName = window.editorProfile.gurudwaraName || window.editorProfile.gurudwara || "Unknown";
+        payload.location = window.editorProfile.location || window.editorProfile.city || "Unknown";
+        
+        if (payload.gurudwaraName === "Unknown") {
+            console.error("Profile content:", window.editorProfile);
+            return alert("Error: Your profile is missing Gurudwara details.");
+        }
     }
 
     if (!confirm(`Publish to ${payload.gurudwaraName} for ${date}?`)) return;
 
     btn.disabled = true;
     try {
-        // Corrected API endpoint
         const res = await fetch('/api/EditorPublish', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
@@ -340,13 +353,13 @@ async function publishVaak(event, libraryItem) {
         
         if (res.ok) {
             alert("✅ Published Successfully!");
-            loadRecentActivity();
+            if (typeof loadRecentActivity === "function") loadRecentActivity();
         } else {
-            const err = await res.text();
-            alert("Error: " + err);
+            const errorText = await res.text();
+            alert("Backend Error: " + errorText);
         }
     } catch (e) {
-        console.error(e);
+        alert("Network Error: " + e.message);
     } finally {
         btn.disabled = false;
     }
