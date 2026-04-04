@@ -221,3 +221,27 @@ button {
     color: #888;
     font-size: 0.8rem;
 }
+
+/* --- 6. Public Navigation --- */
+.public-nav {
+    margin-top: 10px;
+    font-weight: 600;
+    font-size: 0.95rem;
+}
+
+.public-nav a {
+    text-decoration: none;
+    color: #2c3e50;
+    margin: 0 12px;
+    cursor: pointer;
+    transition: color 0.2s ease;
+}
+
+.public-nav a:hover {
+    color: #d4af37;
+}
+
+/* Ensure the hidden class is robust */
+.hidden {
+    display: none !important;
+}
