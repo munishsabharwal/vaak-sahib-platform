@@ -312,51 +312,55 @@ async function publishVaak(event, libraryItem) {
     const dateInput = document.getElementById('publishDate');
     const date = (dateInput && dateInput.value) ? dateInput.value : new Date().toISOString().split('T')[0];
     
-    let payload = {
-        date: date,
+    // 1. Prepare the nested verseItem exactly how the backend wants it
+    let versePayload = {
         verse: libraryItem.verse,
         pageNumber: libraryItem.pageNumber
     };
 
+    // 2. Handle Super Admin vs Editor naming conventions
     if (window.currentUserIsAdmin) {
         const sel = document.getElementById('gurudwaraSelect');
         const opt = sel.options[sel.selectedIndex];
         if (!opt || !opt.value) return alert("Please select a Gurudwara first!");
         
-        payload.gurudwaraName = opt.text;
-        payload.location = opt.getAttribute('data-location');
+        // Backend expects 'gurudwaraLocation' with a capital L
+        versePayload.gurudwaraName = opt.text;
+        versePayload.gurudwaraLocation = opt.getAttribute('data-location');
     } else {
-        // EDITOR CHECK
-        if (!window.editorProfile) {
-            return alert("Error: Your Editor profile was not found. Please refresh the page.");
-        }
+        if (!window.editorProfile) return alert("Editor profile not loaded. Please refresh.");
         
-        // Use optional chaining or defaults to prevent "undefined" errors
-        payload.gurudwaraName = window.editorProfile.gurudwaraName || window.editorProfile.gurudwara || "Unknown";
-        payload.location = window.editorProfile.location || window.editorProfile.city || "Unknown";
-        
-        if (payload.gurudwaraName === "Unknown") {
-            console.error("Profile content:", window.editorProfile);
-            return alert("Error: Your profile is missing Gurudwara details.");
-        }
+        // Map the editor profile properties to the names the backend expects
+        // Note: Check your 'Editors' container to ensure these property names match
+        versePayload.gurudwaraName = window.editorProfile.gurudwaraName;
+        versePayload.gurudwaraLocation = window.editorProfile.gurudwaraLocation || window.editorProfile.location;
     }
 
-    if (!confirm(`Publish to ${payload.gurudwaraName} for ${date}?`)) return;
+    // 3. Construct the FINAL body with the 'verseItem' wrapper
+    const finalBody = {
+        date: date,
+        verseItem: versePayload
+    };
+
+    console.log("Sending to Backend:", finalBody);
+
+    if (!confirm(`Publish to ${versePayload.gurudwaraName} for ${date}?`)) return;
 
     btn.disabled = true;
     try {
         const res = await fetch('/api/EditorPublish', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify(payload)
+            body: JSON.stringify(finalBody)
         });
         
+        const responseText = await res.text();
+        
         if (res.ok) {
-            alert("✅ Published Successfully!");
+            alert("✅ " + responseText);
             if (typeof loadRecentActivity === "function") loadRecentActivity();
         } else {
-            const errorText = await res.text();
-            alert("Backend Error: " + errorText);
+            alert("Backend Error: " + responseText);
         }
     } catch (e) {
         alert("Network Error: " + e.message);
@@ -364,7 +368,6 @@ async function publishVaak(event, libraryItem) {
         btn.disabled = false;
     }
 }
-
 async function copyVaak(gurudwara, location, verse, ang) {
     const text = `*Daily Vaak Sahib*\n\n${verse}\n\n*Gurudwara:* ${gurudwara} (${location})\n*Ang:* ${ang}\n\nShared via: ${window.location.href}`;
     await navigator.clipboard.writeText(text);
