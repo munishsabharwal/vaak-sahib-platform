@@ -265,6 +265,8 @@ async function loadGurudwaras() {
     try {
         const response = await fetch('/api/ManageGurudwaras');
         const data = await response.json();
+        
+        // Update Table (Super Admin only)
         const tbody = document.getElementById('gurudwaraTableBody');
         if (tbody) {
             tbody.innerHTML = data.map(g => `
@@ -276,10 +278,16 @@ async function loadGurudwaras() {
                     </td>
                 </tr>`).join('');
         }
+
+        // Update Dropdown (Step 1)
         const select = document.getElementById('gurudwaraSelect');
         if (select) {
             select.innerHTML = '<option value="">-- Select Gurudwara --</option>' + 
-                data.map(g => `<option value="${g.name}" data-city="${g.city}">${g.name} (${g.city})</option>`).join('');
+                data.map(g => {
+                    // Use city as the location value
+                    const locationValue = g.city || g.gurudwaraLocation || "Unknown";
+                    return `<option value="${g.name}" data-location="${locationValue}">${g.name} (${locationValue})</option>`;
+                }).join('');
         }
     } catch (err) { console.error("Gurudwara Load Error:", err); }
 }
@@ -312,31 +320,27 @@ async function publishVaak(event, libraryItem) {
     const dateInput = document.getElementById('publishDate');
     const date = (dateInput && dateInput.value) ? dateInput.value : new Date().toISOString().split('T')[0];
     
-    // 1. Prepare the nested verseItem exactly how the backend wants it
     let versePayload = {
         verse: libraryItem.verse,
         pageNumber: libraryItem.pageNumber
     };
 
-    // 2. Handle Super Admin vs Editor naming conventions
     if (window.currentUserIsAdmin) {
         const sel = document.getElementById('gurudwaraSelect');
         const opt = sel.options[sel.selectedIndex];
         if (!opt || !opt.value) return alert("Please select a Gurudwara first!");
         
-        // Backend expects 'gurudwaraLocation' with a capital L
-        versePayload.gurudwaraName = opt.text;
-        versePayload.gurudwaraLocation = opt.getAttribute('data-location');
+        versePayload.gurudwaraName = opt.value; // Use opt.value for the name
+        // This now matches 'data-location' in loadGurudwaras
+        versePayload.gurudwaraLocation = opt.getAttribute('data-location') || "Unknown";
     } else {
         if (!window.editorProfile) return alert("Editor profile not loaded. Please refresh.");
         
-        // Map the editor profile properties to the names the backend expects
-        // Note: Check your 'Editors' container to ensure these property names match
         versePayload.gurudwaraName = window.editorProfile.gurudwaraName;
-        versePayload.gurudwaraLocation = window.editorProfile.gurudwaraLocation || window.editorProfile.location;
+        // Check both common naming conventions
+        versePayload.gurudwaraLocation = window.editorProfile.gurudwaraLocation || window.editorProfile.location || window.editorProfile.city || "Unknown";
     }
 
-    // 3. Construct the FINAL body with the 'verseItem' wrapper
     const finalBody = {
         date: date,
         verseItem: versePayload
@@ -355,12 +359,11 @@ async function publishVaak(event, libraryItem) {
         });
         
         const responseText = await res.text();
-        
         if (res.ok) {
             alert("✅ " + responseText);
-            if (typeof loadRecentActivity === "function") loadRecentActivity();
+            loadRecentActivity();
         } else {
-            alert("Backend Error: " + responseText);
+            alert("Server Error: " + responseText);
         }
     } catch (e) {
         alert("Network Error: " + e.message);
