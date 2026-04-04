@@ -383,6 +383,25 @@ async function deleteLibraryItem(id) {
     if (res.ok) loadLibraryTable();
 }
 
+/* --- NAVIGATION LOGIC --- */
+function showSection(sectionId) {
+    // Hide all sections
+    document.getElementById('home-section').classList.add('hidden');
+    document.getElementById('about-section').classList.add('hidden');
+    document.getElementById('contact-section').classList.add('hidden');
+
+    // Show selected section
+    document.getElementById(sectionId + '-section').classList.remove('hidden');
+    
+    // If going home, reload the data to ensure it's fresh
+    if (sectionId === 'home') {
+        loadPublic();
+    }
+}
+
+// Add this line to the existing Bootstrap/Window section at the bottom of your app.js
+window.showSection = showSection;
+
 /* --- BOOTSTRAP --- */
 window.initAdmin = initAdmin;
 window.openTab = openTab;
