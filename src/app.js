@@ -399,6 +399,65 @@ function showSection(sectionId) {
     }
 }
 
+async function saveEditor() {
+    // 1. Grab values from the HTML inputs
+    const firstName = document.getElementById('editorFirstName')?.value;
+    const lastName = document.getElementById('editorLastName')?.value;
+    const email = document.getElementById('editorEmail')?.value;
+    
+    // For the gurudwara selection
+    const sel = document.getElementById('editorGurudwaraSelect');
+    let gurudwaraName = '';
+    let gurudwaraLocation = '';
+    
+    if (sel && sel.selectedIndex >= 0) {
+        const opt = sel.options[sel.selectedIndex];
+        gurudwaraName = opt.value; // or opt.text depending on how you structured it
+        gurudwaraLocation = opt.getAttribute('data-location') || '';
+    }
+
+    // 2. Validate required fields
+    if (!firstName || !lastName || !email) {
+        return alert("Please fill out the First Name, Last Name, and Email!");
+    }
+
+    const payload = {
+        firstName,
+        lastName,
+        email,
+        gurudwaraName,
+        gurudwaraLocation,
+        status: "Active" // Usually active by default
+    };
+
+    console.log("Saving Editor Profile:", payload);
+
+    try {
+        const res = await fetch('/api/ManageEditors', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(payload)
+        });
+
+        const responseText = await res.text();
+
+        if (res.ok) {
+            alert("✅ Editor profile saved successfully!");
+            // Clear the form fields
+            document.getElementById('editorFirstName').value = '';
+            document.getElementById('editorLastName').value = '';
+            document.getElementById('editorEmail').value = '';
+            
+            // Refresh the table to show the new editor
+            if (typeof loadEditorsList === "function") loadEditorsList();
+        } else {
+            alert("Server Error: " + responseText);
+        }
+    } catch (e) {
+        alert("Network Error: " + e.message);
+    }
+}
+
 // Add this line to the existing Bootstrap/Window section at the bottom of your app.js
 window.showSection = showSection;
 
@@ -415,6 +474,7 @@ window.publishVaak = publishVaak;
 window.loadLibraryTable = loadLibraryTable;
 window.renderLibraryPage = renderLibraryPage;
 window.deleteLibraryItem = deleteLibraryItem;
+window.deleteLibraryItem = saveEditor;
 
 /* --- 3. THE REPAIRED BOOTSTRAP (Bottom of file) --- */
 document.addEventListener('DOMContentLoaded', () => {
