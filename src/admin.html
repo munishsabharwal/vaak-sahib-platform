@@ -101,8 +101,10 @@
                     <input id="editEmail" placeholder="Email (must match Azure Invite)">
                     <input id="editFirstName" placeholder="First Name">
                     <input id="editLastName" placeholder="Last Name">
-                    <input id="editGurudwara" placeholder="Gurudwara Name">
-                    <input id="editLocation" placeholder="Gurudwara Location">
+                    <select id="editGurudwara" onchange="updateEditorLocation()" style="width: 100%; padding: 8px;">
+                        <option value="">Select Gurudwara...</option>
+                    </select>
+                        <input id="editLocation" placeholder="Location (Auto-populated)" readonly style="background: #eee; cursor: not-allowed;">
                 </div>
                 <button class="btn-success" style="margin-top:15px; width: 100%; padding: 12px;" onclick="saveEditor()">Save Profile</button>
             </div>
