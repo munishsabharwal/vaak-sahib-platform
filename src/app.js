@@ -260,52 +260,37 @@ function renderLibraryPage(page) {
     if (nav) nav.innerHTML = `<button onclick="renderLibraryPage(${page-1})" ${page===1?'disabled':''}>Prev</button> <span>Page ${page} of ${total}</span> <button onclick="renderLibraryPage(${page+1})" ${page>=total?'disabled':''}>Next</button>`;
 }
 
-let editingGurudwaraId = null; // Track if we are editing or adding
+let editingGurudwaraId = null; 
 
 async function loadGurudwaras() {
     try {
         const response = await fetch('/api/ManageGurudwaras');
         const data = await response.json();
-        
-        // Update Table (Super Admin only)
         const tbody = document.getElementById('gurudwaraTableBody');
         if (tbody) {
-            // WE ADDED THE EDIT BUTTON HERE
             tbody.innerHTML = data.map(g => `
                 <tr>
                     <td style="padding: 12px;">${g.name}</td>
                     <td style="padding: 12px;">${g.city}</td>
                     <td style="padding: 12px; text-align: right;">
                         <button onclick="prepareEditGurudwara('${g.id}', '${g.name}', '${g.city}')" style="color:#0078d4; border:none; background:none; cursor:pointer; margin-right:15px;">Edit</button>
-                        <button onclick="deleteGurudwara('${g.id}')" style="color:#dc3545; border:none; background:none; cursor:pointer;">Delete</button>
+                        <button onclick="deleteGurudwara('${g.id}', '${g.name}')" style="color:#dc3545; border:none; background:none; cursor:pointer;">Delete</button>
                     </td>
                 </tr>`).join('');
         }
-
-        // Update Dropdown (Step 1)
-        const select = document.getElementById('gurudwaraSelect');
-        if (select) {
-            select.innerHTML = '<option value="">-- Select Gurudwara --</option>' + 
-                data.map(g => {
-                    const locationValue = g.city || g.gurudwaraLocation || "Unknown";
-                    return `<option value="${g.name}" data-location="${locationValue}">${g.name} (${locationValue})</option>`;
-                }).join('');
-        }
-    } catch (err) { console.error("Gurudwara Load Error:", err); }
+    } catch (err) { console.error("Load Error:", err); }
 }
 
 async function saveGurudwara() {
-    const name = document.getElementById('newGName')?.value.trim();
-    const city = document.getElementById('newGCity')?.value.trim();
+    const nameField = document.getElementById('newGName');
+    const cityField = document.getElementById('newGCity');
+    const name = nameField.value.trim();
+    const city = cityField.value.trim();
 
-    if (!name || !city) return alert("Please enter both Name and City");
+    if (!name || !city) return alert("Enter Name and City");
 
     const payload = { name, city };
-    
-    // Fallback to POST for everything because the API does not allow PUT
-    if (editingGurudwaraId) {
-        payload.id = editingGurudwaraId;
-    }
+    if (editingGurudwaraId) payload.id = editingGurudwaraId;
 
     try {
         const res = await fetch('/api/ManageGurudwaras', {
@@ -315,51 +300,36 @@ async function saveGurudwara() {
         });
 
         if (res.ok) {
-            alert(editingGurudwaraId ? "✅ Gurudwara Updated!" : "✅ Gurudwara Added!");
-            resetGurudwaraForm();
+            alert("Success!");
+            editingGurudwaraId = null;
+            nameField.value = '';
+            cityField.value = '';
             loadGurudwaras();
-        } else {
-            const err = await res.text();
-            alert("Server Error: " + err);
         }
-    } catch (e) {
-        alert("Network Error: " + e.message);
-    }
+    } catch (e) { alert("Error: " + e.message); }
 }
 
-function prepareEditGurudwara(id, name, city) {
-    editingGurudwaraId = id;
-    document.getElementById('newGName').value = name;
-    document.getElementById('newGCity').value = city;
-    // Update button text to show we are editing
-    const btn = document.querySelector('#gurudwaraTab .btn-success');
-    if (btn) btn.innerText = "Update Gurudwara";
-}
-
-function resetGurudwaraForm() {
-    editingGurudwaraId = null;
-    document.getElementById('newGName').value = '';
-    document.getElementById('newGCity').value = '';
-    const btn = document.querySelector('#gurudwaraTab .btn-success');
-    if (btn) btn.innerText = "Add to Master List";
-}
-
-async function deleteGurudwara(id) {
-    if (!id || id === 'undefined') return alert("Error: ID is missing for this item.");
-    
-    if (!confirm("Are you sure you want to delete this Gurudwara?")) return;
-    
+async function deleteGurudwara(id, name) {
+    if (!confirm(`Delete ${name}?`)) return;
     try {
-        const res = await fetch(`/api/ManageGurudwaras?id=${id}`, { method: 'DELETE' });
+        // We pass both ID and Name (Partition Key)
+        const res = await fetch(`/api/ManageGurudwaras?id=${id}&name=${encodeURIComponent(name)}`, { 
+            method: 'DELETE' 
+        });
         if (res.ok) {
             loadGurudwaras();
         } else {
             const err = await res.text();
             alert("Delete failed: " + err);
         }
-    } catch (e) {
-        alert("Network error: " + e.message);
-    }
+    } catch (e) { alert("Error: " + e.message); }
+}
+
+function prepareEditGurudwara(id, name, city) {
+    editingGurudwaraId = id;
+    document.getElementById('newGName').value = name;
+    document.getElementById('newGCity').value = city;
+    document.getElementById('gurudwaraTab').scrollIntoView();
 }
 
 /* --- ACTIONS & UTILS --- */
