@@ -2,19 +2,15 @@ const { CosmosClient } = require("@azure/cosmos");
 
 module.exports = async function (context, req) {
     const connectionString = process.env.COSMOS_DB_CONNECTION_STRING;
-    if (!connectionString) {
-        context.res = { status: 500, body: "Error: COSMOS_DB_CONNECTION_STRING is undefined." };
-        return;
-    }
+    const client = new CosmosClient(connectionString);
+    const container = client.database("VaakDb").container("Gurudwaras");
+    const method = req.method;
 
     try {
-        const client = new CosmosClient(connectionString);
-        const database = client.database("VaakDb");
-        const container = database.container("Gurudwaras");
-        const method = req.method;
-
         if (method === "GET") {
-            const { resources } = await container.items.query("SELECT * FROM c ORDER BY c.name ASC").fetchAll();
+            const { resources } = await container.items
+                .query("SELECT * FROM c ORDER BY c.name ASC")
+                .fetchAll();
             context.res = { status: 200, body: resources };
         } 
         
@@ -25,29 +21,27 @@ module.exports = async function (context, req) {
                 return;
             }
 
-            // Logic: If id exists, it's an update. If not, it's a new entry.
+            const itemId = id || Date.now().toString();
             const itemPayload = {
-                id: id ? String(id) : Date.now().toString(),
+                id: itemId,
                 name: name,
                 city: city
             };
 
-            // .upsert() handles both create and update automatically
-            const { resource } = await container.items.upsert(itemPayload);
+            // FIX: We pass the itemId as the partition key argument
+            const { resource } = await container.items.upsert(itemPayload, { partitionKey: itemId });
             context.res = { status: 201, body: resource };
         } 
         
         else if (method === "DELETE") {
             const id = req.query.id;
-            const name = req.query.name; // We now require name because it's the Partition Key
-
-            if (!id || !name) {
-                context.res = { status: 400, body: "Both ID and Name (Partition Key) are required for deletion." };
+            if (!id) {
+                context.res = { status: 400, body: "ID is required for deletion." };
                 return;
             }
 
-            // Correct Cosmos DB Delete: container.item(id, partitionKey)
-            await container.item(id, name).delete();
+            // FIX: Since partition key is /id, we use (id, id)
+            await container.item(id, id).delete();
             context.res = { status: 204 };
         }
     } catch (error) {
