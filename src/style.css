@@ -245,3 +245,19 @@ button {
 .hidden {
     display: none !important;
 }
+
+/* Mobile Optimization for Navigation */
+@media screen and (max-width: 480px) {
+    .tabs, .nav-menu { 
+        display: flex;
+        flex-wrap: nowrap; /* Prevents items from jumping to new lines */
+        overflow-x: auto;  /* Allows scrolling if items are too wide */
+        gap: 8px;          /* Reduces space between buttons */
+    }
+
+    .tab-btn, .nav-link {
+        font-size: 0.85rem; /* Slightly smaller text for mobile */
+        padding: 8px 10px;  /* Tighter padding */
+        white-space: nowrap; /* Keeps 'Contact Us' on one line */
+    }
+}
