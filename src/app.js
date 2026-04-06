@@ -266,7 +266,7 @@ async function loadGurudwaras() {
         const response = await fetch('/api/ManageGurudwaras');
         const data = await response.json();
         
-        // Update Table (Super Admin only)
+// Update Table (Super Admin only)
         const tbody = document.getElementById('gurudwaraTableBody');
         if (tbody) {
             tbody.innerHTML = data.map(g => `
@@ -274,6 +274,7 @@ async function loadGurudwaras() {
                     <td style="padding: 12px;">${g.name}</td>
                     <td style="padding: 12px;">${g.city}</td>
                     <td style="padding: 12px; text-align: right;">
+                        <button onclick="prepareEditGurudwara('${g.id}', '${g.name}', '${g.city}')" style="color:#0078d4; border:none; background:none; cursor:pointer; margin-right:15px;">Edit</button>
                         <button onclick="deleteGurudwara('${g.id}')" style="color:#dc3545; border:none; background:none; cursor:pointer;">Delete</button>
                     </td>
                 </tr>`).join('');
@@ -514,22 +515,20 @@ async function saveEditor() {
 window.showSection = showSection;
 
 /* --- BOOTSTRAP --- */
+/* --- BOOTSTRAP --- */
 window.initAdmin = initAdmin;
 window.openTab = openTab;
 window.searchLibrary = searchLibrary;
 window.loadLibraryTable = loadLibraryTable;
 window.loadPublic = loadPublic;
-window.addGurudwara = addGurudwara;
+window.saveGurudwara = saveGurudwara; // Correctly maps the new save function
 window.deleteGurudwara = deleteGurudwara;
 window.triggerPublish = triggerPublish;
 window.publishVaak = publishVaak;
-window.loadLibraryTable = loadLibraryTable;
 window.renderLibraryPage = renderLibraryPage;
-window.deleteLibraryItem = deleteLibraryItem;
-window.deleteLibraryItem = saveEditor;
-window.saveGurudwara = saveGurudwara;
-window.deleteGurudwara = deleteGurudwara;
-window.prepareEditGurudwara = prepareEditGurudwara;
+window.deleteLibraryItem = deleteLibraryItem; // Kept clean
+window.saveEditor = saveEditor; // Correctly maps saveEditor instead of overwriting delete
+window.prepareEditGurudwara = prepareEditGurudwara; // Added for edit functionality
 
 /* --- 3. THE REPAIRED BOOTSTRAP (Bottom of file) --- */
 document.addEventListener('DOMContentLoaded', () => {
