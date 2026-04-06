@@ -400,23 +400,30 @@ async function publishVaak(event, libraryItem) {
         btn.disabled = false;
     }
 }
+
 async function copyVaak(gurudwara, location, verse, ang) {
-    // Get the date from the input field on the page
+    // Get the date from the admin panel input, fallback to today if not found
     const dateInput = document.getElementById('publishDate');
     const dateValue = dateInput ? dateInput.value : new Date().toLocaleDateString();
 
-    // Construct the formatted string
-    const text = `Daily Hukamnama by Larivaarbani.org from ${gurudwara} in ${location} ${dateValue} Ang ${ang} ${verse}`;
+    // Cleaning the verse: removes extra line breaks/spaces for a tighter look in the copy
+    const cleanVerse = verse.trim();
+
+    // Construct the formatted string with Emojis and Bold headers
+    const text = `📖 *Daily Hukamnama by Larivaarbani.org*\n` +
+                 `📍 *From:* ${gurudwara}, ${location}\n` +
+                 `📅 *Date:* ${dateValue}\n` +
+                 `🔢 *Ang:* ${ang}\n\n` +
+                 `${cleanVerse}`;
 
     try {
         await navigator.clipboard.writeText(text);
-        alert("✅ Copied to clipboard!");
+        alert("✅ Formatted Vaak copied to clipboard!");
     } catch (err) {
         console.error('Failed to copy: ', err);
         alert("❌ Failed to copy to clipboard.");
     }
 }
-
 async function deleteLibraryItem(id) {
     if (!confirm("Delete this verse?")) return;
     const res = await fetch(`/api/LibraryManager?id=${id}`, { method: 'DELETE' });
