@@ -281,16 +281,18 @@ async function loadGurudwaras() {
     } catch (err) { console.error("Load Error:", err); }
 }
 
-async function saveGurudwara() {
-    const nameField = document.getElementById('newGName');
-    const cityField = document.getElementById('newGCity');
-    const name = nameField.value.trim();
-    const city = cityField.value.trim();
+let editingGurudwaraId = null;
 
-    if (!name || !city) return alert("Enter Name and City");
+async function saveGurudwara() {
+    const name = document.getElementById('newGName').value.trim();
+    const city = document.getElementById('newGCity').value.trim();
+
+    if (!name || !city) return alert("Please enter Name and City");
 
     const payload = { name, city };
-    if (editingGurudwaraId) payload.id = editingGurudwaraId;
+    if (editingGurudwaraId) {
+        payload.id = editingGurudwaraId;
+    }
 
     try {
         const res = await fetch('/api/ManageGurudwaras', {
@@ -300,31 +302,29 @@ async function saveGurudwara() {
         });
 
         if (res.ok) {
-            alert("Success!");
+            alert(editingGurudwaraId ? "✅ Updated!" : "✅ Added!");
             editingGurudwaraId = null;
-            nameField.value = '';
-            cityField.value = '';
+            document.getElementById('newGName').value = '';
+            document.getElementById('newGCity').value = '';
             loadGurudwaras();
+        } else {
+            alert("Error: " + await res.text());
         }
-    } catch (e) { alert("Error: " + e.message); }
+    } catch (e) { alert("Network Error: " + e.message); }
 }
 
 async function deleteGurudwara(id, name) {
-    if (!confirm(`Delete ${name}?`)) return;
+    if (!confirm(`Are you sure you want to delete ${name}?`)) return;
     try {
-        // We pass both ID and Name (Partition Key)
-        const res = await fetch(`/api/ManageGurudwaras?id=${id}&name=${encodeURIComponent(name)}`, { 
-            method: 'DELETE' 
-        });
+        // Only passing ID now because partition key is /id
+        const res = await fetch(`/api/ManageGurudwaras?id=${id}`, { method: 'DELETE' });
         if (res.ok) {
             loadGurudwaras();
         } else {
-            const err = await res.text();
-            alert("Delete failed: " + err);
+            alert("Delete failed: " + await res.text());
         }
     } catch (e) { alert("Error: " + e.message); }
 }
-
 function prepareEditGurudwara(id, name, city) {
     editingGurudwaraId = id;
     document.getElementById('newGName').value = name;
