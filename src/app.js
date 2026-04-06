@@ -281,8 +281,6 @@ async function loadGurudwaras() {
     } catch (err) { console.error("Load Error:", err); }
 }
 
-let editingGurudwaraId = null;
-
 async function saveGurudwara() {
     const name = document.getElementById('newGName').value.trim();
     const city = document.getElementById('newGCity').value.trim();
