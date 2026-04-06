@@ -401,9 +401,20 @@ async function publishVaak(event, libraryItem) {
     }
 }
 async function copyVaak(gurudwara, location, verse, ang) {
-    const text = `*Daily Vaak Sahib*\n\n${verse}\n\n*Gurudwara:* ${gurudwara} (${location})\n*Ang:* ${ang}\n\nShared via: ${window.location.href}`;
-    await navigator.clipboard.writeText(text);
-    alert("✅ Copied to clipboard!");
+    // Get the date from the input field on the page
+    const dateInput = document.getElementById('publishDate');
+    const dateValue = dateInput ? dateInput.value : new Date().toLocaleDateString();
+
+    // Construct the formatted string
+    const text = `Daily Hukamnama by Larivaarbani.org from ${gurudwara} in ${location} ${dateValue} Ang ${ang} ${verse}`;
+
+    try {
+        await navigator.clipboard.writeText(text);
+        alert("✅ Copied to clipboard!");
+    } catch (err) {
+        console.error('Failed to copy: ', err);
+        alert("❌ Failed to copy to clipboard.");
+    }
 }
 
 async function deleteLibraryItem(id) {
