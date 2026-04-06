@@ -260,15 +260,17 @@ function renderLibraryPage(page) {
     if (nav) nav.innerHTML = `<button onclick="renderLibraryPage(${page-1})" ${page===1?'disabled':''}>Prev</button> <span>Page ${page} of ${total}</span> <button onclick="renderLibraryPage(${page+1})" ${page>=total?'disabled':''}>Next</button>`;
 }
 
-/* --- GURUDWARA LOGIC --- */
+let editingGurudwaraId = null; // Track if we are editing or adding
+
 async function loadGurudwaras() {
     try {
         const response = await fetch('/api/ManageGurudwaras');
         const data = await response.json();
         
-// Update Table (Super Admin only)
+        // Update Table (Super Admin only)
         const tbody = document.getElementById('gurudwaraTableBody');
         if (tbody) {
+            // WE ADDED THE EDIT BUTTON HERE
             tbody.innerHTML = data.map(g => `
                 <tr>
                     <td style="padding: 12px;">${g.name}</td>
@@ -285,15 +287,12 @@ async function loadGurudwaras() {
         if (select) {
             select.innerHTML = '<option value="">-- Select Gurudwara --</option>' + 
                 data.map(g => {
-                    // Use city as the location value
                     const locationValue = g.city || g.gurudwaraLocation || "Unknown";
                     return `<option value="${g.name}" data-location="${locationValue}">${g.name} (${locationValue})</option>`;
                 }).join('');
         }
     } catch (err) { console.error("Gurudwara Load Error:", err); }
 }
-
-let editingGurudwaraId = null; // Track if we are editing or adding
 
 async function saveGurudwara() {
     const name = document.getElementById('newGName')?.value.trim();
@@ -302,17 +301,15 @@ async function saveGurudwara() {
     if (!name || !city) return alert("Please enter both Name and City");
 
     const payload = { name, city };
-    let method = 'POST';
     
-    // If we have an ID, we switch to Update mode (PUT)
+    // Fallback to POST for everything because the API does not allow PUT
     if (editingGurudwaraId) {
-        method = 'PUT';
         payload.id = editingGurudwaraId;
     }
 
     try {
         const res = await fetch('/api/ManageGurudwaras', {
-            method: method,
+            method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify(payload)
         });
@@ -515,20 +512,20 @@ async function saveEditor() {
 window.showSection = showSection;
 
 /* --- BOOTSTRAP --- */
-/* --- BOOTSTRAP --- */
 window.initAdmin = initAdmin;
 window.openTab = openTab;
 window.searchLibrary = searchLibrary;
 window.loadLibraryTable = loadLibraryTable;
 window.loadPublic = loadPublic;
-window.saveGurudwara = saveGurudwara; // Correctly maps the new save function
+window.saveGurudwara = saveGurudwara;
 window.deleteGurudwara = deleteGurudwara;
 window.triggerPublish = triggerPublish;
 window.publishVaak = publishVaak;
 window.renderLibraryPage = renderLibraryPage;
-window.deleteLibraryItem = deleteLibraryItem; // Kept clean
-window.saveEditor = saveEditor; // Correctly maps saveEditor instead of overwriting delete
-window.prepareEditGurudwara = prepareEditGurudwara; // Added for edit functionality
+window.deleteLibraryItem = deleteLibraryItem;
+window.saveEditor = saveEditor;
+window.prepareEditGurudwara = prepareEditGurudwara;
+window.showSection = showSection;
 
 /* --- 3. THE REPAIRED BOOTSTRAP (Bottom of file) --- */
 document.addEventListener('DOMContentLoaded', () => {
