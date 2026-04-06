@@ -265,7 +265,10 @@ let editingGurudwaraId = null;
 async function loadGurudwaras() {
     try {
         const response = await fetch('/api/ManageGurudwaras');
+        if (!response.ok) return;
         const data = await response.json();
+
+        // 1. Update the Management Table (Gurudwara Tab)
         const tbody = document.getElementById('gurudwaraTableBody');
         if (tbody) {
             tbody.innerHTML = data.map(g => `
@@ -278,7 +281,17 @@ async function loadGurudwaras() {
                     </td>
                 </tr>`).join('');
         }
-    } catch (err) { console.error("Load Error:", err); }
+
+        // 2. Update the Dropdown Menu (Publish Tab)
+        // CHANGED: Using 'gurudwaraSelect' to match your admin.html snippet
+        const dropdown = document.getElementById('gurudwaraSelect'); 
+        if (dropdown) {
+            dropdown.innerHTML = '<option value="">-- Select Gurudwara --</option>' + 
+                data.map(g => `<option value="${g.name}">${g.name} (${g.city})</option>`).join('');
+        }
+    } catch (err) { 
+        console.error("Load Error:", err); 
+    }
 }
 
 async function saveGurudwara() {
