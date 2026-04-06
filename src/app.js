@@ -268,27 +268,30 @@ async function loadGurudwaras() {
         if (!response.ok) return;
         const data = await response.json();
 
-        // 1. Update the Management Table (Gurudwara Tab)
+        // 1. Update Management Table
         const tbody = document.getElementById('gurudwaraTableBody');
         if (tbody) {
             tbody.innerHTML = data.map(g => `
                 <tr>
-                    <td style="padding: 12px;">${g.name}</td>
-                    <td style="padding: 12px;">${g.city}</td>
-                    <td style="padding: 12px; text-align: right;">
+                    <td>${g.name}</td>
+                    <td>${g.city}</td>
+                    <td style="text-align: right;">
                         <button onclick="prepareEditGurudwara('${g.id}', '${g.name}', '${g.city}')" style="color:#0078d4; border:none; background:none; cursor:pointer; margin-right:15px;">Edit</button>
                         <button onclick="deleteGurudwara('${g.id}', '${g.name}')" style="color:#dc3545; border:none; background:none; cursor:pointer;">Delete</button>
                     </td>
                 </tr>`).join('');
         }
 
-        // 2. Update the Dropdown Menu (Publish Tab)
-        // CHANGED: Using 'gurudwaraSelect' to match your admin.html snippet
-        const dropdown = document.getElementById('gurudwaraSelect'); 
-        if (dropdown) {
-            dropdown.innerHTML = '<option value="">-- Select Gurudwara --</option>' + 
-                data.map(g => `<option value="${g.name}">${g.name} (${g.city})</option>`).join('');
-        }
+        // 2. Update BOTH Dropdowns (Publish Tab & Editors Tab)
+        const publishDropdown = document.getElementById('gurudwaraSelect');
+        const editorDropdown = document.getElementById('editGurudwara');
+        
+        const optionsHtml = '<option value="">-- Select Gurudwara --</option>' + 
+            data.map(g => `<option value="${g.name}" data-city="${g.city}">${g.name}</option>`).join('');
+
+        if (publishDropdown) publishDropdown.innerHTML = optionsHtml;
+        if (editorDropdown) editorDropdown.innerHTML = optionsHtml;
+
     } catch (err) { 
         console.error("Load Error:", err); 
     }
@@ -341,6 +344,18 @@ function prepareEditGurudwara(id, name, city) {
     document.getElementById('newGName').value = name;
     document.getElementById('newGCity').value = city;
     document.getElementById('gurudwaraTab').scrollIntoView();
+}
+
+function updateEditorLocation() {
+    const dropdown = document.getElementById('editGurudwara');
+    const locationField = document.getElementById('editLocation');
+    
+    if (dropdown && locationField) {
+        const selectedOption = dropdown.options[dropdown.selectedIndex];
+        // Get the city from the data-city attribute we added in loadGurudwaras
+        const city = selectedOption.getAttribute('data-city') || "";
+        locationField.value = city;
+    }
 }
 
 /* --- ACTIONS & UTILS --- */
@@ -527,6 +542,7 @@ window.deleteLibraryItem = deleteLibraryItem;
 window.saveEditor = saveEditor;
 window.prepareEditGurudwara = prepareEditGurudwara;
 window.showSection = showSection;
+window.updateEditorLocation = updateEditorLocation;
 
 /* --- 3. THE REPAIRED BOOTSTRAP (Bottom of file) --- */
 document.addEventListener('DOMContentLoaded', () => {
