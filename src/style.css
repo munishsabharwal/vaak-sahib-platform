@@ -246,18 +246,18 @@ button {
     display: none !important;
 }
 
-/* Mobile Optimization for Navigation */
+/* Specific fix for the Larivaarbani.org Public Navigation on Mobile */
 @media screen and (max-width: 480px) {
-    .tabs, .nav-menu { 
+    .public-nav {
         display: flex;
-        flex-wrap: nowrap; /* Prevents items from jumping to new lines */
-        overflow-x: auto;  /* Allows scrolling if items are too wide */
-        gap: 8px;          /* Reduces space between buttons */
+        justify-content: center;
+        flex-wrap: nowrap; /* Forces one line */
+        gap: 5px; /* Tighter gap between items */
+        font-size: 0.8rem; /* Smaller font for small screens */
     }
 
-    .tab-btn, .nav-link {
-        font-size: 0.85rem; /* Slightly smaller text for mobile */
-        padding: 8px 10px;  /* Tighter padding */
-        white-space: nowrap; /* Keeps 'Contact Us' on one line */
+    .public-nav a {
+        margin: 0 4px; /* Reduces the side margins significantly */
+        white-space: nowrap; /* Prevents 'Contact Us' from breaking into two lines */
     }
 }
