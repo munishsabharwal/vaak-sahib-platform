@@ -523,6 +523,58 @@ async function saveEditor() {
     }
 }
 
+async function addSingleLibraryItem(event) {
+    const page = document.getElementById('addLibPage').value.trim();
+    const verse = document.getElementById('addLibVerse').value.trim();
+    const keywords = document.getElementById('addLibKeywords').value.trim();
+
+    if (!page || !verse) {
+        alert("Please provide at least a Page Number and the Verse.");
+        return;
+    }
+
+    const payload = [{
+        pageNumber: page,
+        verse: verse,
+        keywords: keywords
+    }];
+
+    // Button state management
+    const btn = event.target;
+    const originalText = btn.innerText;
+    btn.innerText = "Saving...";
+    btn.disabled = true;
+
+    try {
+        const res = await fetch('/api/LibraryManager', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(payload) 
+        });
+
+        if (res.ok) {
+            alert("✅ Successfully added to library!");
+            // Reset fields
+            document.getElementById('addLibPage').value = '';
+            document.getElementById('addLibVerse').value = '';
+            document.getElementById('addLibKeywords').value = '';
+            // Refresh table if the function exists
+            if (typeof loadLibraryTable === "function") loadLibraryTable();
+        } else {
+            const msg = await res.text();
+            alert("❌ Error: " + msg);
+        }
+    } catch (e) {
+        alert("Network Error: " + e.message);
+    } finally {
+        btn.innerText = originalText;
+        btn.disabled = false;
+    }
+}
+
+// Crucial: Bind to window if using type="module"
+window.addSingleLibraryItem = addSingleLibraryItem;
+
 // Crucial: Ensure it's globally available
 
 window.showSection = showSection;
