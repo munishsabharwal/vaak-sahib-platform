@@ -572,6 +572,63 @@ async function addSingleLibraryItem(event) {
     }
 }
 
+async function bulkImport() {
+    const textArea = document.getElementById('bulkJson');
+    const jsonString = textArea.value.trim();
+
+    if (!jsonString) {
+        alert("Please paste some JSON data first.");
+        return;
+    }
+
+    let payload;
+    try {
+        payload = JSON.parse(jsonString);
+        // Ensure it is an array even if they pasted a single object
+        if (!Array.isArray(payload)) {
+            payload = [payload];
+        }
+    } catch (e) {
+        alert("Invalid JSON format. Please check your syntax.");
+        return;
+    }
+
+    // UI Feedback: Change button state
+    // We target the button via the event or search for the button inside the modal
+    const btn = document.querySelector('#importModal button');
+    const originalText = btn.innerText;
+    btn.innerText = "Importing...";
+    btn.disabled = true;
+
+    try {
+        const res = await fetch('/api/LibraryManager', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(payload)
+        });
+
+        if (res.ok) {
+            alert(`✅ Successfully imported ${payload.length} items!`);
+            textArea.value = ''; // Clear the box
+            // Close the modal if the toggle function exists
+            if (typeof toggleImportModal === "function") toggleImportModal();
+            // Refresh the table
+            if (typeof loadLibraryTable === "function") loadLibraryTable();
+        } else {
+            const errorText = await res.text();
+            alert("❌ Import failed: " + errorText);
+        }
+    } catch (err) {
+        alert("Network Error: " + err.message);
+    } finally {
+        btn.innerText = originalText;
+        btn.disabled = false;
+    }
+}
+
+// Make it globally available
+window.bulkImport = bulkImport;
+
 // Crucial: Bind to window if using type="module"
 window.addSingleLibraryItem = addSingleLibraryItem;
 
