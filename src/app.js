@@ -221,22 +221,47 @@ function triggerPublish(event, itemId) {
     }
 }
 
+/* --- Update this function to show the new columns & Action buttons --- */
 async function loadEditorsList() {
     const tableBody = document.getElementById('editorsTableBody');
     if (!tableBody) return;
-    tableBody.innerHTML = '<tr><td colspan="4" style="text-align:center;">Loading...</td></tr>';
+    tableBody.innerHTML = '<tr><td colspan="6" style="text-align:center;">Loading...</td></tr>';
     try {
         const res = await fetch('/api/ManageEditors');
         const data = await res.json();
-        tableBody.innerHTML = data.length === 0 ? '<tr><td colspan="4">No editors found.</td></tr>' : 
+        tableBody.innerHTML = data.length === 0 ? '<tr><td colspan="6">No editors found.</td></tr>' : 
             data.map(e => `
                 <tr>
                     <td>${e.firstName} ${e.lastName}</td>
                     <td>${e.email}</td>
                     <td>${e.gurudwaraName}</td>
-                    <td>${e.gurudwaraLocation || 'N/A'}</td>
+                    <td><span class="tag" style="background: ${e.status === 'Active' ? '#dff6dd' : '#fde7e9'}; color: ${e.status === 'Active' ? '#107c10' : '#a80000'};">${e.status || 'Active'}</span></td>
+                    <td>${e.comments || ''}</td>
+                    <td style="text-align: right; min-width: 120px;">
+                        <button onclick="prepareEditEditor('${e.email}', '${e.firstName.replace(/'/g, "\\'")}', '${e.lastName.replace(/'/g, "\\'")}', '${(e.gurudwaraName || '').replace(/'/g, "\\'")}', '${e.status || 'Active'}', '${(e.comments || '').replace(/'/g, "\\'")}')" style="color:#0078d4; border:none; background:none; cursor:pointer; margin-right:10px;">Edit</button>
+                        <button onclick="deleteEditor('${e.email}')" style="color:#dc3545; border:none; background:none; cursor:pointer;">Delete</button>
+                    </td>
                 </tr>`).join('');
-    } catch (e) { tableBody.innerHTML = '<tr><td colspan="4">Error loading editors.</td></tr>'; }
+    } catch (e) { tableBody.innerHTML = '<tr><td colspan="6">Error loading editors.</td></tr>'; }
+}
+
+/* --- Add this brand new function to populate the form for Editing --- */
+function prepareEditEditor(email, firstName, lastName, gurudwaraName, status, comments) {
+    document.getElementById('editEmail').value = email;
+    // Lock the email field so they don't accidentally change the ID
+    document.getElementById('editEmail').readOnly = true; 
+    document.getElementById('editEmail').style.background = '#eee';
+    
+    document.getElementById('editFirstName').value = firstName;
+    document.getElementById('editLastName').value = lastName;
+    document.getElementById('editGurudwara').value = gurudwaraName;
+    updateEditorLocation(); 
+    
+    document.getElementById('editStatus').value = status;
+    document.getElementById('editComments').value = comments;
+    
+    document.getElementById('editorFormTitle').innerText = "Edit Editor Profile";
+    document.getElementById('editorsTab').scrollIntoView();
 }
 
 function renderLibraryPage(page) {
@@ -463,37 +488,30 @@ function showSection(sectionId) {
     }
 }
 
+/* --- Update the save logic to include Status, Comments, and reset the form --- */
 async function saveEditor() {
-    console.log("Save button clicked. Checking fields...");
-
-    // Using exact IDs from your admin.html
     const emailField = document.getElementById('editEmail');
     const firstNameField = document.getElementById('editFirstName');
     const lastNameField = document.getElementById('editLastName');
     const gNameField = document.getElementById('editGurudwara');
     const gLocField = document.getElementById('editLocation');
+    const statusField = document.getElementById('editStatus');
+    const commentsField = document.getElementById('editComments');
 
-    // Get values and trim whitespace
     const email = emailField?.value?.trim();
     const firstName = firstNameField?.value?.trim();
     const lastName = lastNameField?.value?.trim();
     const gurudwaraName = gNameField?.value?.trim() || "";
     const gurudwaraLocation = gLocField?.value?.trim() || "";
+    const status = statusField?.value || "Active";
+    const comments = commentsField?.value?.trim() || "";
 
-    console.log("Values found:", { email, firstName, lastName });
-
-    // Strict validation
     if (!email || !firstName || !lastName) {
         return alert("Please fill out Email, First Name, and Last Name!");
     }
 
     const payload = {
-        email,
-        firstName,
-        lastName,
-        gurudwaraName,
-        gurudwaraLocation,
-        status: "Active"
+        email, firstName, lastName, gurudwaraName, gurudwaraLocation, status, comments
     };
 
     try {
@@ -505,22 +523,36 @@ async function saveEditor() {
 
         if (res.ok) {
             alert("✅ Editor profile saved successfully!");
-            // Reset fields
-            if(emailField) emailField.value = '';
+            // Reset the form back to 'New Editor' mode
+            if(emailField) { emailField.value = ''; emailField.readOnly = false; emailField.style.background = '#fff'; }
             if(firstNameField) firstNameField.value = '';
             if(lastNameField) lastNameField.value = '';
             if(gNameField) gNameField.value = '';
             if(gLocField) gLocField.value = '';
+            if(statusField) statusField.value = 'Active';
+            if(commentsField) commentsField.value = '';
+            document.getElementById('editorFormTitle').innerText = "Register New Editor";
             
             if (typeof loadEditorsList === "function") loadEditorsList();
         } else {
-            const err = await res.text();
-            alert("Server Error: " + err);
+            alert("Server Error: " + await res.text());
         }
     } catch (e) {
-        console.error("Save error:", e);
         alert("Network Error: " + e.message);
     }
+}
+
+/* --- Add this brand new function to handle Deletion --- */
+async function deleteEditor(email) {
+    if (!confirm(`Are you sure you want to remove the editor: ${email}?`)) return;
+    try {
+        const res = await fetch(`/api/ManageEditors?email=${encodeURIComponent(email)}`, { method: 'DELETE' });
+        if (res.ok) {
+            loadEditorsList();
+        } else {
+            alert("Delete failed: " + await res.text());
+        }
+    } catch (e) { alert("Error: " + e.message); }
 }
 
 async function addSingleLibraryItem(event) {
@@ -652,6 +684,9 @@ window.saveEditor = saveEditor;
 window.prepareEditGurudwara = prepareEditGurudwara;
 window.showSection = showSection;
 window.updateEditorLocation = updateEditorLocation;
+
+window.prepareEditEditor = prepareEditEditor;
+window.deleteEditor = deleteEditor;
 
 /* --- 3. THE REPAIRED BOOTSTRAP (Bottom of file) --- */
 document.addEventListener('DOMContentLoaded', () => {
