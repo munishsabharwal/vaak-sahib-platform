@@ -93,10 +93,10 @@
             </div>
         </div>
 
-        <div id="editorsTab" class="tab-content">
+    <div id="editorsTab" class="tab-content">
             <h2>Manage Editors</h2>
             <div class="card" style="margin-bottom: 20px; border-top: 4px solid #107c10;">
-                <h3>Register New Editor</h3>
+                <h3 id="editorFormTitle">Register / Edit Editor</h3>
                 <div class="grid" style="grid-template-columns: 1fr 1fr; gap: 10px;">
                     <input id="editEmail" placeholder="Email (must match Azure Invite)">
                     <input id="editFirstName" placeholder="First Name">
@@ -104,7 +104,12 @@
                     <select id="editGurudwara" onchange="updateEditorLocation()" style="width: 100%; padding: 8px;">
                         <option value="">Select Gurudwara...</option>
                     </select>
-                        <input id="editLocation" placeholder="Location (Auto-populated)" readonly style="background: #eee; cursor: not-allowed;">
+                    <input id="editLocation" placeholder="Location (Auto-populated)" readonly style="background: #eee; cursor: not-allowed;">
+                    <select id="editStatus" style="width: 100%; padding: 8px;">
+                        <option value="Active">Active</option>
+                        <option value="Inactive">Inactive</option>
+                    </select>
+                    <input id="editComments" placeholder="Comments / Notes (Optional)" style="grid-column: span 2;">
                 </div>
                 <button class="btn-success" style="margin-top:15px; width: 100%; padding: 12px;" onclick="saveEditor()">Save Profile</button>
             </div>
@@ -118,17 +123,19 @@
                                 <th style="padding: 12px; border: 1px solid #ddd;">Name</th>
                                 <th style="padding: 12px; border: 1px solid #ddd;">Email</th>
                                 <th style="padding: 12px; border: 1px solid #ddd;">Gurudwara</th>
-                                <th style="padding: 12px; border: 1px solid #ddd;">Location</th>
+                                <th style="padding: 12px; border: 1px solid #ddd;">Status</th>
+                                <th style="padding: 12px; border: 1px solid #ddd;">Comments</th>
+                                <th style="padding: 12px; border: 1px solid #ddd; text-align: center;">Action</th>
                             </tr>
                         </thead>
                         <tbody id="editorsTableBody">
-                            <tr><td colspan="4" style="text-align:center; padding:20px;">Loading editors...</td></tr>
+                            <tr><td colspan="6" style="text-align:center; padding:20px;">Loading editors...</td></tr>
                         </tbody>
                     </table>
                 </div>
             </div>
         </div>
-
+        
         <div id="libraryTab" class="tab-content">
             <h2>Library Management</h2>
             <div class="card" style="margin-bottom: 20px; border-left: 5px solid #107c10;">
