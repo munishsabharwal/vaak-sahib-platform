@@ -267,18 +267,33 @@ function prepareEditEditor(email, firstName, lastName, gurudwaraName, status, co
 function renderLibraryPage(page) {
     libraryCurrentPage = page;
     const body = document.getElementById('libraryTableBody');
+    if (!body) return;
+
+    // This ensures only 'libraryPageSize' (10) items are shown at a time
     const start = (page - 1) * libraryPageSize;
     const pageData = libraryAllData.slice(start, start + libraryPageSize);
     
     body.innerHTML = pageData.map(item => `
         <tr>
-            <td class="col-ang">${item.pageNumber}</td>
-            <td class="col-verse"><div class="gurmukhi">${item.verse}</div></td>
+            <td style="text-align: center; font-weight: bold; color: #555; vertical-align: top; padding: 12px;">
+                ${item.pageNumber}
+            </td>
+            <td style="padding: 12px;">
+                <div class="gurmukhi" style="font-size: 1.25rem; line-height: 1.7;">${item.verse}</div>
+            </td>
         </tr>`).join('');
     
+    // Pagination Controls
     const nav = document.getElementById('libraryPagination');
     const total = Math.ceil(libraryAllData.length / libraryPageSize);
-    if (nav) nav.innerHTML = `<button onclick="renderLibraryPage(${page-1})" ${page===1?'disabled':''}>Prev</button> <span>Page ${page} of ${total}</span> <button onclick="renderLibraryPage(${page+1})" ${page>=total?'disabled':''}>Next</button>`;
+    if (nav) {
+        nav.innerHTML = `
+            <div style="margin-top: 15px; display: flex; justify-content: center; align-items: center; gap: 15px;">
+                <button class="btn-secondary" onclick="renderLibraryPage(${page - 1})" ${page === 1 ? 'disabled' : ''}>Prev</button>
+                <span style="font-size: 0.9rem;">Page <strong>${page}</strong> of ${total}</span>
+                <button class="btn-secondary" onclick="renderLibraryPage(${page + 1})" ${page >= total ? 'disabled' : ''}>Next</button>
+            </div>`;
+    }
 }
 
 let editingGurudwaraId = null; 
