@@ -274,10 +274,6 @@ function renderLibraryPage(page) {
         <tr>
             <td class="col-ang">${item.pageNumber}</td>
             <td class="col-verse"><div class="gurmukhi">${item.verse}</div></td>
-            <td class="col-keywords">${item.keywords || ''}</td>
-            <td class="col-actions">
-                <button class="btn-danger btn-sm" onclick="deleteLibraryItem('${item.id}', '${item.pageNumber}')">Delete</button>
-            </td>
         </tr>`).join('');
     
     const nav = document.getElementById('libraryPagination');
