@@ -125,10 +125,33 @@ function openTab(tabId) {
     const activeBtn = Array.from(document.querySelectorAll('.tabs button')).find(b => b.getAttribute('onclick')?.includes(tabId));
     if (activeBtn) activeBtn.classList.add('active');
 
-    if (tabId === 'publishTab') loadRecentActivity();
     if (tabId === 'gurudwaraTab') loadGurudwaras();
     if (tabId === 'editorsTab') loadEditorsList();
-    if (tabId === 'libraryTab') loadLibraryTable();
+
+    // 1. If switching to Publish Tab
+    if (tabId === 'publishTab') {
+        // Keep your recent activity loader
+        loadRecentActivity(); 
+
+        // ALSO: Clear the search results so it doesn't show the whole library
+        const gridContainer = document.getElementById('libResults');
+        const searchBox = document.getElementById('libSearch');
+        
+        if (searchBox) searchBox.value = ''; 
+        if (gridContainer) {
+            gridContainer.innerHTML = `
+                <div style="grid-column: 1/-1; text-align:center; padding:30px; color:#666;">
+                    <p>🔍 Search for a verse above to publish a new Vaak.</p>
+                </div>`;
+        }
+    }
+
+    // 2. If switching to Manage Library Tab
+    if (tabId === 'libraryTab') {
+        // Load the full list but with pagination (10 at a time)
+        loadLibraryTable(''); 
+    }
+}
 }
 
 /* --- DATA FETCHING (ADMIN) --- */
@@ -152,11 +175,14 @@ async function loadRecentActivity() {
 let searchDebounceTimer;
 
 async function loadLibraryTable(searchQuery = '') {
-    const gridContainer = document.getElementById('libResults'); // For "Publish" tab
-    const tableBody = document.getElementById('libraryTableBody'); // For "Manage Library" tab
+    const gridContainer = document.getElementById('libResults'); // Publish Tab
+    const tableBody = document.getElementById('libraryTableBody'); // Manage Tab
+    
+    // 1. CLEAR previous results before starting a new search
+    if (gridContainer) gridContainer.innerHTML = ''; 
+    if (tableBody) tableBody.innerHTML = '<tr><td colspan="2" style="text-align:center;">Searching...</td></tr>';
     
     try {
-        // MATCHING THE BACKEND: Changed 'search=' to 'keyword='
         const url = searchQuery.trim() 
             ? `/api/LibraryManager?keyword=${encodeURIComponent(searchQuery.trim())}` 
             : '/api/LibraryManager';
@@ -166,23 +192,25 @@ async function loadLibraryTable(searchQuery = '') {
         
         const data = await res.json();
         
-        // Update global variable for pagination
+        // Update global variable
         libraryAllData = data;
 
-        // Render to the Grid (Publish Tab)
+        // 2. Render to the Grid (Publish Tab)
         if (gridContainer) {
             renderLibraryGrid(data); 
         }
         
-        // Render to the Table (Manage Tab)
+        // 3. Render to the Table (Manage Tab)
         if (tableBody) {
-            renderLibraryPage(1); 
+            renderLibraryPage(1); // This ensures only 10 show
         }
 
     } catch (e) {
         console.error("Library Search Error:", e);
+        if (tableBody) tableBody.innerHTML = '<tr><td colspan="2">No results found.</td></tr>';
     }
 }
+
 // 2. The "As You Type" trigger for Step 2 (Publishing)
 function searchLibrary() {
     const kw = document.getElementById('libSearch').value;
@@ -199,16 +227,22 @@ function renderLibraryGrid(data) {
         return;
     }
 
-    container.innerHTML = data.map(item => `
+    // Only show the first 20 results in the 'Publish' grid to keep it fast
+    const displayData = data.slice(0, 20);
+
+    container.innerHTML = displayData.map(item => `
         <div class="card">
             <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;">
                 <span class="tag">Ang: ${item.pageNumber}</span>
                 <button class="btn-primary btn-sm" onclick="publishVaak(event, ${JSON.stringify(item).replace(/"/g, '&quot;')})">Publish</button>
             </div>
             <p class="gurmukhi">${item.verse}</p>
-            <div style="font-size:0.8rem; color:#666; margin-top:5px;">${item.keywords || ''}</div>
         </div>
     `).join('');
+    
+    if (data.length > 20) {
+        container.innerHTML += `<div style="grid-column: 1/-1; text-align:center; color:#666; font-size:0.8rem;">Showing first 20 of ${data.length} results. Please refine your search for more.</div>`;
+    }
 }
 
 // 4. Helper to connect the "Publish" button to the actual API call
