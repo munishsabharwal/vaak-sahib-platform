@@ -115,6 +115,7 @@ if (isSuperAdmin) {
         loadRecentActivity();
     } catch (e) { console.error("Init Error:", e); }
 }
+
 function openTab(tabId) {
     document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
     document.querySelectorAll('.tabs button').forEach(b => b.classList.remove('active'));
@@ -141,7 +142,7 @@ function openTab(tabId) {
         if (gridContainer) {
             gridContainer.innerHTML = `
                 <div style="grid-column: 1/-1; text-align:center; padding:30px; color:#666;">
-                    <p>🔍 Search for a verse above to publish a new Vaak.</p>
+                    <p> Search for a verse above to publish a new Vaak.</p>
                 </div>`;
         }
     }
@@ -151,7 +152,6 @@ function openTab(tabId) {
         // Load the full list but with pagination (10 at a time)
         loadLibraryTable(''); 
     }
-}
 }
 
 /* --- DATA FETCHING (ADMIN) --- */
