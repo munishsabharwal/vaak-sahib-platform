@@ -14,7 +14,7 @@
 
         <div class="tabs">
             <button id="btn-publish" class="tab-btn active" onclick="openTab('publishTab')">Publish Daily Vaak</button>
-            <button id="btn-gurudwaras" class="tab-btn super-admin-only hidden" onclick="openTab('gurudwaraTab')">Manage Gurudwaras</button>
+            <button id="btn-gurudwaras" class="tab-btn super-admin-only hidden" onclick="openTab('gurudwaraTab')">Manage Gurdwaras</button>
             <button id="btn-editors" class="tab-btn super-admin-only hidden" onclick="openTab('editorsTab')">Manage Editors</button>
             <button id="btn-library" class="tab-btn super-admin-only hidden" onclick="openTab('libraryTab')">Manage Library</button>
             <button class="tab-btn" onclick="window.location.href='/.auth/logout'" style="background: #ffeded; color: #d32f2f;">Logout</button>
@@ -25,9 +25,9 @@
                 <h3>Step 1: Select Target & Date</h3>
                 <div class="flex-row" style="gap: 15px;">
                     <div style="flex: 1;">
-                        <label style="font-size: 0.8rem; display: block; margin-bottom: 5px;">Gurudwara Location</label>
+                        <label style="font-size: 0.8rem; display: block; margin-bottom: 5px;">Gurdwara Location</label>
                         <select id="gurudwaraSelect" style="width: 100%; padding: 8px;" required>
-                            <option value="">Loading Gurudwaras...</option>
+                            <option value="">Loading Gurdwaras...</option>
                         </select>
                     </div>
                     <div style="flex: 1;">
@@ -51,7 +51,7 @@
                         <thead>
                             <tr>
                                 <th>Date</th>
-                                <th>Gurudwara</th>
+                                <th>Gurdwara</th>
                                 <th>Verse Snapshot</th>
                             </tr>
                         </thead>
@@ -64,23 +64,23 @@
         </div>
 
         <div id="gurudwaraTab" class="tab-content">
-            <h2>Master Gurudwara Directory</h2>
+            <h2>Master Gurdwara Directory</h2>
             <div class="card" style="margin-bottom: 20px; border-top: 4px solid #28a745;">
-                <h3>Add New Gurudwara</h3>
+                <h3>Add New Gurdwara</h3>
                 <div style="display: flex; gap: 10px; margin-top: 10px;">
-                    <input type="text" id="newGName" placeholder="Gurudwara Name (e.g. Bangla Sahib)" style="flex: 2;">
+                    <input type="text" id="newGName" placeholder="Gurdwara Name (e.g. Bangla Sahib)" style="flex: 2;">
                     <input type="text" id="newGCity" placeholder="City (e.g. New Delhi)" style="flex: 1;">
                     <button onclick="saveGurudwara()" class="btn-success">Add to Master List</button>
                 </div>
             </div>
 
             <div class="card">
-                <h3>Existing Gurudwaras</h3>
+                <h3>Existing Gurdwaras</h3>
                 <div class="table-container">
                     <table style="width: 100%; border-collapse: collapse;">
                         <thead>
                             <tr style="background: #f4f7f6; text-align: left;">
-                                <th style="padding: 12px; border: 1px solid #ddd;">Gurudwara Name</th>
+                                <th style="padding: 12px; border: 1px solid #ddd;">Gurdwara Name</th>
                                 <th style="padding: 12px; border: 1px solid #ddd;">City</th>
                                 <th style="padding: 12px; border: 1px solid #ddd; text-align: center;">Action</th>
                             </tr>
@@ -102,7 +102,7 @@
                     <input id="editFirstName" placeholder="First Name">
                     <input id="editLastName" placeholder="Last Name">
                     <select id="editGurudwara" onchange="updateEditorLocation()" style="width: 100%; padding: 8px;">
-                        <option value="">Select Gurudwara...</option>
+                        <option value="">Select Gurdwara...</option>
                     </select>
                     <input id="editLocation" placeholder="Location (Auto-populated)" readonly style="background: #eee; cursor: not-allowed;">
                     <select id="editStatus" style="width: 100%; padding: 8px;">
