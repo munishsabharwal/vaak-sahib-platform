@@ -58,7 +58,7 @@ function renderPublic(data) {
 function populateFilter(data) {
     const select = document.getElementById('gurudwaraFilter');
     if (!select) return;
-    select.innerHTML = '<option value="all">All Gurudwaras</option>'; 
+    select.innerHTML = '<option value="all">All Gurdwaras</option>'; 
     const uniques = [...new Set(data.map(i => i.gurudwaraName))];
     uniques.forEach(g => {
         const opt = document.createElement('option');
