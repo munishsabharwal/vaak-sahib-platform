@@ -337,38 +337,37 @@ async function loadGurudwaras() {
         const res = await fetch('/api/ManageGurudwaras');
         const data = await res.json();
         
-        // --- 1. Fix the Dropdown for the Publish Tab (The missing part) ---
+        // 1. Update the Dropdown for publishing
         const select = document.getElementById('gurudwaraSelect');
         if (select) {
             let selectHtml = '<option value="">-- Select Gurudwara --</option>';
             data.forEach(item => {
-                // We add data-location here so publishVaak can find it later
-                selectHtml += `<option value="${item.name}" data-location="${item.gurudwaraLocation || item.location || ''}">${item.name}</option>`;
+                // IMPORTANT: We store location in data-location attribute
+                const loc = item.gurudwaraLocation || item.location || "";
+                selectHtml += `<option value="${item.name}" data-location="${loc}">${item.name}</option>`;
             });
             select.innerHTML = selectHtml;
         }
 
-        // --- 2. Keep your existing Table Logic for the Manage Tab ---
+        // 2. Update the Table for management (Keep your 33-line logic intact)
         const tbody = document.getElementById('gurudwaraTableBody');
         if (tbody) {
             let tableHtml = '';
             data.forEach(item => {
-                tableHtml += `
-                    <tr>
-                        <td>${item.name}</td>
-                        <td>${item.gurudwaraLocation || item.location || ''}</td>
-                        <td>
-                            <button class="btn-secondary" onclick="prepareEditGurudwara('${item.id}')">Edit</button>
-                            <button class="btn-danger" onclick="deleteGurudwara('${item.id}')">Delete</button>
-                        </td>
-                    </tr>`;
+                tableHtml += `<tr>
+                    <td>${item.name}</td>
+                    <td>${item.gurudwaraLocation || item.location || ''}</td>
+                    <td>
+                        <button class="btn-secondary" onclick="prepareEditGurudwara('${item.id}')">Edit</button>
+                        <button class="btn-danger" onclick="deleteGurudwara('${item.id}')">Delete</button>
+                    </td>
+                </tr>`;
             });
             tbody.innerHTML = tableHtml;
         }
-    } catch (e) {
-        console.error("Error loading Gurudwaras:", e);
-    }
+    } catch (e) { console.error("LoadGurudwaras Error:", e); }
 }
+
 async function saveGurudwara() {
     const name = document.getElementById('newGName').value.trim();
     const city = document.getElementById('newGCity').value.trim();
@@ -437,35 +436,37 @@ async function publishVaak(event, libraryItem) {
     const dateInput = document.getElementById('publishDate');
     const date = (dateInput && dateInput.value) ? dateInput.value : new Date().toISOString().split('T')[0];
     
-    let versePayload = {
-        verse: libraryItem.verse,
-        pageNumber: libraryItem.pageNumber
-    };
+    let gName = "";
+    let gLoc = "";
 
     if (window.currentUserIsAdmin) {
         const sel = document.getElementById('gurudwaraSelect');
         const opt = sel ? sel.options[sel.selectedIndex] : null;
+        if (!opt || !opt.value) return alert("Please select a Gurudwara from Step 1!");
         
-        if (!opt || !opt.value) return alert("Please select a Gurudwara from Step 1 first!");
-        
-        versePayload.gurudwaraName = opt.value;
-        // This pulls from the data-location attribute we added in loadGurudwaras
-        versePayload.gurudwaraLocation = opt.getAttribute('data-location') || "Unknown";
+        gName = opt.value;
+        gLoc = opt.getAttribute('data-location') || "Unknown";
     } else {
-        const profile = window.editorProfile;
+        // If profile is an array, take the first item
+        const profile = Array.isArray(window.editorProfile) ? window.editorProfile[0] : window.editorProfile;
         if (!profile) return alert("Editor profile not loaded. Please refresh.");
 
-        versePayload.gurudwaraName = profile.gurudwaraName;
-        // Match the key 'gurudwaraLocation' used in index (2).js
-        versePayload.gurudwaraLocation = profile.gurudwaraLocation || profile.location || "Unknown";
+        gName = profile.gurudwaraName;
+        gLoc = profile.gurudwaraLocation || profile.location || "Unknown";
     }
+
+    // THE CONFIRMATION BOX FIX
+    if (!confirm(`Publish to ${gName} (${gLoc}) for ${date}?`)) return;
 
     const finalBody = {
         date: date,
-        verseItem: versePayload
+        verseItem: {
+            verse: libraryItem.verse,
+            pageNumber: libraryItem.pageNumber,
+            gurudwaraName: gName,
+            gurudwaraLocation: gLoc
+        }
     };
-
-    if (!confirm(`Publish to ${versePayload.gurudwaraName} (${versePayload.gurudwaraLocation})?`)) return;
 
     btn.disabled = true;
     try {
@@ -474,19 +475,16 @@ async function publishVaak(event, libraryItem) {
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify(finalBody)
         });
-        
         if (res.ok) {
             alert("✅ Published successfully!");
-            if (typeof loadRecentActivity === 'function') loadRecentActivity();
+            loadRecentActivity();
         } else {
             alert("Error: " + await res.text());
         }
-    } catch (e) {
-        alert("Network Error: " + e.message);
-    } finally {
-        btn.disabled = false;
-    }
+    } catch (e) { alert("Network Error: " + e.message); }
+    finally { btn.disabled = false; }
 }
+
 
 async function copyVaak(gurudwara, location, verse, ang) {
     const dateInput = document.getElementById('publishDate');
