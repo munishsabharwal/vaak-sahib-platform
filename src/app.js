@@ -127,8 +127,10 @@ function openTab(tabId) {
     if (activeBtn) activeBtn.classList.add('active');
 
     if (tabId === 'gurudwaraTab') loadGurudwaras();
-    if (tabId === 'editorsTab') loadEditorsList();
-
+    if (tabId === 'editorsTab') {
+        loadGurudwaras(); // First, ensure the dropdowns have the latest Gurudwaras
+        loadEditorsList(); // Then, load the list of people
+    }
     // 1. If switching to Publish Tab
     if (tabId === 'publishTab') {
         // Keep your recent activity loader
