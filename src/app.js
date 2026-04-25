@@ -336,6 +336,8 @@ async function loadGurudwaras() {
     try {
         const res = await fetch('/api/ManageGurudwaras');
         const data = await res.json();
+
+        window.globalGurudwaraData = data;
         
         // 1. Update the Dropdown for publishing
         const select = document.getElementById('gurudwaraSelect');
@@ -437,7 +439,7 @@ async function publishVaak(event, libraryItem) {
     const date = (dateInput && dateInput.value) ? dateInput.value : new Date().toISOString().split('T')[0];
     
     let gName = "";
-    let gLoc = "";
+    let gLoc = "Unknown";
 
     if (window.currentUserIsAdmin) {
         const sel = document.getElementById('gurudwaraSelect');
@@ -445,17 +447,24 @@ async function publishVaak(event, libraryItem) {
         if (!opt || !opt.value) return alert("Please select a Gurudwara from Step 1!");
         
         gName = opt.value;
-        gLoc = opt.getAttribute('data-location') || "Unknown";
+        
+        // THE FIX: Search the background data we saved in loadGurudwaras
+        if (window.globalGurudwaraData) {
+            const foundG = window.globalGurudwaraData.find(g => g.name === gName);
+            if (foundG) {
+                // Check all possible field names
+                gLoc = foundG.gurudwaraLocation || foundG.location || foundG.City || "Unknown";
+            }
+        }
     } else {
-        // If profile is an array, take the first item
         const profile = Array.isArray(window.editorProfile) ? window.editorProfile[0] : window.editorProfile;
         if (!profile) return alert("Editor profile not loaded. Please refresh.");
 
         gName = profile.gurudwaraName;
-        gLoc = profile.gurudwaraLocation || profile.location || "Unknown";
+        // THE FIX: Cosmos DB is case-sensitive. Check every possible capitalization
+        gLoc = profile.gurudwaraLocation || profile.GurudwaraLocation || profile.location || profile.Location || "Unknown1";
     }
 
-    // THE CONFIRMATION BOX FIX
     if (!confirm(`Publish to ${gName} (${gLoc}) for ${date}?`)) return;
 
     const finalBody = {
@@ -477,14 +486,13 @@ async function publishVaak(event, libraryItem) {
         });
         if (res.ok) {
             alert("✅ Published successfully!");
-            loadRecentActivity();
+            if (typeof loadRecentActivity === 'function') loadRecentActivity();
         } else {
             alert("Error: " + await res.text());
         }
     } catch (e) { alert("Network Error: " + e.message); }
     finally { btn.disabled = false; }
 }
-
 
 async function copyVaak(gurudwara, location, verse, ang) {
     const dateInput = document.getElementById('publishDate');
