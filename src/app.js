@@ -349,7 +349,7 @@ async function loadGurudwaras() {
         const pubSelect = document.getElementById('gurudwaraSelect'); 
         const editorSelect = document.getElementById('editGurudwara'); // Fixed ID
 
-        let html = '<option value="">-- Select Gurudwara --</option>';
+        let html = '<option value="">-- Select Gurdwara --</option>';
         data.forEach(item => {
             // Use 'city' for the location attribute
             const loc = item.city || ""; 
