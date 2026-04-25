@@ -334,39 +334,41 @@ let editingGurudwaraId = null;
 
 async function loadGurudwaras() {
     try {
-        const response = await fetch('/api/ManageGurudwaras');
-        if (!response.ok) return;
-        const data = await response.json();
-
-        // 1. Update Management Table
-        const tbody = document.getElementById('gurudwaraTableBody');
-        if (tbody) {
-            tbody.innerHTML = data.map(g => `
-                <tr>
-                    <td>${g.name}</td>
-                    <td>${g.city}</td>
-                    <td style="text-align: right;">
-                        <button onclick="prepareEditGurudwara('${g.id}', '${g.name}', '${g.city}')" style="color:#0078d4; border:none; background:none; cursor:pointer; margin-right:15px;">Edit</button>
-                        <button onclick="deleteGurudwara('${g.id}', '${g.name}')" style="color:#dc3545; border:none; background:none; cursor:pointer;">Delete</button>
-                    </td>
-                </tr>`).join('');
+        const res = await fetch('/api/ManageGurudwaras');
+        const data = await res.json();
+        
+        // --- 1. Fix the Dropdown for the Publish Tab (The missing part) ---
+        const select = document.getElementById('gurudwaraSelect');
+        if (select) {
+            let selectHtml = '<option value="">-- Select Gurudwara --</option>';
+            data.forEach(item => {
+                // We add data-location here so publishVaak can find it later
+                selectHtml += `<option value="${item.name}" data-location="${item.gurudwaraLocation || item.location || ''}">${item.name}</option>`;
+            });
+            select.innerHTML = selectHtml;
         }
 
-        // 2. Update BOTH Dropdowns (Publish Tab & Editors Tab)
-        const publishDropdown = document.getElementById('gurudwaraSelect');
-        const editorDropdown = document.getElementById('editGurudwara');
-        
-        const optionsHtml = '<option value="">-- Select Gurudwara --</option>' + 
-            data.map(g => `<option value="${g.name}" data-city="${g.city}">${g.name}</option>`).join('');
-
-        if (publishDropdown) publishDropdown.innerHTML = optionsHtml;
-        if (editorDropdown) editorDropdown.innerHTML = optionsHtml;
-
-    } catch (err) { 
-        console.error("Load Error:", err); 
+        // --- 2. Keep your existing Table Logic for the Manage Tab ---
+        const tbody = document.getElementById('gurudwaraTableBody');
+        if (tbody) {
+            let tableHtml = '';
+            data.forEach(item => {
+                tableHtml += `
+                    <tr>
+                        <td>${item.name}</td>
+                        <td>${item.gurudwaraLocation || item.location || ''}</td>
+                        <td>
+                            <button class="btn-secondary" onclick="prepareEditGurudwara('${item.id}')">Edit</button>
+                            <button class="btn-danger" onclick="deleteGurudwara('${item.id}')">Delete</button>
+                        </td>
+                    </tr>`;
+            });
+            tbody.innerHTML = tableHtml;
+        }
+    } catch (e) {
+        console.error("Error loading Gurudwaras:", e);
     }
 }
-
 async function saveGurudwara() {
     const name = document.getElementById('newGName').value.trim();
     const city = document.getElementById('newGCity').value.trim();
@@ -429,6 +431,7 @@ function updateEditorLocation() {
 }
 
 /* --- ACTIONS & UTILS --- */
+
 async function publishVaak(event, libraryItem) {
     const btn = event.target;
     const dateInput = document.getElementById('publishDate');
@@ -439,30 +442,22 @@ async function publishVaak(event, libraryItem) {
         pageNumber: libraryItem.pageNumber
     };
 
-    // CASE 1: LOGGED IN AS SUPER_ADMIN
     if (window.currentUserIsAdmin) {
         const sel = document.getElementById('gurudwaraSelect');
-        if (!sel) return alert("System Error: Gurudwara selection dropdown not found.");
+        const opt = sel ? sel.options[sel.selectedIndex] : null;
         
-        const opt = sel.options[sel.selectedIndex];
         if (!opt || !opt.value) return alert("Please select a Gurudwara from Step 1 first!");
         
         versePayload.gurudwaraName = opt.value;
-        // This pulls from the 'data-location' attribute we set in loadGurudwaras
+        // This pulls from the data-location attribute we added in loadGurudwaras
         versePayload.gurudwaraLocation = opt.getAttribute('data-location') || "Unknown";
-    } 
-    // CASE 2: LOGGED IN AS REGULAR EDITOR
-    else {
-        // This matches exactly where your initAdmin saves the data
+    } else {
         const profile = window.editorProfile;
-        
-        if (!profile) {
-            return alert("Editor profile not loaded yet. Please wait a moment or refresh.");
-        }
-        
+        if (!profile) return alert("Editor profile not loaded. Please refresh.");
+
         versePayload.gurudwaraName = profile.gurudwaraName;
-        // Check for 'gurudwaraLocation' which is what your ManageEditors API saves
-        versePayload.gurudwaraLocation = profile.gurudwaraLocation || "Unknown";
+        // Match the key 'gurudwaraLocation' used in index (2).js
+        versePayload.gurudwaraLocation = profile.gurudwaraLocation || profile.location || "Unknown";
     }
 
     const finalBody = {
@@ -470,14 +465,9 @@ async function publishVaak(event, libraryItem) {
         verseItem: versePayload
     };
 
-    console.log("Publishing Payload:", finalBody);
-
-    if (!confirm(`Publish to ${versePayload.gurudwaraName} for ${date}?`)) return;
+    if (!confirm(`Publish to ${versePayload.gurudwaraName} (${versePayload.gurudwaraLocation})?`)) return;
 
     btn.disabled = true;
-    const originalText = btn.innerText;
-    btn.innerText = "Publishing...";
-
     try {
         const res = await fetch('/api/EditorPublish', {
             method: 'POST',
@@ -485,20 +475,19 @@ async function publishVaak(event, libraryItem) {
             body: JSON.stringify(finalBody)
         });
         
-        const responseText = await res.text();
         if (res.ok) {
-            alert("✅ " + responseText);
+            alert("✅ Published successfully!");
             if (typeof loadRecentActivity === 'function') loadRecentActivity();
         } else {
-            alert("Server Error: " + responseText);
+            alert("Error: " + await res.text());
         }
     } catch (e) {
         alert("Network Error: " + e.message);
     } finally {
         btn.disabled = false;
-        btn.innerText = originalText;
     }
 }
+
 async function copyVaak(gurudwara, location, verse, ang) {
     const dateInput = document.getElementById('publishDate');
     const dateValue = dateInput ? dateInput.value : new Date().toLocaleDateString();
