@@ -246,6 +246,23 @@ button {
     display: none !important;
 }
 
+/* Make highlighted words bold */
+.highlight {
+    background-color: yellow;
+    font-weight: bold; /* This adds the bold effect */
+    padding: 0 2px;
+    border-radius: 2px;
+}
+
+/* Create the transparent "Frosted Glass" effect for the filter frame */
+.filter-card {
+    background: rgba(255, 255, 255, 0.7) !important; /* 70% transparent white */
+    backdrop-filter: blur(10px); /* Blurs the background image behind the frame */
+    -webkit-backdrop-filter: blur(10px);
+    border: 1px solid rgba(255, 255, 255, 0.3);
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+}
+
 /* Specific fix for the Larivaarbani.org Public Navigation on Mobile */
 @media screen and (max-width: 480px) {
     .public-nav {
