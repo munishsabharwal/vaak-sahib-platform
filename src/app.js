@@ -337,19 +337,22 @@ async function loadGurudwaras() {
         const res = await fetch('/api/ManageGurudwaras');
         const data = await res.json();
         
-        // Identify both dropdowns
-        const pubSelect = document.getElementById('gurudwaraSelect'); // Step 1
-        const editorSelect = document.getElementById('editorGurudwara'); // Manage Editors Form
+        // Match the IDs exactly as they appear in your admin.html
+        const pubSelect = document.getElementById('gurudwaraSelect'); 
+        const editorSelect = document.getElementById('editorGurudwaraName'); // Fixed ID
 
         let html = '<option value="">-- Select Gurudwara --</option>';
         data.forEach(item => {
-            // FIX: Using 'city' as the source for location
+            // Use 'city' for the location attribute
             const loc = item.city || ""; 
             html += `<option value="${item.name}" data-location="${loc}">${item.name}</option>`;
         });
 
         if (pubSelect) pubSelect.innerHTML = html;
-        if (editorSelect) editorSelect.innerHTML = html;
+        if (editorSelect) {
+            editorSelect.innerHTML = html;
+            console.log("Editor dropdown populated successfully");
+        }
 
         // Update the management table (Step 1 view)
         const tbody = document.getElementById('gurudwaraTableBody');
@@ -419,14 +422,11 @@ function prepareEditGurudwara(id, name, city) {
 }
 
 function updateEditorLocation() {
-    const dropdown = document.getElementById('editGurudwara');
-    const locationField = document.getElementById('editLocation');
-    
-    if (dropdown && locationField) {
-        const selectedOption = dropdown.options[dropdown.selectedIndex];
-        // Get the city from the data-city attribute we added in loadGurudwaras
-        const city = selectedOption.getAttribute('data-city') || "";
-        locationField.value = city;
+    const sel = document.getElementById('editorGurudwaraName'); // Fixed ID
+    const locInput = document.getElementById('editorGurudwaraLocation');
+    if (sel && locInput) {
+        const selectedOption = sel.options[sel.selectedIndex];
+        locInput.value = selectedOption.getAttribute('data-location') || "";
     }
 }
 
