@@ -282,7 +282,13 @@ async function loadEditorsList() {
 }
 
 /* --- Add this brand new function to populate the form for Editing --- */
-function prepareEditEditor(email, firstName, lastName, gurudwaraName, status, comments) {
+async function prepareEditEditor(email, firstName, lastName, gurudwaraName, status, comments) {
+    // THE FIX: Ensure dropdown is populated right before we try to set its value
+    const editorSelect = document.getElementById('editGurudwara'); // 🚨 FIXED ID HERE
+    if (editorSelect && window.gurudwaraOptionsHtml) {
+        editorSelect.innerHTML = window.gurudwaraOptionsHtml;
+    }
+
     document.getElementById('editEmail').value = email;
     // Lock the email field so they don't accidentally change the ID
     document.getElementById('editEmail').readOnly = true; 
@@ -341,7 +347,7 @@ async function loadGurudwaras() {
         
         // Match the IDs exactly as they appear in your admin.html
         const pubSelect = document.getElementById('gurudwaraSelect'); 
-        const editorSelect = document.getElementById('editorGurudwaraName'); // Fixed ID
+        const editorSelect = document.getElementById('editGurudwara'); // Fixed ID
 
         let html = '<option value="">-- Select Gurudwara --</option>';
         data.forEach(item => {
@@ -424,8 +430,8 @@ function prepareEditGurudwara(id, name, city) {
 }
 
 function updateEditorLocation() {
-    const sel = document.getElementById('editorGurudwaraName'); // Fixed ID
-    const locInput = document.getElementById('editorGurudwaraLocation');
+    const sel = document.getElementById('editGurudwara'); // Fixed ID
+    const locInput = document.getElementById('editLocation');
     if (sel && locInput) {
         const selectedOption = sel.options[sel.selectedIndex];
         locInput.value = selectedOption.getAttribute('data-location') || "";
