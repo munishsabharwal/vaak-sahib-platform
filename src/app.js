@@ -336,38 +336,37 @@ async function loadGurudwaras() {
     try {
         const res = await fetch('/api/ManageGurudwaras');
         const data = await res.json();
-
-        window.globalGurudwaraData = data;
         
-        // 1. Update the Dropdown for publishing
-        const select = document.getElementById('gurudwaraSelect');
-        if (select) {
-            let selectHtml = '<option value="">-- Select Gurudwara --</option>';
-            data.forEach(item => {
-                // IMPORTANT: We store location in data-location attribute
-                const loc = item.gurudwaraLocation || item.location || "";
-                selectHtml += `<option value="${item.name}" data-location="${loc}">${item.name}</option>`;
-            });
-            select.innerHTML = selectHtml;
-        }
+        // Identify both dropdowns
+        const pubSelect = document.getElementById('gurudwaraSelect'); // Step 1
+        const editorSelect = document.getElementById('editorGurudwara'); // Manage Editors Form
 
-        // 2. Update the Table for management (Keep your 33-line logic intact)
+        let html = '<option value="">-- Select Gurudwara --</option>';
+        data.forEach(item => {
+            // FIX: Using 'city' as the source for location
+            const loc = item.city || ""; 
+            html += `<option value="${item.name}" data-location="${loc}">${item.name}</option>`;
+        });
+
+        if (pubSelect) pubSelect.innerHTML = html;
+        if (editorSelect) editorSelect.innerHTML = html;
+
+        // Update the management table (Step 1 view)
         const tbody = document.getElementById('gurudwaraTableBody');
         if (tbody) {
-            let tableHtml = '';
-            data.forEach(item => {
-                tableHtml += `<tr>
+            tbody.innerHTML = data.map(item => `
+                <tr>
                     <td>${item.name}</td>
-                    <td>${item.gurudwaraLocation || item.location || ''}</td>
+                    <td>${item.city || ''}</td>
                     <td>
                         <button class="btn-secondary" onclick="prepareEditGurudwara('${item.id}')">Edit</button>
                         <button class="btn-danger" onclick="deleteGurudwara('${item.id}')">Delete</button>
                     </td>
-                </tr>`;
-            });
-            tbody.innerHTML = tableHtml;
+                </tr>`).join('');
         }
-    } catch (e) { console.error("LoadGurudwaras Error:", e); }
+    } catch (e) {
+        console.error("Error loading Gurudwaras:", e);
+    }
 }
 
 async function saveGurudwara() {
@@ -444,27 +443,21 @@ async function publishVaak(event, libraryItem) {
     if (window.currentUserIsAdmin) {
         const sel = document.getElementById('gurudwaraSelect');
         const opt = sel ? sel.options[sel.selectedIndex] : null;
-        if (!opt || !opt.value) return alert("Please select a Gurudwara from Step 1!");
+        if (!opt || !opt.value) return alert("Please select a Gurudwara from Step 1 first!");
         
         gName = opt.value;
-        
-        // THE FIX: Search the background data we saved in loadGurudwaras
-        if (window.globalGurudwaraData) {
-            const foundG = window.globalGurudwaraData.find(g => g.name === gName);
-            if (foundG) {
-                // Check all possible field names
-                gLoc = foundG.gurudwaraLocation || foundG.location || foundG.City || "Unknown";
-            }
-        }
+        // This grabs the 'city' we put in 'data-location' in the function above
+        gLoc = opt.getAttribute('data-location') || "Unknown";
     } else {
-        const profile = Array.isArray(window.editorProfile) ? window.editorProfile[0] : window.editorProfile;
+        // For regular editors, use their assigned profile location
+        const profile = window.editorProfile;
         if (!profile) return alert("Editor profile not loaded. Please refresh.");
-
+        
         gName = profile.gurudwaraName;
-        // THE FIX: Cosmos DB is case-sensitive. Check every possible capitalization
-        gLoc = profile.gurudwaraLocation || profile.GurudwaraLocation || profile.location || profile.Location || "Unknown1";
+        gLoc = profile.gurudwaraLocation || "Unknown";
     }
 
+    // This popup will now show the City
     if (!confirm(`Publish to ${gName} (${gLoc}) for ${date}?`)) return;
 
     const finalBody = {
@@ -490,8 +483,11 @@ async function publishVaak(event, libraryItem) {
         } else {
             alert("Error: " + await res.text());
         }
-    } catch (e) { alert("Network Error: " + e.message); }
-    finally { btn.disabled = false; }
+    } catch (e) {
+        alert("Network Error: " + e.message);
+    } finally {
+        btn.disabled = false;
+    }
 }
 
 async function copyVaak(gurudwara, location, verse, ang) {
