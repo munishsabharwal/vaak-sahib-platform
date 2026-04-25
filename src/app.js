@@ -439,20 +439,30 @@ async function publishVaak(event, libraryItem) {
         pageNumber: libraryItem.pageNumber
     };
 
+    // CASE 1: LOGGED IN AS SUPER_ADMIN
     if (window.currentUserIsAdmin) {
         const sel = document.getElementById('gurudwaraSelect');
+        if (!sel) return alert("System Error: Gurudwara selection dropdown not found.");
+        
         const opt = sel.options[sel.selectedIndex];
-        if (!opt || !opt.value) return alert("Please select a Gurudwara first!");
+        if (!opt || !opt.value) return alert("Please select a Gurudwara from Step 1 first!");
         
-        versePayload.gurudwaraName = opt.value; // Use opt.value for the name
-        // This now matches 'data-location' in loadGurudwaras
+        versePayload.gurudwaraName = opt.value;
+        // This pulls from the 'data-location' attribute we set in loadGurudwaras
         versePayload.gurudwaraLocation = opt.getAttribute('data-location') || "Unknown";
-    } else {
-        if (!window.editorProfile) return alert("Editor profile not loaded. Please refresh.");
+    } 
+    // CASE 2: LOGGED IN AS REGULAR EDITOR
+    else {
+        // This matches exactly where your initAdmin saves the data
+        const profile = window.editorProfile;
         
-        versePayload.gurudwaraName = window.editorProfile.gurudwaraName;
-        // Check both common naming conventions
-        versePayload.gurudwaraLocation = window.editorProfile.gurudwaraLocation || window.editorProfile.location || window.editorProfile.city || "Unknown";
+        if (!profile) {
+            return alert("Editor profile not loaded yet. Please wait a moment or refresh.");
+        }
+        
+        versePayload.gurudwaraName = profile.gurudwaraName;
+        // Check for 'gurudwaraLocation' which is what your ManageEditors API saves
+        versePayload.gurudwaraLocation = profile.gurudwaraLocation || "Unknown";
     }
 
     const finalBody = {
@@ -460,11 +470,14 @@ async function publishVaak(event, libraryItem) {
         verseItem: versePayload
     };
 
-    console.log("Sending to Backend:", finalBody);
+    console.log("Publishing Payload:", finalBody);
 
     if (!confirm(`Publish to ${versePayload.gurudwaraName} for ${date}?`)) return;
 
     btn.disabled = true;
+    const originalText = btn.innerText;
+    btn.innerText = "Publishing...";
+
     try {
         const res = await fetch('/api/EditorPublish', {
             method: 'POST',
@@ -475,7 +488,7 @@ async function publishVaak(event, libraryItem) {
         const responseText = await res.text();
         if (res.ok) {
             alert("✅ " + responseText);
-            loadRecentActivity();
+            if (typeof loadRecentActivity === 'function') loadRecentActivity();
         } else {
             alert("Server Error: " + responseText);
         }
@@ -483,9 +496,9 @@ async function publishVaak(event, libraryItem) {
         alert("Network Error: " + e.message);
     } finally {
         btn.disabled = false;
+        btn.innerText = originalText;
     }
 }
-
 async function copyVaak(gurudwara, location, verse, ang) {
     const dateInput = document.getElementById('publishDate');
     const dateValue = dateInput ? dateInput.value : new Date().toLocaleDateString();
