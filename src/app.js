@@ -258,13 +258,40 @@ function renderLibraryGrid(data) {
 }
 
 // 4. Helper to connect the "Publish" button to the actual API call
-function triggerPublish(event, itemId) {
-    const itemToPublish = libraryAllData.find(i => i.id === itemId);
-    if (itemToPublish) {
-        publishVaak(event, itemToPublish);
-    } else {
-        alert("Error: Verse data not found.");
+async function triggerPublish() {
+    const date = document.getElementById('publishDate').value;
+    const gurudwara = document.getElementById('gurudwaraSelect').value;
+    const page = document.getElementById('pageNumber').value;
+    const verse = document.getElementById('verseContent').value;
+    const location = document.getElementById('gurudwaraLocation').value;
+    
+    if (!date || !gurudwara || !page || !verse) {
+        alert("Please fill all fields and fetch a verse first.");
+        return;
     }
+
+    // LOOKUP: Check if this Gurudwara already has a record for this date
+    const existing = lastFetchedData.find(item => 
+        item.date === date && 
+        item.gurudwaraName === gurudwara
+    );
+
+    const payload = {
+        date: date,
+        gurudwaraName: gurudwara,
+        pageNumber: page,
+        verse: verse,
+        gurudwaraLocation: location
+    };
+
+    // If record exists, we include the ID to trigger a "Replace" (Upsert)
+    if (existing && existing.id) {
+        payload.id = existing.id;
+        const confirmReplace = confirm(`A Vaak for ${gurudwara} already exists on this date. Would you like to replace it?`);
+        if (!confirmReplace) return;
+    }
+
+    await publishVaak(payload);
 }
 
 /* --- Update this function to show the new columns & Action buttons --- */
