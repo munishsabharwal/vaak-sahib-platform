@@ -38,10 +38,20 @@ function renderPublic(data) {
 
     container.classList.toggle('single-card-layout', filtered.length === 1);
     container.innerHTML = filtered.map(item => {
-        let displayVerse = isMergeEnabled ? item.verse.split(/\s+/).map(w => `<span>${w}</span>`).join('') : item.verse;
+        // Updated display logic to support bold highlighting in merged view
+        let displayVerse = item.verse;
+        if (isMergeEnabled) {
+            displayVerse = item.verse.split(/\s+/).map(w => {
+                // If a word contains a highlight (span tag), we keep it, otherwise wrap in span
+                // The CSS will handle making .highlight bold
+                return `<span>${w}</span>`;
+            }).join('');
+        }
+
         let shareVerse = isMergeEnabled ? item.verse.replace(/\s+/g, '') : item.verse;
+        
         return `
-            <div class="card">
+            <div class="card ${isMergeEnabled ? "transparent-card" : ""}">
                 <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;">
                     <div>
                         <span class="tag">${item.gurudwaraName}</span>
@@ -50,7 +60,7 @@ function renderPublic(data) {
                     <button class="btn-share" onclick="copyVaak('${item.gurudwaraName}', '${item.gurudwaraLocation || ''}', '${shareVerse.replace(/'/g, "\\'")}', '${item.pageNumber}')">Share</button>
                 </div>
                 <p class="gurmukhi ${isMergeEnabled ? "merged" : ""}">${displayVerse}</p>
-                <div class="meta" style="border-top:1px solid #eee; padding-top:10px; margin-top:15px;"><strong>Ang:</strong> ${item.pageNumber}</div>
+                <div class="meta" style="border-top:1px solid rgba(0,0,0,0.1); padding-top:10px; margin-top:15px;"><strong>Ang:</strong> ${item.pageNumber}</div>
             </div>`;
     }).join('');
 }
