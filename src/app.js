@@ -38,12 +38,9 @@ function renderPublic(data) {
 
     container.classList.toggle('single-card-layout', filtered.length === 1);
     container.innerHTML = filtered.map(item => {
-        // Updated display logic to support bold highlighting in merged view
         let displayVerse = item.verse;
         if (isMergeEnabled) {
             displayVerse = item.verse.split(/\s+/).map(w => {
-                // If a word contains a highlight (span tag), we keep it, otherwise wrap in span
-                // The CSS will handle making .highlight bold
                 return `<span>${w}</span>`;
             }).join('');
         }
@@ -51,8 +48,7 @@ function renderPublic(data) {
         let shareVerse = isMergeEnabled ? item.verse.replace(/\s+/g, '') : item.verse;
         
         return `
-            <div class="card ${isMergeEnabled ? "transparent-card" : ""}">
-                <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;">
+            <div class="card transparent-card"> <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;">
                     <div>
                         <span class="tag">${item.gurudwaraName}</span>
                         <div class="meta" style="margin-top:5px; font-style:italic;">${item.gurudwaraLocation || ''}</div>
