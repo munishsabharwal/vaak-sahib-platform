@@ -542,7 +542,7 @@ async function copyVaak(gurudwara, location, verse, ang) {
     const iconCal  = "\u{1F4C5}";
     const iconNum  = "\u{1F522}";
 
-    const text = `${iconBook} *Daily Hukamnama by Larivaarbani.org*\n` +
+    const text = `${iconBook} *Daily Hukamnama by www.Larivaarbani.org*\n` +
                  `${iconPin} *From:* ${gurudwara}, ${location}\n` +
                  `${iconCal} *Date:* ${dateValue}\n` +
                  `${iconNum} *Ang:* ${ang}\n\n` +
