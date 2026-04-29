@@ -269,6 +269,16 @@ button {
     border: 1px solid rgba(212, 175, 55, 0.3) !important;
 }
 
+/* This makes the word 'WORD' in your tip look like the Gurbani hover effect */
+.tip-highlight {
+    background-color: rgba(255, 215, 0, 0.4); /* Gold highlight matching your .merged span:hover */
+    font-weight: bold;
+    padding: 0 4px;
+    border-radius: 3px;
+    display: inline-block;
+    color: #000; /* Ensures text is black on the yellow background */
+}
+
 /* Specific fix for the Larivaarbani.org Public Navigation on Mobile */
 @media screen and (max-width: 480px) {
     .public-nav {
