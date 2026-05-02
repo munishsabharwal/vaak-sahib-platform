@@ -27,18 +27,20 @@ async function loadPublic() {
 function renderPublic(data) {
     const container = document.getElementById('publicGrid');
     const filterEl = document.getElementById('gurudwaraFilter');
-// CHANGE 1: Use 'let' instead of 'const' so we can update the value
-    let filter = filterEl ? filterEl.value.toLowerCase() : 'all';
+    
+    // 1. Read the selection. 'const' is fine here because we won't reassign it.
+    const filterValue = filterEl ? filterEl.value.toLowerCase() : 'all';
     const isMergeEnabled = document.getElementById('mergeWords')?.checked || false;
 
-    // If the page just loaded and filter is still 'all', force it to Harmandir Sahib
-    if (filter === 'all') {
-        filter = 'sachkhand sri harmandir sahib';
-        // CHANGE 2: Also update the dropdown visually if it exists
-        if (filterEl) filterEl.value = "Sachkhand Sri Harmandir Sahib";
+    // 2. Logic: If 'all', use 'data'. If specific, filter 'data'.
+    const filtered = (filterValue === 'all') 
+        ? data 
+        : data.filter(i => i.gurudwaraName.toLowerCase() === filterValue);
+    
+    if (!filtered || filtered.length === 0) {
+        container.innerHTML = '<p style="text-align: center; width: 100%;">No matches found.</p>';
+        return;
     }
-
-    const filtered = data.filter(i => i.gurudwaraName.toLowerCase() === filter);
     
     // FALLBACK: If Harmandir Sahib isn't found for that date, show all as a backup
     const finalDisplay = (filtered.length === 0) ? data : filtered;
