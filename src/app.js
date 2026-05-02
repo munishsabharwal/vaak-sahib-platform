@@ -30,12 +30,21 @@ function renderPublic(data) {
     const filter = filterEl ? filterEl.value.toLowerCase() : 'all';
     const isMergeEnabled = document.getElementById('mergeWords')?.checked || false;
 
-    const filtered = (filter === 'all') ? data : data.filter(i => i.gurudwaraName.toLowerCase() === filter);
-    if (!filtered || filtered.length === 0) {
+// If the page just loaded and filter is still 'all', force it to Harmandir Sahib
+    if (filter === 'all') {
+        filter = 'sri harmandir sahib';
+    }
+
+    const filtered = data.filter(i => i.gurudwaraName.toLowerCase() === filter);
+    
+    // FALLBACK: If Harmandir Sahib isn't found for that date, show all as a backup
+    const finalDisplay = (filtered.length === 0) ? data : filtered;
+
+    if (!finalDisplay || finalDisplay.length === 0) {
         container.innerHTML = '<p style="text-align: center; width: 100%;">No matches found for this date.</p>';
         return;
     }
-
+    
     container.classList.toggle('single-card-layout', filtered.length === 1);
     container.innerHTML = filtered.map(item => {
         let displayVerse = item.verse;
