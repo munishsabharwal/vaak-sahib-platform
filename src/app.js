@@ -95,7 +95,10 @@ async function initAdmin() {
             return;
         }
 
-        document.getElementById('userDisplay').innerText = `User: ${user.userDetails}`;
+        const userDisplay = document.getElementById('userDisplay');
+        if (userDisplay) {
+            userDisplay.innerText = `User: ${user.userDetails}`;
+            }
         
         const isSuperAdmin = user.userRoles.includes('super_admin');
         window.currentUserIsAdmin = isSuperAdmin;
