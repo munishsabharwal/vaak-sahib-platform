@@ -32,7 +32,7 @@ function renderPublic(data) {
 
 // If the page just loaded and filter is still 'all', force it to Harmandir Sahib
     if (filter === 'all') {
-        filter = 'sri harmandir sahib';
+        filter = 'Sachkhand Sri Harmandir Sahib';
     }
 
     const filtered = data.filter(i => i.gurudwaraName.toLowerCase() === filter);
