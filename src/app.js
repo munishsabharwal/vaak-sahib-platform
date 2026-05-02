@@ -27,12 +27,15 @@ async function loadPublic() {
 function renderPublic(data) {
     const container = document.getElementById('publicGrid');
     const filterEl = document.getElementById('gurudwaraFilter');
-    const filter = filterEl ? filterEl.value.toLowerCase() : 'all';
+// CHANGE 1: Use 'let' instead of 'const' so we can update the value
+    let filter = filterEl ? filterEl.value.toLowerCase() : 'all';
     const isMergeEnabled = document.getElementById('mergeWords')?.checked || false;
 
-// If the page just loaded and filter is still 'all', force it to Harmandir Sahib
+    // If the page just loaded and filter is still 'all', force it to Harmandir Sahib
     if (filter === 'all') {
-        filter = 'Sachkhand Sri Harmandir Sahib';
+        filter = 'sachkhand sri harmandir sahib';
+        // CHANGE 2: Also update the dropdown visually if it exists
+        if (filterEl) filterEl.value = "Sachkhand Sri Harmandir Sahib";
     }
 
     const filtered = data.filter(i => i.gurudwaraName.toLowerCase() === filter);
@@ -73,12 +76,18 @@ function renderPublic(data) {
 function populateFilter(data) {
     const select = document.getElementById('gurudwaraFilter');
     if (!select) return;
+    
+    // Save the current selection before clearing
+    const currentSelection = select.value;
+    
     select.innerHTML = '<option value="all">All Gurdwaras</option>'; 
     const uniques = [...new Set(data.map(i => i.gurudwaraName))];
+    
     uniques.forEach(g => {
         const opt = document.createElement('option');
-        opt.value = g.toLowerCase();
+        opt.value = g; // Keep original casing for the value
         opt.innerText = g;
+        if (g === currentSelection) opt.selected = true; // Keep it selected
         select.appendChild(opt);
     });
 }
