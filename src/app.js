@@ -62,33 +62,36 @@ function renderPublic(data) {
         let shareVerse = isMergeEnabled ? item.verse.replace(/\s+/g, '') : item.verse;
         
         return `
-            <div class="card transparent-card" style="
-                background-image: url('Fream.jpg'); 
-                background-size: 100% 100%; 
-                background-repeat: no-repeat; 
-                background-position: center;
-                padding: 40px; /* Increased padding so text sits inside the arch */
-                border: none;
-                aspect-ratio: 3 / 4; /* Helps maintain the frame shape */
-                display: flex;
-                flex-direction: column;
-            "> 
-                <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;">
-                    <div>
-                        <span class="tag" style="font-weight: bold; font-size: 1.2rem; display: inline-block; background: rgba(255,255,255,0.8);">${item.gurudwaraName}</span>
-                        <div class="meta" style="margin-top:5px; font-style:italic; font-weight: bold;">${item.gurudwaraLocation || ''}</div>
-                    </div>
-                    <button class="btn-share" onclick="copyVaak('${item.gurudwaraName}', '${item.gurudwaraLocation || ''}', '${shareVerse.replace(/'/g, "\\'")}', '${item.pageNumber}', '${item.date}')">Share</button>
-                </div>
-                
-                <div style="flex-grow: 1; display: flex; align-items: center; justify-content: center;">
-                    <p class="gurmukhi ${isMergeEnabled ? "merged" : ""}" style="font-size: 1.4rem; text-align: center; width: 100%;">${displayVerse}</p>
-                </div>
+    <div class="card transparent-card" style="
+        background-image: url('Fream.jpg'); 
+        background-color: transparent !important; /* CRITICAL: Removes any solid background */
+        background-size: 100% 100%; 
+        background-repeat: no-repeat; 
+        background-position: center;
+        padding: 60px 45px; /* Keeps text inside the archway */
+        border: none !important; /* Removes the default card border */
+        box-shadow: none !important; /* Removes the shadow that might look odd with the frame */
+        aspect-ratio: 3 / 4;
+        display: flex;
+        flex-direction: column;
+        min-height: 550px;
+    "> 
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;">
+            <div>
+                <span class="tag" style="font-weight: bold; font-size: 1.1rem; display: inline-block; background: rgba(255,255,255,0.7); padding: 2px 8px; border-radius: 4px;">${item.gurudwaraName}</span>
+                <div class="meta" style="margin-top:5px; font-style:italic; font-weight: bold; color: #333;">${item.gurudwaraLocation || ''}</div>
+            </div>
+            <button class="btn-share" style="z-index: 10;" onclick="copyVaak('${item.gurudwaraName}', '${item.gurudwaraLocation || ''}', '${shareVerse.replace(/'/g, "\\'")}', '${item.pageNumber}', '${item.date}')">Share</button>
+        </div>
+        
+        <div style="flex-grow: 1; display: flex; align-items: center; justify-content: center; padding: 0 10px;">
+            <p class="gurmukhi ${isMergeEnabled ? "merged" : ""}" style="font-size: 1.5rem; text-align: center; width: 100%; line-height: 2.2; color: #000; font-weight: 500;">${displayVerse}</p>
+        </div>
 
-                <div class="meta" style="border-top:1px solid rgba(0,0,0,0.1); padding-top:10px; margin-top:15px; text-align: center;">
-                    <strong>Ang:</strong> ${item.pageNumber}
-                </div>
-            </div>`;
+        <div class="meta" style="padding-top:10px; margin-top:15px; text-align: center; font-weight: bold; color: #333;">
+            <strong>Ang:</strong> ${item.pageNumber}
+        </div>
+    </div>`;
     }).join('');
 }
 
