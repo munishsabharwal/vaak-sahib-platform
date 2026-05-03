@@ -554,14 +554,11 @@ async function publishVaak(event, libraryItem) {
 }
 
 async function copyVaak(gurudwara, location, verse, ang, hDate) {
-    // 1. Priority: Use the date from the Hukamnama itself (hDate)
-    // 2. Fallback: Use the public date picker, then the admin date picker, then today.
     const rawDate = hDate || 
                     document.getElementById('publicDate')?.value || 
                     document.getElementById('publishDate')?.value || 
                     new Date().toISOString().split('T')[0];
 
-    // Format the date to be readable (e.g., April 24, 2026)
     const dateParts = rawDate.split('-');
     const dateObj = new Date(dateParts[0], dateParts[1] - 1, dateParts[2]);
     const dateDisplay = dateObj.toLocaleDateString('en-US', { 
@@ -572,14 +569,14 @@ async function copyVaak(gurudwara, location, verse, ang, hDate) {
 
     const cleanVerse = verse.trim();
 
-    // Unicode icons
     const iconBook = "\u{1F4D6}";
     const iconPin  = "\u{1F4CD}";
     const iconCal  = "\u{1F4C5}";
     const iconNum  = "\u{1F522}";
 
-    const text = `${iconBook} *Daily Hukamnama by www.Larivaarbani.org*\n` +
-                 `${iconPin} *From:* ${gurudwara}, ${location}\n` +
+    // Added asterisks around gurudwara and an extra newline after the header
+    const text = `${iconBook} *Daily Hukamnama by www.Larivaarbani.org*\n\n` +
+                 `${iconPin} *From:* *${gurudwara}*, ${location}\n` +
                  `${iconCal} *Date:* ${dateDisplay}\n` +
                  `${iconNum} *Ang:* ${ang}\n\n` +
                  `${cleanVerse}`;
