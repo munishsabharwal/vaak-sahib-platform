@@ -64,7 +64,8 @@ function renderPublic(data) {
         return `
             <div class="card transparent-card"> <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;">
                     <div>
-                        <span class="tag">${item.gurudwaraName}</span>
+                        <!-- Updated the style below for bold and 1.2rem font size -->
+                        <span class="tag" style="font-weight: bold; font-size: 1.2rem; display: inline-block;">${item.gurudwaraName}</span>
                         <div class="meta" style="margin-top:5px; font-style:italic;">${item.gurudwaraLocation || ''}</div>
                     </div>
                     <button class="btn-share" onclick="copyVaak('${item.gurudwaraName}', '${item.gurudwaraLocation || ''}', '${shareVerse.replace(/'/g, "\\'")}', '${item.pageNumber}', '${item.date}')">Share</button>                </div>
