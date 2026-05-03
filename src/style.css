@@ -1,204 +1,296 @@
 /* --- 1. Base Reset & Typography --- */
-body.modern-theme {
+body {
     font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
     line-height: 1.6;
     margin: 0;
     padding: 0;
+/* ADD THESE LINES FOR THE BACKGROUND */
     background-image: url('background.png');
-    background-attachment: fixed;
+    background-attachment: fixed; /* Keeps the temple in place while scrolling */
     background-position: center;
     background-repeat: no-repeat;
     background-size: cover;
-    color: #2c3e50;
 }
 
-/* --- 2. Modern Header & Navigation --- */
-.glass-header {
-    background: rgba(255, 255, 255, 0.75);
-    backdrop-filter: blur(15px);
-    -webkit-backdrop-filter: blur(15px);
-    border-bottom: 1px solid rgba(255, 255, 255, 0.4);
-    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
-    position: sticky;
-    top: 0;
-    z-index: 1000;
-    padding: 15px 0;
-}
+h1, h2, h3 { margin-top: 0; color: #2c3e50; }
 
-.header-container {
+.container {
     max-width: 1000px;
     margin: 0 auto;
-    padding: 0 20px;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    flex-wrap: wrap;
-    gap: 10px;
+    padding: 20px;
+/* SEMI-TRANSPARENT OVERLAY: Ensures text is readable over the image */
+    background-color: rgba(255, 255, 255, 0.4); 
+    min-height: 100vh;
 }
 
-.site-title {
-    margin: 0;
-    color: #d4af37;
-    text-shadow: 1px 1px 2px rgba(0,0,0,0.1);
-    font-size: 1.8rem;
-}
-
-.glass-nav {
-    display: flex;
-    gap: 15px;
-}
-
-.glass-nav a {
-    text-decoration: none;
-    color: #4a5568;
-    font-weight: 600;
-    font-size: 0.95rem;
-    padding: 8px 12px;
-    border-radius: 6px;
-    transition: all 0.2s ease;
-}
-
-.glass-nav a:hover, .glass-nav a.active {
-    background: #d4af37;
-    color: white;
-}
-
-/* --- 3. Layouts & Containers --- */
-.main-container {
-    max-width: 1000px;
-    margin: 30px auto;
-    padding: 0 20px;
-    min-height: calc(100vh - 200px);
-}
-
+/* --- 2. Layouts (Grid & Flex) --- */
 .grid {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+    grid-template-columns: repeat(auto-fit, minmax(350px, 1fr)); /* Automatically fits columns based on screen width */
     gap: 20px;
+    justify-content: center; /* Centers cards if there is extra space */
+}
+
+/* New: Centering logic when only one card exists */
+.single-card-layout {
+    display: flex !important;
     justify-content: center;
 }
 
-/* --- 4. Glass Cards & UI Components --- */
-.glass-card {
-    background: rgba(255, 255, 255, 0.85); 
-    padding: 25px;
-    border-radius: 12px;
-    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1); 
-    border: 1px solid rgba(255, 255, 255, 0.5);
-    margin-bottom: 20px;
-    backdrop-filter: blur(10px); 
-    -webkit-backdrop-filter: blur(10px);
+.single-card-layout .card {
+    width: 100%;
+    max-width: 700px; /* Prevents a single card from becoming too wide on desktop */
 }
 
 .flex-row {
     display: flex;
-    gap: 15px;
-    margin-bottom: 15px;
+    gap: 10px;
 }
 
-.input-group {
-    flex: 1;
-    display: flex;
-    flex-direction: column;
-    gap: 5px;
+/* --- 3. UI Components --- */
+/* --- Improved Card Look --- */
+.card {
+    /* Lowered opacity to 0.65 for a transparent look */
+    background: rgba(255, 255, 255, 0.8); 
+    padding: 20px;
+    border-radius: 12px;
+    /* Soft shadow to maintain depth against the image background */
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1); 
+    border: 1px solid rgba(255, 255, 255, 0.3);
+    margin-bottom: 20px;
+    /* Crucial: This blurs the background behind the card for a high-end feel */
+    backdrop-filter: blur(10px); 
+    -webkit-backdrop-filter: blur(10px);
 }
 
-.input-group label {
-    font-size: 0.85rem;
-    font-weight: bold;
-    color: #555;
-}
-
-input, select {
+input, select, textarea {
     padding: 10px;
-    border: 1px solid rgba(0,0,0,0.1);
+    border: 1px solid #ddd;
     border-radius: 6px;
     font-size: 16px;
     width: 100%;
     box-sizing: border-box;
-    background: rgba(255,255,255,0.9);
 }
 
-/* Safari Date Picker Fix */
-input[type="date"] {
-    -webkit-appearance: none;
-    min-height: 44px; 
-}
-
-.hidden { display: none !important; }
-
-/* --- 5. Larivaar Controls --- */
-.larivaar-toggle-container {
-    padding-top: 15px;
-    border-top: 1px solid rgba(0,0,0,0.05);
-}
-
-.toggle-label {
-    font-weight: bold;
+button {
+    padding: 10px 20px;
+    border: none;
+    border-radius: 6px;
     cursor: pointer;
+    font-weight: 600;
+    transition: background 0.2s;
+}
+
+.btn-primary { background-color: #0078d4; color: white; }
+.btn-success { background-color: #107c10; color: white; }
+.btn-danger { background-color: #d13438; color: white; }
+
+.hidden {
+    display: none !important;
+}
+
+/* --- 4. Admin Tabs --- */
+.tabs {
     display: flex;
-    align-items: center;
     gap: 10px;
+    overflow-x: auto;
+    white-space: nowrap;
+    padding-bottom: 10px;
+    margin-bottom: 20px;
+    border-bottom: 2px solid #eee;
 }
 
-.toggle-label input { width: 20px; height: 20px; }
+.tab-btn { background: #e9ecef; color: #495057; }
+.tab-btn.active { background: #0078d4; color: white; }
 
-.larivaar-tip {
-    font-size: 0.85rem;
-    color: #666;
-    margin-top: 8px;
-    margin-left: 30px;
-    font-style: italic;
-    line-height: 1.4;
-}
+.tab-content { display: none; }
+.tab-content.active { display: block !important; animation: fadeIn 0.3s; }
 
-.tip-highlight {
-    background-color: rgba(255, 215, 0, 0.4);
-    font-weight: bold;
-    padding: 0 4px;
-    border-radius: 3px;
-    display: inline-block;
-    color: #000;
-}
+@keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
 
-/* --- 6. Gurmukhi Styling --- */
+/* --- 5. Gurmukhi & Verse Styling --- */
 @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+Gurmukhi:wght@400;700&display=swap');
 
 .gurmukhi {
+    /* Use a high-quality system font stack for Gurmukhi if Noto is too much */
     font-family: 'Noto Sans Gurmukhi', "Arial Unicode MS", sans-serif;
+    
+    /* Reduced from 1.8rem to 1.4rem for a cleaner look */
     font-size: 1.4rem; 
+    
+    /* Tightened line height (was 2.4, now 1.8) to keep matras visible but text compact */
     line-height: 1.8 !important; 
+    
     text-align: center;
+    /* Pure black for maximum contrast against the image */
     color: #000000;
     padding: 10px 0;
     font-weight: 500;
+    /* Decorative side borders similar to traditional manuscripts */
     border-left: 2px double #d4af37; 
     border-right: 2px double #d4af37;
 }
 
-.gurmukhi.merged span { display: inline; padding: 0; margin: 0; }
+/* On very small mobile screens, drop the size just a bit more */
+@media (max-width: 480px) {
+    .gurmukhi {
+        font-size: 1.25rem;
+        line-height: 1.6 !important;
+    }
+}
+
+/* Ensure this is in your style.css  for merge word highlighting*/
+.gurmukhi.merged span {
+    display: inline;
+    padding: 0;
+    margin: 0;
+}
+
+/* This is the part that actually "highlights" on hover */
 .gurmukhi.merged span:hover {
-    background-color: rgba(255, 215, 0, 0.4); 
+    background-color: rgba(255, 215, 0, 0.4); /* Gold highlight */
     cursor: pointer;
 }
 
-/* --- 7. Footer --- */
-.glass-footer {
-    text-align: center;
-    padding: 25px 20px;
-    background: rgba(255, 255, 255, 0.6);
-    backdrop-filter: blur(5px);
-    border-top: 1px solid rgba(255, 255, 255, 0.3);
-    margin-top: 40px;
+/* --- Library Table Formatting --- */
+.library-table {
+    width: 100%;
+    border-collapse: collapse;
+    table-layout: fixed; /* Ensures headers align with cells */
+    margin-top: 10px;
 }
 
-.glass-footer p { margin: 0 0 10px 0; font-size: 0.85rem; color: #666; }
-.admin-link { color: #0078d4; text-decoration: none; font-size: 0.9rem; font-weight: 600; }
+.library-table th, .library-table td {
+    padding: 12px;
+    border-bottom: 1px solid #eee;
+    text-align: left;
+    vertical-align: top;
+}
 
-/* --- 8. Mobile Responsiveness Fixes --- */
-@media screen and (max-width: 600px) {
-    .header-container { flex-direction: column; text-align: center; }
-    .glass-nav { flex-wrap: wrap; justify-content: center; }
-    .flex-row { flex-direction: column; } /* Stacks date and filter on phones */
-    .gurmukhi { font-size: 1.25rem; line-height: 1.6 !important; }
+/* Updated Column Widths using percentages to prevent disappearing columns */
+.col-ang { width: 10%; font-weight: bold; }
+.col-verse { width: 55%; } /* Give the verse the majority of the space */
+.col-keywords { width: 15%; color: #666; font-size: 0.9rem; }
+.col-actions { width: 20%; text-align: right; }
+
+/* Ensure the preview container fills the 55% width */
+.verse-preview {
+    display: block;
+    width: 100%; 
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    cursor: pointer;
+    padding: 8px;
+    border-radius: 4px;
+    transition: all 0.2s ease;
+    border: 1px solid transparent;
+    box-sizing: border-box; /* Ensures padding doesn't push width over 100% */
+}
+
+.verse-preview.expanded {
+    white-space: normal;
+    overflow: visible;
+    background-color: #fffdf0; /* Subtle highlight */
+    border: 1px solid #107c10;
+    box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+    font-size: 1.2rem;
+    line-height: 1.6;
+    padding: 15px;
+}
+
+/* Share Button Styling */
+.btn-share {
+    background-color: #25D366; /* WhatsApp Green */
+    color: white;
+    font-size: 0.75rem;
+    padding: 6px 12px;
+    border-radius: 20px;
+    border: none;
+    font-weight: bold;
+    cursor: pointer;
+    transition: transform 0.1s ease;
+}
+
+.btn-share:active {
+    transform: scale(0.95);
+    background-color: #128C7E;
+}
+.card .meta {
+    display: block;
+    color: #888;
+    font-size: 0.8rem;
+}
+
+/* --- 6. Public Navigation --- */
+.public-nav {
+    margin-top: 10px;
+    font-weight: 600;
+    font-size: 0.95rem;
+}
+
+.public-nav a {
+    text-decoration: none;
+    color: #2c3e50;
+    margin: 0 12px;
+    cursor: pointer;
+    transition: color 0.2s ease;
+}
+
+.public-nav a:hover {
+    color: #d4af37;
+}
+
+/* Ensure the hidden class is robust */
+.hidden {
+    display: none !important;
+}
+
+/* Make highlighted words bold */
+.highlight {
+    background-color: yellow;
+    font-weight: bold; /* This adds the bold effect */
+    padding: 0 2px;
+    border-radius: 2px;
+}
+
+/* Create the transparent "Frosted Glass" effect for the filter frame */
+.filter-card {
+    background: rgba(255, 255, 255, 0.7) !important; /* 70% transparent white */
+    backdrop-filter: blur(10px); /* Blurs the background image behind the frame */
+    -webkit-backdrop-filter: blur(10px);
+    border: 1px solid rgba(255, 255, 255, 0.3);
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+}
+
+/* This ONLY adds the yellow tint to specific cards */
+.transparent-card {
+    background: rgba(255, 253, 231, 0.85) !important; 
+    border: 1px solid rgba(212, 175, 55, 0.3) !important;
+}
+
+/* This makes the word 'WORD' in your tip look like the Gurbani hover effect */
+.tip-highlight {
+    background-color: rgba(255, 215, 0, 0.4); /* Gold highlight matching your .merged span:hover */
+    font-weight: bold;
+    padding: 0 4px;
+    border-radius: 3px;
+    display: inline-block;
+    color: #000; /* Ensures text is black on the yellow background */
+}
+
+/* Specific fix for the Larivaarbani.org Public Navigation on Mobile */
+@media screen and (max-width: 480px) {
+    .public-nav {
+        display: flex;
+        justify-content: center;
+        flex-wrap: nowrap; /* Forces one line */
+        gap: 5px; /* Tighter gap between items */
+        font-size: 0.8rem; /* Smaller font for small screens */
+    }
+
+    .public-nav a {
+        margin: 0 4px; /* Reduces the side margins significantly */
+        white-space: nowrap; /* Prevents 'Contact Us' from breaking into two lines */
+    }
 }
