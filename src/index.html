@@ -1,95 +1,102 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <meta charset="UTF-8">
+    <meta charset="UTF-8"> 
     <title>Daily Hukamnama | www.Larivaarbani.org</title>
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <link rel="stylesheet" href="style.css">
 </head>
-<body class="fixed-layout-body">
-    <!-- FIXED TOP NAVIGATION -->
-    <nav class="top-nav-bar">
-        <div class="nav-container">
-            <div class="nav-links">
-                <a href="#" onclick="showSection('home')">Daily Hukamnama</a>
-                <a href="#" onclick="showSection('about')">About Larivaarbani</a>
-                <a href="#" onclick="showSection('contact')">Contact Us</a>
-            </div>
-        </div>
-    </nav>
+<body class="modern-theme">
 
-    <div id="home-section">
-        <!-- FIXED HERO SECTION -->
-        <div class="hero-fixed-container">
-            <div class="hero-left-photo">
-                <h1 class="hero-title">Larivaarbani.org</h1>
-            </div>
-            <div class="hero-right-controls">
-                <div class="card filter-card no-margin">
-                    <div class="control-row">
+    <!-- Modern Header -->
+    <header class="glass-header">
+        <div class="header-container">
+            <h1 class="site-title">Larivaarbani.org</h1>
+            <nav class="glass-nav">
+                <a href="#" onclick="showSection('home')" id="nav-home" class="active">Daily Hukamnama</a>
+                <a href="#" onclick="showSection('about')" id="nav-about">About</a>
+                <a href="#" onclick="showSection('contact')" id="nav-contact">Contact Us</a>
+            </nav>
+        </div>
+    </header>
+    
+    <main class="main-container">
+        <!-- HOME SECTION -->
+        <div id="home-section">
+            <div class="card glass-card filter-card">
+                <div class="flex-row">
+                    <div class="input-group">
                         <label>Date / ਤਾਰੀਖ</label>
                         <input type="date" id="publicDate" onchange="loadPublic()">
                     </div>
-                    <div class="control-row">
-                        <label>Gurdwara Sahib / ਗੁਰਦੁਆਰਾ ਸਾਹਿਬ</label>
+                    <div class="input-group">
+                        <label>Gurdwara Sahib</label>
                         <select id="gurudwaraFilter" onchange="renderPublic(lastFetchedData)">
                             <option value="all">All Gurdwaras</option>
                             <option value="Sachkhand Sri Harmandir Sahib" selected>Sachkhand Sri Harmandir Sahib</option>
                         </select>
                     </div>
-                    <div class="larivaar-control-box">
-                        <label class="toggle-label">
-                            <input type="checkbox" id="mergeWords" onchange="renderPublic(lastFetchedData)"> 
-                            Display in Larivaar (ਲੜੀਵਾਰ ਕਰੋ)
-                        </label>
-                        <!-- RESTORED INSTRUCTIONS -->
-                        <p class="larivaar-tip">
-                            In Larivaar mode, hover / click to highlight the individual 
-                            <span class="tip-highlight">WORD</span> for reading convenience.
-                            <br>
-                            (ਲੜੀਵਾਰ ਮੋਡ ਵਿੱਚ, ਸ਼ਬਦ ਨੂੰ ਦੇਖਣ ਲਈ ਉਸ ਉੱਤੇ ਕਰਸਰ ਰੱਖੋ।)
-                        </p>
-                    </div>
+                </div>
+                
+                <div class="larivaar-toggle-container">
+                    <label class="toggle-label">
+                        <input type="checkbox" id="mergeWords" onchange="renderPublic(lastFetchedData)"> 
+                        Display in Larivaar (ਲੜੀਵਾਰ ਕਰੋ)
+                    </label>
+                    <p class="larivaar-tip">
+                        In Larivaar mode, hover / click to highlight the individual 
+                        <span class="tip-highlight">WORD</span> for reading convenience.
+                        <br>
+                        (ਲੜੀਵਾਰ ਮੋਡ ਵਿੱਚ, ਸ਼ਬਦ ਨੂੰ ਦੇਖਣ ਲਈ ਉਸ ਉੱਤੇ ਕਰਸਰ ਰੱਖੋ।)
+                    </p>
                 </div>
             </div>
+            <div id="publicGrid" class="grid">Loading...</div>
         </div>
 
-        <!-- SCROLLABLE CONTENT AREA -->
-        <main class="main-scroll-area">
-            <div class="container">
-                <div id="publicGrid" class="grid">Loading Hukamnama...</div>
-            </div>
-            
-            <footer class="site-footer">
-                <p>&copy; 2026 www.Larivaarbani.org - Digital Seva for the Sangat</p>
-                <a href="/.auth/login/aad?post_login_redirect_uri=%2Fadmin.html" class="admin-link">Editor Portal Login</a>
-            </footer>
-        </main>
-    </div>
+        <!-- ABOUT SECTION -->
+        <div id="about-section" class="card glass-card hidden">
+            <h2>About www.Larivaarbani.org</h2>
+            <p>Larivaarbani is a digital platform dedicated to the preservation and promotion of <strong>Larivaar Gurbani</strong> (continuous form).</p>
+            <p>Our goal is to provide the global Sangat with easy access to the daily Hukamnama Sahib from various Gurdwara Sahibs in both traditional Larivaar and modern Pad-Chhed formats.</p>
+            <p>By using modern web technology, we aim to make the reading of Gurbani a seamless experience across all devices.</p>
+        </div>
 
-    <!-- About and Contact sections -->
-    <div id="about-section" class="main-scroll-area hidden">
-        <div class="container">
-            <div class="card">
-                <h2>About www.Larivaarbani.org</h2>
-                <p>Larivaarbani is a digital platform dedicated to the preservation and promotion of <strong>Larivaar Gurbani</strong> (continuous form).</p>
-                <button class="btn-primary" onclick="showSection('home')">Back to Home</button>
+        <!-- CONTACT SECTION -->
+        <div id="contact-section" class="card glass-card hidden">
+            <h2>Contact Us</h2>
+            <p>We are always looking for volunteers to help manage daily Hukamnama for various Historical gurdwaras such as Sri Akal Takhat Sahib, Takhat Sri Damdama Sahib, Takhat Sri Keshgarh Sahib etc.. If you would like to list daily Hukamnama on this portal, or if you have any feedback, please reach out to us.</p>
+            <div class="contact-info">
+                <p><strong>Email:</strong> glsggs13@gmail.com</p>
             </div>
         </div>
-    </div>
+    </main>
 
-    <div id="contact-section" class="main-scroll-area hidden">
-        <div class="container">
-            <div class="card">
-                <h2>Contact Us</h2>
-                <p>Email: glsggs13@gmail.com</p>
-                <button class="btn-primary" onclick="showSection('home')">Back to Home</button>
-            </div>
-        </div>
-    </div>
-
+    <footer class="glass-footer">
+        <p>&copy; 2026 www.Larivaarbani.org - Digital Seva for the Sangat</p>
+        <a href="/.auth/login/aad?post_login_redirect_uri=%2Fadmin.html" class="admin-link">Editor Portal Login</a>
+    </footer>
+    
     <script src="app.js"></script>
     <script>
+        // Tab Navigation Logic with Active State Styling
+        function showSection(sectionId) {
+            // Hide all sections
+            document.getElementById('home-section').classList.add('hidden');
+            document.getElementById('about-section').classList.add('hidden');
+            document.getElementById('contact-section').classList.add('hidden');
+            
+            // Remove active class from all nav items
+            document.getElementById('nav-home').classList.remove('active');
+            document.getElementById('nav-about').classList.remove('active');
+            document.getElementById('nav-contact').classList.remove('active');
+            
+            // Show selected section and highlight nav item
+            document.getElementById(sectionId + '-section').classList.remove('hidden');
+            document.getElementById('nav-' + sectionId).classList.add('active');
+        }
+
+        // Set Today's Date
         const today = new Date();
         const localDate = today.getFullYear() + '-' 
             + String(today.getMonth() + 1).padStart(2, '0') + '-' 
@@ -100,14 +107,7 @@
             dateInput.value = localDate;
             loadPublic();
         }
-
-        function showSection(id) {
-            ['home', 'about', 'contact'].forEach(s => {
-                const el = document.getElementById(s + '-section');
-                if(el) el.classList.add('hidden');
-            });
-            document.getElementById(id + '-section').classList.remove('hidden');
-        }
+        document.addEventListener("touchstart", function() {}, true);
     </script>
 </body>
 </html>
