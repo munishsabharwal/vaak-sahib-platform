@@ -1,9 +1,16 @@
-/* --- 0. NEW LAYOUT POSITIONING (Added for the Sketch) --- */
+/* --- 0. LAYOUT & CROSS-BROWSER FIXES --- */
 .fixed-layout-body {
     margin: 0;
     padding: 0;
-    overflow: hidden; /* Stops body scroll, moves it to .main-scroll-area */
+    overflow: hidden; 
     height: 100vh;
+}
+
+/* Safari Date Picker Fix */
+input[type="date"] {
+    -webkit-appearance: none;
+    min-height: 45px; /* Ensures Safari shows a tappable area */
+    background-color: white;
 }
 
 .top-nav-bar {
@@ -22,7 +29,7 @@
 
 .hero-fixed-container {
     display: flex;
-    height: 280px;
+    height: 300px;
     position: fixed;
     top: 45px;
     width: 100%;
@@ -45,6 +52,7 @@
     color: white;
     text-shadow: 2px 2px 8px rgba(0,0,0,0.6);
     font-size: 3rem;
+    text-align: center;
 }
 
 .hero-right-controls {
@@ -56,106 +64,23 @@
 }
 
 .main-scroll-area {
-    margin-top: 325px; /* height of nav(45) + hero(280) */
-    height: calc(100vh - 325px);
+    margin-top: 345px; /* Nav(45) + Hero(300) */
+    height: calc(100vh - 345px);
     overflow-y: auto;
     background-image: url('background.png');
     background-attachment: fixed;
     background-size: cover;
 }
 
-.control-row { margin-bottom: 10px; }
-.control-row label { display: block; font-size: 0.75rem; color: #666; margin-bottom: 2px; font-weight: bold; }
-.no-margin { margin: 0 !important; width: 100%; }
-
-.larivaar-control-box {
-    margin-top: 10px;
-    padding-top: 10px;
-    border-top: 1px solid #ddd;
+/* Larivaar Tip Styles */
+.larivaar-tip {
+    font-size: 0.8rem;
+    color: #666;
+    margin-top: 8px;
+    font-style: italic;
+    line-height: 1.4;
 }
 
-.toggle-label { display: flex; align-items: center; gap: 10px; font-weight: bold; cursor: pointer; }
-
-/* --- 1. YOUR ORIGINAL CSS (STRICTLY PRESERVED) --- */
-body {
-    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
-    line-height: 1.6;
-}
-
-/* Base Reset & Typography */
-h1, h2, h3 { margin-top: 0; color: #2c3e50; }
-
-.container {
-    max-width: 1000px;
-    margin: 0 auto;
-    padding: 20px;
-    background-color: rgba(255, 255, 255, 0.4); 
-    min-height: 100vh;
-}
-
-.grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
-    gap: 20px;
-    justify-content: center;
-}
-
-.single-card-layout { display: flex !important; justify-content: center; }
-.single-card-layout .card { width: 100%; max-width: 700px; }
-
-.card {
-    background: rgba(255, 255, 255, 0.8); 
-    padding: 20px;
-    border-radius: 12px;
-    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1); 
-    border: 1px solid rgba(255, 255, 255, 0.3);
-    margin-bottom: 20px;
-    backdrop-filter: blur(10px); 
-    -webkit-backdrop-filter: blur(10px);
-}
-
-/* Form Inputs */
-input, select, textarea {
-    padding: 10px;
-    border: 1px solid #ddd;
-    border-radius: 6px;
-    font-size: 16px;
-    width: 100%;
-    box-sizing: border-box;
-}
-
-/* Button styles preserved */
-button { padding: 10px 20px; border: none; border-radius: 6px; cursor: pointer; font-weight: 600; transition: background 0.2s; }
-.btn-primary { background-color: #0078d4; color: white; }
-
-/* Admin Tabs preserved */
-.tabs { display: flex; gap: 10px; overflow-x: auto; padding-bottom: 10px; margin-bottom: 20px; border-bottom: 2px solid #eee; }
-.tab-btn.active { background: #0078d4; color: white; }
-
-/* Gurmukhi styling preserved */
-.gurmukhi {
-    font-family: 'Noto Sans Gurmukhi', "Arial Unicode MS", sans-serif;
-    font-size: 1.4rem; 
-    line-height: 1.8 !important; 
-    text-align: center;
-    color: #000000;
-    padding: 10px 0;
-    border-left: 2px double #d4af37; 
-    border-right: 2px double #d4af37;
-}
-
-.gurmukhi.merged span:hover { background-color: rgba(255, 215, 0, 0.4); cursor: pointer; }
-
-/* Library Table Formatting preserved */
-.library-table { width: 100%; border-collapse: collapse; table-layout: fixed; margin-top: 10px; }
-.library-table th, .library-table td { padding: 12px; border-bottom: 1px solid #eee; text-align: left; }
-
-.col-ang { width: 10%; font-weight: bold; }
-.col-verse { width: 55%; }
-.verse-preview { display: block; width: 100%; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; cursor: pointer; padding: 8px; border-radius: 4px; transition: all 0.2s ease; border: 1px solid transparent; box-sizing: border-box; }
-.verse-preview.expanded { white-space: normal; overflow: visible; background-color: #fffdf0; border: 1px solid #107c10; font-size: 1.2rem; line-height: 1.6; padding: 15px; }
-
-/* Missing highlights restored */
 .tip-highlight {
     background-color: rgba(255, 215, 0, 0.4);
     font-weight: bold;
@@ -165,17 +90,81 @@ button { padding: 10px 20px; border: none; border-radius: 6px; cursor: pointer; 
     color: #000;
 }
 
-.filter-card {
-    background: rgba(255, 255, 255, 0.7) !important;
-    backdrop-filter: blur(10px);
-    border: 1px solid rgba(255, 255, 255, 0.3);
+/* --- MOBILE RESPONSIVENESS FIX --- */
+@media screen and (max-width: 768px) {
+    .fixed-layout-body {
+        overflow: auto; /* Let the whole page scroll on mobile */
+        height: auto;
+    }
+    
+    .hero-fixed-container {
+        position: relative; /* Stop floating on mobile */
+        top: 45px;
+        flex-direction: column;
+        height: auto;
+    }
+
+    .hero-left-photo { height: 180px; }
+    .hero-title { font-size: 2rem; }
+
+    .main-scroll-area {
+        margin-top: 45px; /* Only needs space for top nav now */
+        height: auto;
+        overflow: visible;
+    }
 }
+
+/* --- 1. PRESERVED ORIGINAL STYLES (from style (6).css) --- */
+body {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    line-height: 1.6;
+}
+
+.container { max-width: 1000px; margin: 0 auto; padding: 20px; min-height: 100vh; }
+
+.grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+    gap: 20px;
+    justify-content: center;
+}
+
+.card {
+    background: rgba(255, 255, 255, 0.85); 
+    padding: 20px;
+    border-radius: 12px;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1); 
+    border: 1px solid rgba(255, 255, 255, 0.3);
+    margin-bottom: 20px;
+    backdrop-filter: blur(10px); 
+    -webkit-backdrop-filter: blur(10px);
+}
+
+.gurmukhi {
+    font-family: 'Noto Sans Gurmukhi', sans-serif;
+    font-size: 1.4rem; 
+    line-height: 1.8 !important; 
+    text-align: center;
+    color: #000;
+    padding: 10px 0;
+    border-left: 2px double #d4af37; 
+    border-right: 2px double #d4af37;
+}
+
+.gurmukhi.merged span:hover { background-color: rgba(255, 215, 0, 0.4); cursor: pointer; }
+
+input, select {
+    padding: 10px;
+    border: 1px solid #ddd;
+    border-radius: 6px;
+    font-size: 16px;
+    width: 100%;
+}
+
+.btn-primary { background-color: #0078d4; color: white; border: none; padding: 10px 20px; border-radius: 6px; cursor: pointer; }
 
 .hidden { display: none !important; }
 
-/* Mobile fixes preserved */
-@media screen and (max-width: 480px) {
-    .hero-container { flex-direction: column; height: auto; }
-    .hero-left-photo { height: 150px; }
-    .main-scroll-area { margin-top: 450px; } /* Adjust as needed for mobile */
-}
+.control-row { margin-bottom: 10px; }
+.control-row label { display: block; font-size: 0.75rem; color: #666; font-weight: bold; }
+.toggle-label { display: flex; align-items: center; gap: 10px; font-weight: bold; cursor: pointer; }
