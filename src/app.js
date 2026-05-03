@@ -67,8 +67,7 @@ function renderPublic(data) {
                         <span class="tag">${item.gurudwaraName}</span>
                         <div class="meta" style="margin-top:5px; font-style:italic;">${item.gurudwaraLocation || ''}</div>
                     </div>
-                    <button class="btn-share" onclick="copyVaak('${item.gurudwaraName}', '${item.gurudwaraLocation || ''}', '${shareVerse.replace(/'/g, "\\'")}', '${item.pageNumber}')">Share</button>
-                </div>
+                    <button class="btn-share" onclick="copyVaak('${item.gurudwaraName}', '${item.gurudwaraLocation || ''}', '${shareVerse.replace(/'/g, "\\'")}', '${item.pageNumber}', '${item.date}')">Share</button>                </div>
                 <p class="gurmukhi ${isMergeEnabled ? "merged" : ""}">${displayVerse}</p>
                 <div class="meta" style="border-top:1px solid rgba(0,0,0,0.1); padding-top:10px; margin-top:15px;"><strong>Ang:</strong> ${item.pageNumber}</div>
             </div>`;
@@ -554,12 +553,26 @@ async function publishVaak(event, libraryItem) {
     }
 }
 
-async function copyVaak(gurudwara, location, verse, ang) {
-    const dateInput = document.getElementById('publishDate');
-    const dateValue = dateInput ? dateInput.value : new Date().toLocaleDateString();
+async function copyVaak(gurudwara, location, verse, ang, hDate) {
+    // 1. Priority: Use the date from the Hukamnama itself (hDate)
+    // 2. Fallback: Use the public date picker, then the admin date picker, then today.
+    const rawDate = hDate || 
+                    document.getElementById('publicDate')?.value || 
+                    document.getElementById('publishDate')?.value || 
+                    new Date().toISOString().split('T')[0];
+
+    // Format the date to be readable (e.g., April 24, 2026)
+    const dateParts = rawDate.split('-');
+    const dateObj = new Date(dateParts[0], dateParts[1] - 1, dateParts[2]);
+    const dateDisplay = dateObj.toLocaleDateString('en-US', { 
+        year: 'numeric', 
+        month: 'long', 
+        day: 'numeric' 
+    });
+
     const cleanVerse = verse.trim();
 
-    // Unicode escapes for the icons: Book, Map Pin, Calendar, Input Number
+    // Unicode icons
     const iconBook = "\u{1F4D6}";
     const iconPin  = "\u{1F4CD}";
     const iconCal  = "\u{1F4C5}";
@@ -567,7 +580,7 @@ async function copyVaak(gurudwara, location, verse, ang) {
 
     const text = `${iconBook} *Daily Hukamnama by www.Larivaarbani.org*\n` +
                  `${iconPin} *From:* ${gurudwara}, ${location}\n` +
-                 `${iconCal} *Date:* ${dateValue}\n` +
+                 `${iconCal} *Date:* ${dateDisplay}\n` +
                  `${iconNum} *Ang:* ${ang}\n\n` +
                  `${cleanVerse}`;
 
@@ -575,6 +588,7 @@ async function copyVaak(gurudwara, location, verse, ang) {
         await navigator.clipboard.writeText(text);
         alert("✅ Formatted Vaak copied to clipboard!");
     } catch (err) {
+        console.error("Clipboard Error:", err);
         alert("❌ Failed to copy.");
     }
 }
