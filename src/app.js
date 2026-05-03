@@ -573,13 +573,15 @@ async function copyVaak(gurudwara, location, verse, ang, hDate) {
     const iconPin  = "\u{1F4CD}";
     const iconCal  = "\u{1F4C5}";
     const iconNum  = "\u{1F522}";
+    const iconInfo = "\u{2139}\u{FE0F}"; // Information icon
 
-    // Added asterisks around gurudwara and an extra newline after the header
     const text = `${iconBook} *Daily Hukamnama by www.Larivaarbani.org*\n\n` +
                  `${iconPin} *From:* *${gurudwara}*, ${location}\n` +
                  `${iconCal} *Date:* ${dateDisplay}\n` +
                  `${iconNum} *Ang:* ${ang}\n\n` +
-                 `${cleanVerse}`;
+                 `${cleanVerse}\n\n` +
+                 `---\n` +
+                 `${iconInfo} *Reading Tip:* Visit www.Larivaarbani.org for Larivaar mode. Hover or click individual words for easier reading and better understanding.`;
 
     try {
         await navigator.clipboard.writeText(text);
