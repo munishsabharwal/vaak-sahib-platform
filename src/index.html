@@ -1,73 +1,89 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <meta charset="UTF-8"> <title>Daily Hukamnama | www.Larivaarbani.org</title>
+    <meta charset="UTF-8">
+    <title>Daily Hukamnama | www.Larivaarbani.org</title>
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <link rel="stylesheet" href="style.css">
 </head>
-<body>
-    <div class="container">
-        <header style="text-align: center; margin-bottom: 30px;">
-            <h1 style="color: #d4af37; text-shadow: 1px 1px 2px rgba(0,0,0,0.2); margin-bottom: 10px;">Larivaarbani.org</h1>
-            <nav class="public-nav">
-                <a href="#" onclick="showSection('home')">Daily Hukamnama</a> | 
-                <a href="#" onclick="showSection('about')">About Larivaarbani</a> | 
+<body class="fixed-layout-body">
+    <!-- 1. FIXED TOP NAVIGATION -->
+    <nav class="top-nav-bar">
+        <div class="nav-container">
+            <div class="nav-links">
+                <a href="#" onclick="showSection('home')">Daily Hukamnama</a>
+                <a href="#" onclick="showSection('about')">About Larivaarbani</a>
                 <a href="#" onclick="showSection('contact')">Contact Us</a>
-            </nav>
-        </header>
-        
-        <div id="home-section">
-            <div class="card filter-card" style="margin-bottom: 20px;">
-                <div class="flex-row">
-                    <input type="date" id="publicDate" onchange="loadPublic()">
-                    <select id="gurudwaraFilter" onchange="renderPublic(lastFetchedData)">
-                        <option value="all">All Gurdwaras</option>
-                        <option value="Sachkhand Sri Harmandir Sahib" selected>Sachkhand Sri Harmandir Sahib</option>
-                    </select>
-                </div>
-                
-                <div style="margin-top: 15px; padding-top: 10px; border-top: 1px solid #eee;">
-                    <label style="font-weight: bold; cursor: pointer; display: flex; align-items: center; gap: 10px;">
-                        <input type="checkbox" id="mergeWords" onchange="renderPublic(lastFetchedData)" style="width: 20px; height: 20px;"> 
-                        Display in Larivaar (ਲੜੀਵਾਰ ਕਰੋ)
-                    </label>
-                    <p style="font-size: 0.85rem; color: #666; margin-top: 5px; margin-left: 30px; font-style: italic;">
-                        In Larivaar mode, hover / click to highlight the individual 
-                        <span class="tip-highlight">WORD</span> for reading convenience.
-                        <br>
-                        (ਲੜੀਵਾਰ ਮੋਡ ਵਿੱਚ, ਸ਼ਬਦ ਨੂੰ ਦੇਖਣ ਲਈ ਉਸ ਉੱਤੇ ਕਰਸਰ ਰੱਖੋ।)
-                    </p>
-                </div>
             </div>
-            <div id="publicGrid" class="grid">Loading...</div>
         </div>
+    </nav>
 
-        <div id="about-section" class="card hidden">
-            <h2>About www.Larivaarbani.org</h2>
-            <p>Larivaarbani is a digital platform dedicated to the preservation and promotion of <strong>Larivaar Gurbani</strong> (continuous form).</p>
-            <p>Our goal is to provide the global Sangat with easy access to the daily Hukamnama Sahib from various Gurdwara Sahibs in both traditional Larivaar and modern Pad-Chhed formats.</p>
-            <p>By using modern web technology, we aim to make the reading of Gurbani a seamless experience across all devices.</p>
-        </div>
-
-        <div id="contact-section" class="card hidden">
-            <h2>Contact Us</h2>
-            <p>We are always looking for volunteers to help manage daily Hukamnama for various Historical gurdwaras such as Sri Akal Takhat Sahib, Takhat Sri Damdama Sahib, Takhat Sri Keshgarh Sahib etc.. If you would like to list daily Hukamnama on this portal, or if you have any feedback, please reach out to us.</p>
-            <div style="margin-top: 20px;">
-                <p><strong>Email:</strong> glsggs13@gmail.com</p>
+    <div id="home-section">
+        <!-- 2. FIXED HERO SECTION (From your sketch) -->
+        <div class="hero-fixed-container">
+            <div class="hero-left-photo">
+                <h1 class="hero-title">Larivaarbani.org</h1>
+            </div>
+            <div class="hero-right-controls">
+                <div class="card filter-card no-margin">
+                    <div class="control-row">
+                        <label>Date</label>
+                        <input type="date" id="publicDate" onchange="loadPublic()">
+                    </div>
+                    <div class="control-row">
+                        <label>Gurdwara Sahib</label>
+                        <select id="gurudwaraFilter" onchange="renderPublic(lastFetchedData)">
+                            <option value="all">All Gurdwaras</option>
+                            <option value="Sachkhand Sri Harmandir Sahib" selected>Sachkhand Sri Harmandir Sahib</option>
+                        </select>
+                    </div>
+                    <div class="larivaar-control-box">
+                        <label class="toggle-label">
+                            <input type="checkbox" id="mergeWords" onchange="renderPublic(lastFetchedData)"> 
+                            Display in Larivaar (ਲੜੀਵਾਰ ਕਰੋ)
+                        </label>
+                    </div>
+                </div>
             </div>
         </div>
 
-        <footer style="margin-top:40px; text-align:center; padding: 20px 0; border-top: 1px solid rgba(0,0,0,0.1);">
-            <p style="font-size: 0.85rem; color: #666; margin-bottom: 10px;">&copy; 2026 www.Larivaarbani.org - Digital Seva for the Sangat</p>
-            <a href="/.auth/login/aad?post_login_redirect_uri=%2Fadmin.html" style="color:#0078d4; text-decoration:none; font-size: 0.9rem;">
-                Editor Portal Login
-            </a>
-        </footer>
+        <!-- 3. SCROLLABLE CONTENT AREA -->
+        <main class="main-scroll-area">
+            <div class="container">
+                <div id="publicGrid" class="grid">Loading Hukamnama...</div>
+            </div>
+            
+            <footer class="site-footer">
+                <p>&copy; 2026 www.Larivaarbani.org - Digital Seva for the Sangat</p>
+                <a href="/.auth/login/aad?post_login_redirect_uri=%2Fadmin.html" class="admin-link">Editor Portal Login</a>
+            </footer>
+        </main>
     </div>
-    
+
+    <!-- About and Contact sections preserved inside the scroll area logic -->
+    <div id="about-section" class="main-scroll-area hidden">
+        <div class="container">
+            <div class="card">
+                <h2>About www.Larivaarbani.org</h2>
+                <p>Larivaarbani is a digital platform dedicated to the preservation and promotion of <strong>Larivaar Gurbani</strong>.</p>
+                <button class="btn-primary" onclick="showSection('home')">Back to Home</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="contact-section" class="main-scroll-area hidden">
+        <div class="container">
+            <div class="card">
+                <h2>Contact Us</h2>
+                <p>Email: glsggs13@gmail.com</p>
+                <button class="btn-primary" onclick="showSection('home')">Back to Home</button>
+            </div>
+        </div>
+    </div>
+
     <script src="app.js"></script>
     <script>
-        // Set Today's Date
+        // Date initialization logic
         const today = new Date();
         const localDate = today.getFullYear() + '-' 
             + String(today.getMonth() + 1).padStart(2, '0') + '-' 
@@ -78,7 +94,14 @@
             dateInput.value = localDate;
             loadPublic();
         }
-        document.addEventListener("touchstart", function() {}, true);
+
+        function showSection(id) {
+            const sections = ['home', 'about', 'contact'];
+            sections.forEach(s => {
+                document.getElementById(s + '-section').classList.add('hidden');
+            });
+            document.getElementById(id + '-section').classList.remove('hidden');
+        }
     </script>
 </body>
 </html>
