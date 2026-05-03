@@ -7,7 +7,7 @@
     <link rel="stylesheet" href="style.css">
 </head>
 <body class="fixed-layout-body">
-    <!-- 1. FIXED TOP NAVIGATION -->
+    <!-- FIXED TOP NAVIGATION -->
     <nav class="top-nav-bar">
         <div class="nav-container">
             <div class="nav-links">
@@ -19,7 +19,7 @@
     </nav>
 
     <div id="home-section">
-        <!-- 2. FIXED HERO SECTION (From your sketch) -->
+        <!-- FIXED HERO SECTION -->
         <div class="hero-fixed-container">
             <div class="hero-left-photo">
                 <h1 class="hero-title">Larivaarbani.org</h1>
@@ -27,11 +27,11 @@
             <div class="hero-right-controls">
                 <div class="card filter-card no-margin">
                     <div class="control-row">
-                        <label>Date</label>
+                        <label>Date / ਤਾਰੀਖ</label>
                         <input type="date" id="publicDate" onchange="loadPublic()">
                     </div>
                     <div class="control-row">
-                        <label>Gurdwara Sahib</label>
+                        <label>Gurdwara Sahib / ਗੁਰਦੁਆਰਾ ਸਾਹਿਬ</label>
                         <select id="gurudwaraFilter" onchange="renderPublic(lastFetchedData)">
                             <option value="all">All Gurdwaras</option>
                             <option value="Sachkhand Sri Harmandir Sahib" selected>Sachkhand Sri Harmandir Sahib</option>
@@ -42,12 +42,19 @@
                             <input type="checkbox" id="mergeWords" onchange="renderPublic(lastFetchedData)"> 
                             Display in Larivaar (ਲੜੀਵਾਰ ਕਰੋ)
                         </label>
+                        <!-- RESTORED INSTRUCTIONS -->
+                        <p class="larivaar-tip">
+                            In Larivaar mode, hover / click to highlight the individual 
+                            <span class="tip-highlight">WORD</span> for reading convenience.
+                            <br>
+                            (ਲੜੀਵਾਰ ਮੋਡ ਵਿੱਚ, ਸ਼ਬਦ ਨੂੰ ਦੇਖਣ ਲਈ ਉਸ ਉੱਤੇ ਕਰਸਰ ਰੱਖੋ।)
+                        </p>
                     </div>
                 </div>
             </div>
         </div>
 
-        <!-- 3. SCROLLABLE CONTENT AREA -->
+        <!-- SCROLLABLE CONTENT AREA -->
         <main class="main-scroll-area">
             <div class="container">
                 <div id="publicGrid" class="grid">Loading Hukamnama...</div>
@@ -60,12 +67,12 @@
         </main>
     </div>
 
-    <!-- About and Contact sections preserved inside the scroll area logic -->
+    <!-- About and Contact sections -->
     <div id="about-section" class="main-scroll-area hidden">
         <div class="container">
             <div class="card">
                 <h2>About www.Larivaarbani.org</h2>
-                <p>Larivaarbani is a digital platform dedicated to the preservation and promotion of <strong>Larivaar Gurbani</strong>.</p>
+                <p>Larivaarbani is a digital platform dedicated to the preservation and promotion of <strong>Larivaar Gurbani</strong> (continuous form).</p>
                 <button class="btn-primary" onclick="showSection('home')">Back to Home</button>
             </div>
         </div>
@@ -83,7 +90,6 @@
 
     <script src="app.js"></script>
     <script>
-        // Date initialization logic
         const today = new Date();
         const localDate = today.getFullYear() + '-' 
             + String(today.getMonth() + 1).padStart(2, '0') + '-' 
@@ -96,9 +102,9 @@
         }
 
         function showSection(id) {
-            const sections = ['home', 'about', 'contact'];
-            sections.forEach(s => {
-                document.getElementById(s + '-section').classList.add('hidden');
+            ['home', 'about', 'contact'].forEach(s => {
+                const el = document.getElementById(s + '-section');
+                if(el) el.classList.add('hidden');
             });
             document.getElementById(id + '-section').classList.remove('hidden');
         }
