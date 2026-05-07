@@ -570,8 +570,8 @@ async function copyVaak(gurudwara, location, verse, ang, hDate) {
     
     // HEAVIER BORDER SYMBOLS: Using bold markers (*) and thicker lines (━)
     // These appear "larger" and "bolder" in WhatsApp
-    const borderTop    = "*✨ ━━━━━━━━━ ☬☬☬ ━━━━━━━━━━ ✨*";
-    const borderBottom = "*✨ ━━━━━━━━━ ☬☬☬ ━━━━━━━━━━ ✨*";
+    const borderTop    = "*✨ ━━ ☬☬☬ ━━ ✨*";
+    const borderBottom = "*✨ ━━ ☬☬☬ ━━ ✨*";
 
     const text = `${borderTop}\n\n` +
                  `*Daily Hukamnama*\n` +
