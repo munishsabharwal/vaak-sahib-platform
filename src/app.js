@@ -568,13 +568,12 @@ async function copyVaak(gurudwara, location, verse, ang, hDate) {
 
     const cleanVerse = verse.trim();
     
-    // Decorative Border Symbols
-    const borderTop = "❀ ═══ ☬ ═══ ❀";
-    const borderSide = "║";
-    const borderBottom = "❀ ═══ ❃ ═══ ❀";
+    // HEAVIER BORDER SYMBOLS: Using bold markers (*) and thicker lines (━)
+    // These appear "larger" and "bolder" in WhatsApp
+    const borderTop    = "*✨ ━━━━━━━━━ ☬☬☬ ━━━━━━━━━━ ✨*";
+    const borderBottom = "*✨ ━━━━━━━━━ ☬☬☬ ━━━━━━━━━━ ✨*";
 
-    // Format the text with a "frame" effect
-    const text = `${borderTop}\n` +
+    const text = `${borderTop}\n\n` +
                  `*Daily Hukamnama*\n` +
                  `*www.Larivaarbani.org*\n\n` +
                  `📍 *From:* *${gurudwara}*\n` +
@@ -582,11 +581,11 @@ async function copyVaak(gurudwara, location, verse, ang, hDate) {
                  `🔢 *Ang:* ${ang}\n\n` +
                  `${cleanVerse}\n\n` +
                  `${borderBottom}\n\n` +
-                 `ℹ️ *Tip:* Visit Larivaarbani.org for Larivaar mode (highlight words by clicking).`;
+                 `ℹ️ *Reading Tip:* Visit www.Larivaarbani.org for Larivaar mode. Hover or click individual words for easier reading and better understanding.`;
 
     try {
         await navigator.clipboard.writeText(text);
-        alert("✅ Formatted Vaak with border copied!");
+        alert("✅ Formatted Vaak with bold border copied!");
     } catch (err) {
         console.error("Clipboard Error:", err);
         alert("❌ Failed to copy.");
