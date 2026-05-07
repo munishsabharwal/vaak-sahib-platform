@@ -563,30 +563,30 @@ async function copyVaak(gurudwara, location, verse, ang, hDate) {
     const dateParts = rawDate.split('-');
     const dateObj = new Date(dateParts[0], dateParts[1] - 1, dateParts[2]);
     const dateDisplay = dateObj.toLocaleDateString('en-US', { 
-        year: 'numeric', 
-        month: 'long', 
-        day: 'numeric' 
+        year: 'numeric', month: 'long', day: 'numeric' 
     });
 
     const cleanVerse = verse.trim();
+    
+    // Decorative Border Symbols
+    const borderTop = "❀ ═══ ☬ ═══ ❀";
+    const borderSide = "║";
+    const borderBottom = "❀ ═══ ❃ ═══ ❀";
 
-    const iconBook = "\u{1F4D6}";
-    const iconPin  = "\u{1F4CD}";
-    const iconCal  = "\u{1F4C5}";
-    const iconNum  = "\u{1F522}";
-    const iconInfo = "\u{2139}\u{FE0F}"; // Information icon
-
-    const text = `${iconBook} *Daily Hukamnama by www.Larivaarbani.org*\n\n` +
-                 `${iconPin} *From:* *${gurudwara}*, ${location}\n` +
-                 `${iconCal} *Date:* ${dateDisplay}\n` +
-                 `${iconNum} *Ang:* ${ang}\n\n` +
+    // Format the text with a "frame" effect
+    const text = `${borderTop}\n` +
+                 `*Daily Hukamnama*\n` +
+                 `*www.Larivaarbani.org*\n\n` +
+                 `📍 *From:* *${gurudwara}*\n` +
+                 `📅 *Date:* ${dateDisplay}\n` +
+                 `🔢 *Ang:* ${ang}\n\n` +
                  `${cleanVerse}\n\n` +
-                 `---\n` +
-                 `${iconInfo} *Reading Tip:* Visit www.Larivaarbani.org for Larivaar mode. Hover or click individual words for easier reading and better understanding.`;
+                 `${borderBottom}\n\n` +
+                 `ℹ️ *Tip:* Visit Larivaarbani.org for Larivaar mode (highlight words by clicking).`;
 
     try {
         await navigator.clipboard.writeText(text);
-        alert("✅ Formatted Vaak copied to clipboard!");
+        alert("✅ Formatted Vaak with border copied!");
     } catch (err) {
         console.error("Clipboard Error:", err);
         alert("❌ Failed to copy.");
