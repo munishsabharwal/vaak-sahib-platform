@@ -573,13 +573,13 @@ async function copyVaak(gurudwara, location, verse, ang, hDate) {
     const borderTop    = "*✨ ━━ ☬☬☬ ━━ ✨*";
     const borderBottom = "*✨ ━━ ☬☬☬ ━━ ✨*";
 
-    const text = `${borderTop}\n\n` +
-                 `*Daily Hukamnama*\n` +
+    const text = `*Daily Hukamnama*\n` +
                  `*www.Larivaarbani.org*\n\n` +
                  `📍 *From:* *${gurudwara}*\n` +
                  `📅 *Date:* ${dateDisplay}\n` +
                  `🔢 *Ang:* ${ang}\n\n` +
-                 `${cleanVerse}\n\n` +
+                 `${borderTop}\n` +
+                 `${cleanVerse}\n` +
                  `${borderBottom}\n\n` +
                  `ℹ️ *Reading Tip:* Visit www.Larivaarbani.org for Larivaar mode. Hover or click individual words for easier reading and better understanding.`;
 
