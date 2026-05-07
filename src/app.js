@@ -825,7 +825,19 @@ document.addEventListener('DOMContentLoaded', () => {
     // Admin Page
     if (document.getElementById('userDisplay')) {
         initAdmin();
-        // We don't need a manual listener here because 
-        // the HTML has onkeyup="searchLibrary()"
+        
+        // Add the Enter key listener here
+        const searchBox = document.getElementById('libSearch');
+        if (searchBox) {
+            searchBox.addEventListener('keydown', (event) => {
+                if (event.key === 'Enter') {
+                    // Prevent form submission if it's inside a form
+                    event.preventDefault(); 
+                    // Reset to page 1 for a new search
+                    libraryCurrentPage = 1; 
+                    searchLibrary();
+                }
+            });
+        }
     }
 });
