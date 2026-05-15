@@ -77,21 +77,38 @@ function renderPublic(data) {
 
 function populateFilter(data) {
     const select = document.getElementById('gurudwaraFilter');
-    if (!select) return;
+    if (!select || !data) return;
     
-    // Save the current selection before clearing
+    // 1. Capture what is currently selected (if anything)
     const currentSelection = select.value;
     
-    select.innerHTML = '<option value="all">All Gurdwaras</option>'; 
+    // 2. Extract unique names and sort them alphabetically (A-Z)
     const uniques = [...new Set(data.map(i => i.gurudwaraName))];
+    uniques.sort((a, b) => a.localeCompare(b));
+    
+    // 3. Clear and rebuild the dropdown starting with "All"
+    select.innerHTML = '<option value="all">All Gurdwaras</option>'; 
     
     uniques.forEach(g => {
         const opt = document.createElement('option');
-        opt.value = g; // Keep original casing for the value
+        // Set value to lowercase to match the filter logic in renderPublic
+        opt.value = g.toLowerCase(); 
         opt.innerText = g;
-        if (g === currentSelection) opt.selected = true; // Keep it selected
         select.appendChild(opt);
     });
+
+    // 4. Handle Default Selection Logic
+    // If Harmandir Sahib is present and the user hasn't made a manual choice yet (or it's 'all')
+    const hasHarmandir = uniques.some(g => g.toLowerCase() === 'harmandir sahib');
+    
+    if (hasHarmandir && (!currentSelection || currentSelection === 'all')) {
+        select.value = 'harmandir sahib';
+        // Re-trigger render to ensure the "Harmandir Sahib" card shows immediately
+        renderPublic(data); 
+    } else if (currentSelection) {
+        // Otherwise, restore the user's previous selection
+        select.value = currentSelection;
+    }
 }
 
 /* --- ADMIN & AUTH LOGIC --- */
