@@ -77,36 +77,35 @@ function renderPublic(data) {
 
 function populateFilter(data) {
     const select = document.getElementById('gurudwaraFilter');
-    if (!select || !data) return;
+    if (!select || !data || data.length === 0) return;
     
-    // 1. Capture what is currently selected (if anything)
+    // 1. Capture current selection to avoid jumping if user is interacting
     const currentSelection = select.value;
     
-    // 2. Extract unique names and sort them alphabetically (A-Z)
+    // 2. Get unique names and sort them alphabetically
     const uniques = [...new Set(data.map(i => i.gurudwaraName))];
     uniques.sort((a, b) => a.localeCompare(b));
     
-    // 3. Clear and rebuild the dropdown starting with "All"
+    // 3. Rebuild the dropdown
     select.innerHTML = '<option value="all">All Gurdwaras</option>'; 
-    
-    uniques.forEach(g => {
+    uniques.forEach(name => {
         const opt = document.createElement('option');
-        // Set value to lowercase to match the filter logic in renderPublic
-        opt.value = g.toLowerCase(); 
-        opt.innerText = g;
+        opt.value = name.toLowerCase(); 
+        opt.innerText = name;
         select.appendChild(opt);
     });
 
-    // 4. Handle Default Selection Logic
-    // If Harmandir Sahib is present and the user hasn't made a manual choice yet (or it's 'all')
-    const hasHarmandir = uniques.some(g => g.toLowerCase() === 'harmandir sahib');
-    
+    // 4. Default Logic: Target "Sachkhand Sri Harmandir Sahib"
+    const targetName = "sachkhand sri harmandir sahib";
+    const hasHarmandir = uniques.some(n => n.toLowerCase() === targetName);
+
+    // If it's the first load (value is "all" or empty) and Harmandir Sahib exists in the data
     if (hasHarmandir && (!currentSelection || currentSelection === 'all')) {
-        select.value = 'harmandir sahib';
-        // Re-trigger render to ensure the "Harmandir Sahib" card shows immediately
-        renderPublic(data); 
+        select.value = targetName;
+        // Re-run render to show only the Harmandir Sahib card by default
+        renderPublic(data);
     } else if (currentSelection) {
-        // Otherwise, restore the user's previous selection
+        // Otherwise, maintain whatever the user had selected
         select.value = currentSelection;
     }
 }
