@@ -82,32 +82,58 @@ button {
     display: none !important;
 }
 
-/* --- 4. Sticky Layout Enhancements --- */
+/* --- 4. Cross-Browser Sticky Alignment Engine --- */
 header {
     position: sticky;
     top: 0;
+    height: 95px; /* Strict uniform footprint across Safari, Chrome, and Firefox */
+    box-sizing: border-box;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
     background: rgba(255, 255, 255, 0.95) !important;
     backdrop-filter: blur(12px);
     -webkit-backdrop-filter: blur(12px);
     z-index: 1100;
-    padding: 15px 10px 10px 10px;
+    padding: 10px;
     margin-bottom: 0px !important;
     border-bottom: 1px solid rgba(214, 175, 55, 0.2);
     border-radius: 0 0 12px 12px;
-    text-align: center;
     box-shadow: 0 4px 12px rgba(0,0,0,0.05);
 }
 
 .brand-title {
     color: #d4af37; 
     text-shadow: 1px 1px 2px rgba(0,0,0,0.2); 
-    margin-bottom: 10px;
+    margin: 0 0 4px 0 !important; /* Controlled layout margins */
+    font-size: 1.9rem;
+    line-height: 1.1;
+}
+
+.public-nav {
+    margin: 0 !important;
+    font-weight: 600;
+    font-size: 0.95rem;
+    line-height: 1.2;
+}
+
+.public-nav a {
+    text-decoration: none;
+    color: #2c3e50;
+    margin: 0 12px;
+    cursor: pointer;
+    transition: color 0.2s ease;
+}
+
+.public-nav a:hover {
+    color: #d4af37;
 }
 
 /* Sticky Input bar configuration */
 .sticky-controls-wrapper {
     position: sticky;
-    top: 86px; /* Sits cleanly beneath the desktop main header */
+    top: 95px; /* Lockstep alignment with the header bottom edge */
     z-index: 1000;
     margin-top: 15px;
     margin-bottom: 0px !important;
@@ -117,7 +143,6 @@ header {
     box-shadow: 0 4px 12px rgba(0,0,0,0.05);
 }
 
-/* Smart proportions inside sticky bar on tight layouts */
 .sticky-controls-wrapper .flex-row input[type="date"] {
     flex: 1;
     min-width: 130px;
@@ -135,17 +160,30 @@ header {
     background: rgba(255, 255, 255, 0.75);
 }
 
-/* Mobile responsive scaling for the stacked sticky zones */
+/* Mobile responsive scaling zone */
 @media screen and (max-width: 480px) {
     header {
-        padding: 10px 5px 8px 5px;
+        height: 75px; /* Compact boundary layout for mobile devices */
+        padding: 6px 5px;
     }
     .brand-title {
         font-size: 1.4rem;
-        margin-bottom: 4px;
+        margin: 0 0 2px 0 !important;
+    }
+    .public-nav {
+        display: flex;
+        justify-content: center;
+        flex-wrap: nowrap;
+        gap: 5px;
+        font-size: 0.8rem;
+        margin: 0 !important;
+    }
+    .public-nav a {
+        margin: 0 4px;
+        white-space: nowrap;
     }
     .sticky-controls-wrapper {
-        top: 67px; /* Matches lower mobile header height smoothly */
+        top: 75px; /* Perfectly realigned to mobile header bounds */
         margin-top: 10px;
         padding: 10px;
     }
@@ -270,29 +308,6 @@ header {
     font-size: 0.8rem;
 }
 
-/* --- 7. Public Navigation --- */
-.public-nav {
-    margin-top: 10px;
-    font-weight: 600;
-    font-size: 0.95rem;
-}
-
-.public-nav a {
-    text-decoration: none;
-    color: #2c3e50;
-    margin: 0 12px;
-    cursor: pointer;
-    transition: color 0.2s ease;
-}
-
-.public-nav a:hover {
-    color: #d4af37;
-}
-
-.hidden {
-    display: none !important;
-}
-
 .highlight {
     background-color: yellow;
     font-weight: bold;
@@ -320,19 +335,4 @@ header {
     border-radius: 3px;
     display: inline-block;
     color: #000;
-}
-
-@media screen and (max-width: 480px) {
-    .public-nav {
-        display: flex;
-        justify-content: center;
-        flex-wrap: nowrap;
-        gap: 5px;
-        font-size: 0.8rem;
-    }
-
-    .public-nav a {
-        margin: 0 4px;
-        white-space: nowrap;
-    }
 }
