@@ -4,9 +4,8 @@ body {
     line-height: 1.6;
     margin: 0;
     padding: 0;
-/* ADD THESE LINES FOR THE BACKGROUND */
     background-image: url('background.png');
-    background-attachment: fixed; /* Keeps the temple in place while scrolling */
+    background-attachment: fixed;
     background-position: center;
     background-repeat: no-repeat;
     background-size: cover;
@@ -18,7 +17,6 @@ h1, h2, h3 { margin-top: 0; color: #2c3e50; }
     max-width: 1000px;
     margin: 0 auto;
     padding: 20px;
-/* SEMI-TRANSPARENT OVERLAY: Ensures text is readable over the image */
     background-color: rgba(255, 255, 255, 0.4); 
     min-height: 100vh;
 }
@@ -26,12 +24,11 @@ h1, h2, h3 { margin-top: 0; color: #2c3e50; }
 /* --- 2. Layouts (Grid & Flex) --- */
 .grid {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(350px, 1fr)); /* Automatically fits columns based on screen width */
+    grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
     gap: 20px;
-    justify-content: center; /* Centers cards if there is extra space */
+    justify-content: center;
 }
 
-/* New: Centering logic when only one card exists */
 .single-card-layout {
     display: flex !important;
     justify-content: center;
@@ -39,7 +36,7 @@ h1, h2, h3 { margin-top: 0; color: #2c3e50; }
 
 .single-card-layout .card {
     width: 100%;
-    max-width: 700px; /* Prevents a single card from becoming too wide on desktop */
+    max-width: 700px;
 }
 
 .flex-row {
@@ -48,17 +45,13 @@ h1, h2, h3 { margin-top: 0; color: #2c3e50; }
 }
 
 /* --- 3. UI Components --- */
-/* --- Improved Card Look --- */
 .card {
-    /* Lowered opacity to 0.65 for a transparent look */
     background: rgba(255, 255, 255, 0.8); 
     padding: 20px;
     border-radius: 12px;
-    /* Soft shadow to maintain depth against the image background */
     box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1); 
     border: 1px solid rgba(255, 255, 255, 0.3);
     margin-bottom: 20px;
-    /* Crucial: This blurs the background behind the card for a high-end feel */
     backdrop-filter: blur(10px); 
     -webkit-backdrop-filter: blur(10px);
 }
@@ -89,7 +82,76 @@ button {
     display: none !important;
 }
 
-/* --- 4. Admin Tabs --- */
+/* --- 4. Sticky Layout Enhancements --- */
+header {
+    position: sticky;
+    top: 0;
+    background: rgba(255, 255, 255, 0.95) !important;
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    z-index: 1100;
+    padding: 15px 10px 10px 10px;
+    margin-bottom: 0px !important;
+    border-bottom: 1px solid rgba(214, 175, 55, 0.2);
+    border-radius: 0 0 12px 12px;
+    text-align: center;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+}
+
+.brand-title {
+    color: #d4af37; 
+    text-shadow: 1px 1px 2px rgba(0,0,0,0.2); 
+    margin-bottom: 10px;
+}
+
+/* Sticky Input bar configuration */
+.sticky-controls-wrapper {
+    position: sticky;
+    top: 86px; /* Sits cleanly beneath the desktop main header */
+    z-index: 1000;
+    margin-top: 15px;
+    margin-bottom: 0px !important;
+    border-bottom-left-radius: 0px !important;
+    border-bottom-right-radius: 0px !important;
+    background: rgba(255, 255, 255, 0.95) !important;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+}
+
+/* Smart proportions inside sticky bar on tight layouts */
+.sticky-controls-wrapper .flex-row input[type="date"] {
+    flex: 1;
+    min-width: 130px;
+}
+.sticky-controls-wrapper .flex-row select {
+    flex: 2;
+}
+
+/* Options frame that snaps seamlessly under sticky elements */
+.filter-options-card {
+    border-top-left-radius: 0px !important;
+    border-top-right-radius: 0px !important;
+    border-top: none !important;
+    margin-bottom: 25px;
+    background: rgba(255, 255, 255, 0.75);
+}
+
+/* Mobile responsive scaling for the stacked sticky zones */
+@media screen and (max-width: 480px) {
+    header {
+        padding: 10px 5px 8px 5px;
+    }
+    .brand-title {
+        font-size: 1.4rem;
+        margin-bottom: 4px;
+    }
+    .sticky-controls-wrapper {
+        top: 67px; /* Matches lower mobile header height smoothly */
+        margin-top: 10px;
+        padding: 10px;
+    }
+}
+
+/* --- 5. Admin Tabs --- */
 .tabs {
     display: flex;
     gap: 10px;
@@ -108,30 +170,21 @@ button {
 
 @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
 
-/* --- 5. Gurmukhi & Verse Styling --- */
+/* --- 6. Gurmukhi & Verse Styling --- */
 @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+Gurmukhi:wght@400;700&display=swap');
 
 .gurmukhi {
-    /* Use a high-quality system font stack for Gurmukhi if Noto is too much */
     font-family: 'Noto Sans Gurmukhi', "Arial Unicode MS", sans-serif;
-    
-    /* Reduced from 1.8rem to 1.4rem for a cleaner look */
     font-size: 1.4rem; 
-    
-    /* Tightened line height (was 2.4, now 1.8) to keep matras visible but text compact */
     line-height: 1.8 !important; 
-    
     text-align: center;
-    /* Pure black for maximum contrast against the image */
     color: #000000;
     padding: 10px 0;
     font-weight: 500;
-    /* Decorative side borders similar to traditional manuscripts */
     border-left: 2px double #d4af37; 
     border-right: 2px double #d4af37;
 }
 
-/* On very small mobile screens, drop the size just a bit more */
 @media (max-width: 480px) {
     .gurmukhi {
         font-size: 1.25rem;
@@ -139,16 +192,14 @@ button {
     }
 }
 
-/* Ensure this is in your style.css  for merge word highlighting*/
 .gurmukhi.merged span {
     display: inline;
     padding: 0;
     margin: 0;
 }
 
-/* This is the part that actually "highlights" on hover */
 .gurmukhi.merged span:hover {
-    background-color: rgba(255, 215, 0, 0.4); /* Gold highlight */
+    background-color: rgba(255, 215, 0, 0.4); 
     cursor: pointer;
 }
 
@@ -156,7 +207,7 @@ button {
 .library-table {
     width: 100%;
     border-collapse: collapse;
-    table-layout: fixed; /* Ensures headers align with cells */
+    table-layout: fixed;
     margin-top: 10px;
 }
 
@@ -167,13 +218,11 @@ button {
     vertical-align: top;
 }
 
-/* Updated Column Widths using percentages to prevent disappearing columns */
 .col-ang { width: 10%; font-weight: bold; }
-.col-verse { width: 55%; } /* Give the verse the majority of the space */
+.col-verse { width: 55%; }
 .col-keywords { width: 15%; color: #666; font-size: 0.9rem; }
 .col-actions { width: 20%; text-align: right; }
 
-/* Ensure the preview container fills the 55% width */
 .verse-preview {
     display: block;
     width: 100%; 
@@ -185,13 +234,13 @@ button {
     border-radius: 4px;
     transition: all 0.2s ease;
     border: 1px solid transparent;
-    box-sizing: border-box; /* Ensures padding doesn't push width over 100% */
+    box-sizing: border-box;
 }
 
 .verse-preview.expanded {
     white-space: normal;
     overflow: visible;
-    background-color: #fffdf0; /* Subtle highlight */
+    background-color: #fffdf0;
     border: 1px solid #107c10;
     box-shadow: 0 4px 6px rgba(0,0,0,0.1);
     font-size: 1.2rem;
@@ -199,9 +248,8 @@ button {
     padding: 15px;
 }
 
-/* Share Button Styling */
 .btn-share {
-    background-color: #25D366; /* WhatsApp Green */
+    background-color: #25D366;
     color: white;
     font-size: 0.75rem;
     padding: 6px 12px;
@@ -222,7 +270,7 @@ button {
     font-size: 0.8rem;
 }
 
-/* --- 6. Public Navigation --- */
+/* --- 7. Public Navigation --- */
 .public-nav {
     margin-top: 10px;
     font-weight: 600;
@@ -241,56 +289,50 @@ button {
     color: #d4af37;
 }
 
-/* Ensure the hidden class is robust */
 .hidden {
     display: none !important;
 }
 
-/* Make highlighted words bold */
 .highlight {
     background-color: yellow;
-    font-weight: bold; /* This adds the bold effect */
+    font-weight: bold;
     padding: 0 2px;
     border-radius: 2px;
 }
 
-/* Create the transparent "Frosted Glass" effect for the filter frame */
 .filter-card {
-    background: rgba(255, 255, 255, 0.7) !important; /* 70% transparent white */
-    backdrop-filter: blur(10px); /* Blurs the background image behind the frame */
+    background: rgba(255, 255, 255, 0.7) !important;
+    backdrop-filter: blur(10px);
     -webkit-backdrop-filter: blur(10px);
     border: 1px solid rgba(255, 255, 255, 0.3);
     box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
 }
 
-/* This ONLY adds the yellow tint to specific cards */
 .transparent-card {
     background: rgba(255, 253, 231, 0.85) !important; 
     border: 1px solid rgba(212, 175, 55, 0.3) !important;
 }
 
-/* This makes the word 'WORD' in your tip look like the Gurbani hover effect */
 .tip-highlight {
-    background-color: rgba(255, 215, 0, 0.4); /* Gold highlight matching your .merged span:hover */
+    background-color: rgba(255, 215, 0, 0.4);
     font-weight: bold;
     padding: 0 4px;
     border-radius: 3px;
     display: inline-block;
-    color: #000; /* Ensures text is black on the yellow background */
+    color: #000;
 }
 
-/* Specific fix for the Larivaarbani.org Public Navigation on Mobile */
 @media screen and (max-width: 480px) {
     .public-nav {
         display: flex;
         justify-content: center;
-        flex-wrap: nowrap; /* Forces one line */
-        gap: 5px; /* Tighter gap between items */
-        font-size: 0.8rem; /* Smaller font for small screens */
+        flex-wrap: nowrap;
+        gap: 5px;
+        font-size: 0.8rem;
     }
 
     .public-nav a {
-        margin: 0 4px; /* Reduces the side margins significantly */
-        white-space: nowrap; /* Prevents 'Contact Us' from breaking into two lines */
+        margin: 0 4px;
+        white-space: nowrap;
     }
 }
