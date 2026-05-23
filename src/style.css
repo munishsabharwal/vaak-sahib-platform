@@ -17,7 +17,8 @@ h1, h2, h3 { margin-top: 0; color: #2c3e50; }
     max-width: 1000px;
     margin: 0 auto;
     padding: 20px;
-    background-color: rgba(255, 255, 255, 0.4); 
+    /* FIX: Clear the muddy white overlay so the background details are fully visible */
+    background-color: transparent !important; 
     min-height: 100vh;
 }
 
@@ -45,15 +46,19 @@ h1, h2, h3 { margin-top: 0; color: #2c3e50; }
 }
 
 /* --- 3. UI Components --- */
+
 .card {
-    background: rgba(255, 255, 255, 0.8); 
+    /* Bumps text contrast to 90% white so reading remains completely effortless */
+    background: rgba(255, 255, 255, 0.9) !important; 
     padding: 20px;
     border-radius: 12px;
-    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1); 
-    border: 1px solid rgba(255, 255, 255, 0.3);
+    /* Lift the card cleanly off your background artwork with a softer, deeper shadow */
+    box-shadow: 0 12px 36px rgba(0, 0, 0, 0.14); 
+    border: 1px solid rgba(255, 255, 255, 0.5);
     margin-bottom: 20px;
-    backdrop-filter: blur(10px); 
-    -webkit-backdrop-filter: blur(10px);
+    /* Softens the image details directly behind the text layout */
+    backdrop-filter: blur(6px); 
+    -webkit-backdrop-filter: blur(6px);
 }
 
 input, select, textarea {
