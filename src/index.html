@@ -7,8 +7,8 @@
 </head>
 <body>
     <div class="container">
-        <header style="text-align: center; margin-bottom: 30px;">
-            <h1 style="color: #d4af37; text-shadow: 1px 1px 2px rgba(0,0,0,0.2); margin-bottom: 10px;">Larivaarbani.org</h1>
+        <header>
+            <h1 class="brand-title">Larivaarbani.org</h1>
             <nav class="public-nav">
                 <a href="#" onclick="showSection('home')">Daily Hukamnama</a> | 
                 <a href="#" onclick="showSection('about')">About Larivaarbani</a> | 
@@ -17,7 +17,7 @@
         </header>
         
         <div id="home-section">
-            <div class="card filter-card" style="margin-bottom: 20px;">
+            <div class="sticky-controls-wrapper filter-card">
                 <div class="flex-row">
                     <input type="date" id="publicDate" onchange="loadPublic()">
                     <select id="gurudwaraFilter" onchange="renderPublic(lastFetchedData)">
@@ -25,8 +25,10 @@
                         <option value="Sachkhand Sri Harmandir Sahib" selected>Sachkhand Sri Harmandir Sahib</option>
                     </select>
                 </div>
-                
-                <div style="margin-top: 15px; padding-top: 10px; border-top: 1px solid #eee;">
+            </div>
+            
+            <div class="card filter-options-card">
+                <div style="padding-top: 5px;">
                     <label style="font-weight: bold; cursor: pointer; display: flex; align-items: center; gap: 10px;">
                         <input type="checkbox" id="mergeWords" onchange="renderPublic(lastFetchedData)" style="width: 20px; height: 20px;"> 
                         Display in Larivaar (ਲੜੀਵਾਰ ਕਰੋ)
