@@ -341,3 +341,94 @@ header {
     display: inline-block;
     color: #000;
 }
+/* --- Single-Line Compact Control Bar --- */
+.filter-row {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    gap: 12px;
+    width: 100%;
+}
+
+.filter-item {
+    display: flex;
+    align-items: center;
+}
+
+.date-item {
+    flex: 0 0 125px;
+}
+
+.select-item {
+    flex: 0 1 240px;
+}
+
+.checkbox-item {
+    flex: 1 1 auto;
+}
+
+/* Force tiny input footprints across Safari and Chrome */
+.filter-row input[type="date"],
+.filter-row select {
+    padding: 4px 8px !important;
+    font-size: 13px !important;
+    height: 28px !important;
+}
+
+.larivaar-label {
+    font-weight: 600;
+    font-size: 0.8rem;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    white-space: nowrap;
+    margin: 0;
+}
+
+.larivaar-label input[type="checkbox"] {
+    width: 14px !important;
+    height: 14px !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    cursor: pointer;
+}
+
+.inline-tip {
+    font-size: 0.7rem;
+    color: #555;
+    font-weight: normal;
+    font-style: italic;
+    margin-left: 4px;
+}
+
+/* Increased transparency so Sri Harmandir Sahib shines through beautifully */
+.filter-card {
+    background: rgba(255, 255, 255, 0.35) !important; 
+    backdrop-filter: blur(6px);
+    -webkit-backdrop-filter: blur(6px);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+}
+
+/* Responsive wrap to prevent screen clipping on iPhone or narrow screens */
+@media screen and (max-width: 768px) {
+    .filter-row {
+        flex-wrap: wrap;
+        gap: 6px;
+    }
+    .date-item {
+        flex: 1 1 110px;
+    }
+    .select-item {
+        flex: 1 1 180px;
+    }
+    .checkbox-item {
+        flex: 1 1 100%;
+        margin-top: 2px;
+    }
+    .inline-tip {
+        display: block;
+        margin-left: 0;
+    }
+}
