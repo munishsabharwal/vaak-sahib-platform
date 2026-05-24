@@ -17,33 +17,28 @@
         </header>
         
         <div id="home-section">
-            <div class="sticky-controls-wrapper filter-card">
-                <div class="flex-row">
-                    <input type="date" id="publicDate" onchange="loadPublic()">
-                    <select id="gurudwaraFilter" onchange="renderPublic(lastFetchedData)">
+            <div class="card filter-card" style="margin-bottom: 15px; padding: 10px 14px;">
+                <div class="flex-row" style="gap: 8px; align-items: center;">
+                    <input type="date" id="publicDate" onchange="loadPublic()" style="padding: 5px 8px; font-size: 14px; height: 32px; flex: 1; max-width: 135px;">
+                    <select id="gurudwaraFilter" onchange="renderPublic(lastFetchedData)" style="padding: 5px 8px; font-size: 14px; height: 32px; flex: 2;">
                         <option value="all">All Gurdwaras</option>
                         <option value="Sachkhand Sri Harmandir Sahib" selected>Sachkhand Sri Harmandir Sahib</option>
                     </select>
                 </div>
-            </div>
-            
-            <div class="card filter-options-card">
-                <div style="padding-top: 5px;">
-                    <label style="font-weight: bold; cursor: pointer; display: flex; align-items: center; gap: 10px;">
-                        <input type="checkbox" id="mergeWords" onchange="renderPublic(lastFetchedData)" style="width: 20px; height: 20px;"> 
+                
+                <div style="margin-top: 6px; padding-top: 5px; border-top: 1px solid rgba(0,0,0,0.06);">
+                    <label style="font-weight: 600; font-size: 0.85rem; cursor: pointer; display: flex; align-items: center; gap: 6px; margin: 0;">
+                        <input type="checkbox" id="mergeWords" onchange="renderPublic(lastFetchedData)" style="width: 15px; height: 15px; margin: 0; cursor: pointer;"> 
                         Display in Larivaar (ਲੜੀਵਾਰ ਕਰੋ)
                     </label>
-                    <p style="font-size: 0.85rem; color: #666; margin-top: 5px; margin-left: 30px; font-style: italic;">
-                        In Larivaar mode, hover / click to highlight the individual 
-                        <span class="tip-highlight">WORD</span> for reading convenience.
-                        <br>
-                        (ਲੜੀਵਾਰ ਮੋਡ ਵਿੱਚ, ਸ਼ਬਦ ਨੂੰ ਦੇਖਣ ਲਈ ਉਸ ਉੱਤੇ ਕਰਸਰ ਰੱਖੋ।)
+                    <p style="font-size: 0.72rem; color: #555; margin: 2px 0 0 21px; line-height: 1.2; font-style: italic;">
+                        Hover/click to highlight individual Larivaar <span class="tip-highlight" style="padding: 0px 3px; font-size: 0.7rem;">WORD</span>. (ਲੜੀਵਾਰ ਸ਼ਬਦ ਦੇਖਣ ਲਈ ਕਰਸਰ ਰੱਖੋ।)
                     </p>
                 </div>
             </div>
             <div id="publicGrid" class="grid">Loading...</div>
         </div>
-
+        
         <div id="about-section" class="card hidden">
             <h2>About www.Larivaarbani.org</h2>
             <p>Larivaarbani is a digital platform dedicated to the preservation and promotion of <strong>Larivaar Gurbani</strong> (continuous form).</p>
