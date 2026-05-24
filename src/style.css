@@ -346,7 +346,8 @@ header {
     display: flex;
     flex-direction: row;
     align-items: center;
-    gap: 12px;
+    justify-content: center; /* 👈 Center aligns all components horizontally */
+    gap: 16px;
     width: 100%;
 }
 
@@ -360,11 +361,11 @@ header {
 }
 
 .select-item {
-    flex: 0 1 240px;
+    flex: 0 0 240px; /* Locked size to prevent asymmetric stretching */
 }
 
 .checkbox-item {
-    flex: 1 1 auto;
+    flex: 0 0 auto; /* Stopped from hoarding space so row blocks shift to exact center */
 }
 
 /* Force tiny input footprints across Safari and Chrome */
@@ -415,20 +416,28 @@ header {
 @media screen and (max-width: 768px) {
     .filter-row {
         flex-wrap: wrap;
-        gap: 6px;
+        justify-content: center; /* Maintain center packing on stack layout */
+        gap: 8px;
     }
     .date-item {
-        flex: 1 1 110px;
+        flex: 0 1 120px;
     }
     .select-item {
-        flex: 1 1 180px;
+        flex: 0 1 200px;
     }
     .checkbox-item {
-        flex: 1 1 100%;
-        margin-top: 2px;
+        flex: 0 0 100%;
+        margin-top: 4px;
+        display: flex;
+        justify-content: center;
+    }
+    .larivaar-label {
+        justify-content: center;
+        width: 100%;
     }
     .inline-tip {
         display: block;
         margin-left: 0;
+        text-align: center;
     }
 }
