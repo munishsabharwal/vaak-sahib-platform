@@ -413,31 +413,37 @@ header {
 }
 
 /* Responsive wrap to prevent screen clipping on iPhone or narrow screens */
+/* Responsive wrap to prevent screen clipping on iPhone or narrow screens */
 @media screen and (max-width: 768px) {
     .filter-row {
         flex-wrap: wrap;
         justify-content: center; /* Maintain center packing on stack layout */
-        gap: 8px;
+        gap: 10px;
     }
     .date-item {
-        flex: 0 1 120px;
+        flex: 0 1 130px;
     }
     .select-item {
-        flex: 0 1 200px;
+        flex: 0 1 210px;
     }
     .checkbox-item {
         flex: 0 0 100%;
-        margin-top: 4px;
+        margin-top: 6px;
         display: flex;
         justify-content: center;
     }
     .larivaar-label {
+        white-space: normal !important; /* 👈 FIX: Allows text to break nicely instead of shooting off-screen */
         justify-content: center;
+        text-align: center;
         width: 100%;
+        max-width: 340px; /* Keeps it perfectly contained within phone viewports */
     }
     .inline-tip {
-        display: block;
+        display: block; /* Drops the English/Punjabi tip onto its own line under the checkbox */
         margin-left: 0;
         text-align: center;
+        font-size: 0.72rem;
+        margin-top: 2px;
     }
 }
