@@ -559,6 +559,8 @@ async function publishVaak(event, libraryItem) {
         });
         if (res.ok) {
             alert("✅ Published successfully!");
+            // smoothly snap the user back to the top
+            window.scrollTo({ top: 0, behavior: 'smooth' });
             if (typeof loadRecentActivity === 'function') loadRecentActivity();
         } else {
             alert("Error: " + await res.text());
