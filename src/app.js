@@ -523,10 +523,9 @@ async function publishVaak(event, libraryItem) {
     if (window.currentUserIsAdmin) {
         const sel = document.getElementById('gurudwaraSelect');
         const opt = sel ? sel.options[sel.selectedIndex] : null;
-        if (!opt || !opt.value) return alert("Please select a Gurudwara from Step 1 first!");
+        if (!opt || !opt.value) return alert("Please select a Gurdwara from Step 1 first!");
         
         gName = opt.value;
-        // This grabs the 'city' we put in 'data-location' in the function above
         gLoc = opt.getAttribute('data-location') || "Unknown";
     } else {
         // For regular editors, use their assigned profile location
@@ -537,8 +536,42 @@ async function publishVaak(event, libraryItem) {
         gLoc = profile.gurudwaraLocation || "Unknown";
     }
 
+    // 🔒 START OF ACCIDENTAL OVERWRITE VALIDATION 
+    btn.disabled = true;
+    try {
+        const checkRes = await fetch(`/api/GetDailyVaak?date=${date}`);
+        if (checkRes.ok) {
+            const existingVaaks = await checkRes.json();
+            // Check if this specific Gurdwara already has a published entry for this date
+            const alreadyPublished = existingVaaks.some(item => item.gurudwaraName.toLowerCase() === gName.toLowerCase());
+            
+            if (alreadyPublished) {
+                if (!window.currentUserIsAdmin) {
+                    // 🛑 Regular Editor Rule: Hard Block
+                    alert(`🚨 Duplicate Check: A Hukamnama for "${gName}" has already been published for ${date}.\n\nTo prevent accidental overwrites, you cannot publish another one. If there is an error or changes are required, please contact a Super Admin.`);
+                    btn.disabled = false;
+                    return; 
+                } else {
+                    // ⚠️ Super Admin Rule: Soft Warning (Allows Override)
+                    const confirmOverride = confirm(`⚠️ Attention Super Admin: A Hukamnama for "${gName}" is already live for ${date}.\n\nAre you sure you want to completely overwrite this existing entry?`);
+                    if (!confirmOverride) {
+                        btn.disabled = false;
+                        return;
+                    }
+                }
+            }
+        }
+    } catch (err) {
+        console.error("Duplicate verification check failed:", err);
+        // Fallback safety layer: if endpoint error happens, let it pass or block as preferred
+    }
+    // 🔒 END OF ACCIDENTAL OVERWRITE VALIDATION
+
     // This popup will now show the City
-    if (!confirm(`Publish to ${gName} (${gLoc}) for ${date}?`)) return;
+    if (!confirm(`Publish to ${gName} (${gLoc}) for ${date}?`)) {
+        btn.disabled = false;
+        return;
+    }
 
     const finalBody = {
         date: date,
@@ -550,7 +583,6 @@ async function publishVaak(event, libraryItem) {
         }
     };
 
-    btn.disabled = true;
     try {
         const res = await fetch('/api/EditorPublish', {
             method: 'POST',
@@ -559,7 +591,6 @@ async function publishVaak(event, libraryItem) {
         });
         if (res.ok) {
             alert("✅ Published successfully!");
-            // smoothly snap the user back to the top
             window.scrollTo({ top: 0, behavior: 'smooth' });
             if (typeof loadRecentActivity === 'function') loadRecentActivity();
         } else {
@@ -571,7 +602,6 @@ async function publishVaak(event, libraryItem) {
         btn.disabled = false;
     }
 }
-
 async function copyVaak(gurudwara, location, verse, ang, hDate) {
     const rawDate = hDate || 
                     document.getElementById('publicDate')?.value || 
